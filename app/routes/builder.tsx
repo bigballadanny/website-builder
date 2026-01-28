@@ -3,18 +3,20 @@
  *
  * Complete flow:
  * 1. Select template
- * 2. Load brand context (mock or real PM data)
- * 3. Generate page with AI
- * 4. Preview and edit
- * 5. Deploy to Cloudflare
+ * 2. Choose styling (colors, fonts)
+ * 3. Enter brand info
+ * 4. Generate page with AI
+ * 5. Preview and edit
+ * 6. Deploy to Cloudflare
  */
 
 import { useState } from 'react';
 import { TemplateSelector } from '~/components/pm/TemplateSelector';
 import { PreviewFrame } from '~/components/pm/PreviewFrame';
 import { type TemplateId, getTemplate } from '~/templates';
+import { colorSchemes, fontOptions, type ColorScheme } from '~/lib/pm/color-schemes';
 
-type BuilderStep = 'template' | 'brand' | 'generating' | 'preview' | 'deploying' | 'deployed';
+type BuilderStep = 'template' | 'styling' | 'brand' | 'generating' | 'preview' | 'deploying' | 'deployed';
 
 interface BrandInfo {
   businessName: string;
@@ -23,11 +25,21 @@ interface BrandInfo {
   problemSolved: string;
   transformation: string;
   callToAction: string;
+  socialProof?: string;
+}
+
+interface StylingOptions {
+  colorScheme: string;
+  font: string;
 }
 
 export default function Builder() {
   const [step, setStep] = useState<BuilderStep>('template');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId | null>(null);
+  const [styling, setStyling] = useState<StylingOptions>({
+    colorScheme: 'midnight-blue',
+    font: 'inter',
+  });
   const [brandInfo, setBrandInfo] = useState<BrandInfo>({
     businessName: '',
     businessDescription: '',
@@ -35,6 +47,7 @@ export default function Builder() {
     problemSolved: '',
     transformation: '',
     callToAction: 'Get Started',
+    socialProof: '',
   });
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
   const [editInstruction, setEditInstruction] = useState('');
@@ -42,9 +55,17 @@ export default function Builder() {
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const selectedScheme = colorSchemes.find(s => s.id === styling.colorScheme);
+  const selectedFont = fontOptions.find(f => f.id === styling.font);
+
   // Handle template selection
   const handleTemplateSelect = (templateId: TemplateId) => {
     setSelectedTemplate(templateId);
+    setStep('styling');
+  };
+
+  // Handle styling continue
+  const handleStylingContinue = () => {
     setStep('brand');
   };
 
@@ -62,6 +83,10 @@ export default function Builder() {
         body: JSON.stringify({
           templateId: selectedTemplate,
           brandInfo,
+          styling: {
+            colorScheme: selectedScheme,
+            font: selectedFont,
+          },
         }),
       });
 
@@ -97,6 +122,10 @@ export default function Builder() {
           currentHtml: generatedHtml,
           instruction: editInstruction,
           brandInfo,
+          styling: {
+            colorScheme: selectedScheme,
+            font: selectedFont,
+          },
         }),
       });
 
@@ -142,6 +171,16 @@ export default function Builder() {
     }
   };
 
+  // Quick edit suggestions
+  const quickEdits = [
+    'Make the headline more urgent',
+    'Change CTA button color to green',
+    'Add more white space',
+    'Make the text larger',
+    'Add a testimonial section',
+    'Make it feel more premium',
+  ];
+
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
       {/* Header */}
@@ -156,20 +195,20 @@ export default function Builder() {
 
           {/* Step Indicator */}
           <div className="flex items-center gap-2 text-sm">
-            {['template', 'brand', 'preview', 'deployed'].map((s, i) => (
+            {['template', 'styling', 'brand', 'preview', 'deployed'].map((s, i) => (
               <div key={s} className="flex items-center">
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                     step === s
                       ? 'bg-[#3b82f6] text-white'
-                      : ['template', 'brand', 'preview', 'deployed'].indexOf(step) > i
+                      : ['template', 'styling', 'brand', 'generating', 'preview', 'deployed'].indexOf(step) > i
                         ? 'bg-green-500 text-white'
                         : 'bg-[#1e3a5f] text-[#64748b]'
                   }`}
                 >
                   {i + 1}
                 </div>
-                {i < 3 && <div className="w-8 h-0.5 bg-[#1e3a5f] mx-1" />}
+                {i < 4 && <div className="w-8 h-0.5 bg-[#1e3a5f] mx-1" />}
               </div>
             ))}
           </div>
@@ -195,15 +234,143 @@ export default function Builder() {
           <TemplateSelector onSelect={handleTemplateSelect} selectedId={selectedTemplate || undefined} />
         )}
 
-        {/* Step 2: Brand Info */}
-        {step === 'brand' && (
-          <div className="max-w-2xl mx-auto">
+        {/* Step 2: Styling Options */}
+        {step === 'styling' && (
+          <div className="max-w-4xl mx-auto">
             <div className="mb-6">
               <button
                 onClick={() => setStep('template')}
                 className="text-[#3b82f6] hover:text-white flex items-center gap-1 text-sm"
               >
                 ← Back to templates
+              </button>
+            </div>
+
+            <h2 className="text-2xl font-bold mb-2">Choose Your Style</h2>
+            <p className="text-[#94a3b8] mb-8">
+              Select a color scheme and font that matches your brand personality.
+            </p>
+
+            {/* Color Schemes */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4">Color Scheme</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {colorSchemes.map((scheme) => (
+                  <button
+                    key={scheme.id}
+                    onClick={() => setStyling({ ...styling, colorScheme: scheme.id })}
+                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                      styling.colorScheme === scheme.id
+                        ? 'border-[#3b82f6] bg-[#132743]'
+                        : 'border-[#1e3a5f] bg-[#0d1f35] hover:border-[#3b82f6]/50'
+                    }`}
+                  >
+                    {/* Color Preview */}
+                    <div className="flex gap-1 mb-3">
+                      <div
+                        className="w-8 h-8 rounded-lg"
+                        style={{ backgroundColor: scheme.colors.primary }}
+                      />
+                      <div
+                        className="w-8 h-8 rounded-lg"
+                        style={{ backgroundColor: scheme.colors.background }}
+                      />
+                      <div
+                        className="w-8 h-8 rounded-lg"
+                        style={{ backgroundColor: scheme.colors.surface }}
+                      />
+                    </div>
+                    <div className="font-medium text-white text-sm">{scheme.name}</div>
+                    <div className="text-xs text-[#64748b]">{scheme.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Font Options */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4">Font Style</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {fontOptions.map((font) => (
+                  <button
+                    key={font.id}
+                    onClick={() => setStyling({ ...styling, font: font.id })}
+                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                      styling.font === font.id
+                        ? 'border-[#3b82f6] bg-[#132743]'
+                        : 'border-[#1e3a5f] bg-[#0d1f35] hover:border-[#3b82f6]/50'
+                    }`}
+                  >
+                    <div
+                      className="text-2xl font-semibold text-white mb-2"
+                      style={{ fontFamily: font.family }}
+                    >
+                      Aa
+                    </div>
+                    <div className="font-medium text-white text-sm">{font.name}</div>
+                    <div className="text-xs text-[#64748b]">{font.style}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Preview */}
+            {selectedScheme && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4">Preview</h3>
+                <div
+                  className="rounded-xl p-6 border"
+                  style={{
+                    backgroundColor: selectedScheme.colors.background,
+                    borderColor: selectedScheme.colors.border,
+                    fontFamily: selectedFont?.family,
+                  }}
+                >
+                  <div
+                    className="rounded-lg p-4 mb-4"
+                    style={{ backgroundColor: selectedScheme.colors.surface }}
+                  >
+                    <h4
+                      className="text-xl font-bold mb-2"
+                      style={{ color: selectedScheme.colors.text }}
+                    >
+                      Your Amazing Headline Here
+                    </h4>
+                    <p style={{ color: selectedScheme.colors.textMuted }}>
+                      This is what your page will look like with these colors.
+                    </p>
+                  </div>
+                  <button
+                    className="px-6 py-3 rounded-lg font-semibold"
+                    style={{
+                      backgroundColor: selectedScheme.colors.primary,
+                      color: '#ffffff',
+                    }}
+                  >
+                    Call to Action
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleStylingContinue}
+              className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              Continue to Brand Info
+            </button>
+          </div>
+        )}
+
+        {/* Step 3: Brand Info */}
+        {step === 'brand' && (
+          <div className="max-w-2xl mx-auto">
+            <div className="mb-6">
+              <button
+                onClick={() => setStep('styling')}
+                className="text-[#3b82f6] hover:text-white flex items-center gap-1 text-sm"
+              >
+                ← Back to styling
               </button>
             </div>
 
@@ -274,6 +441,17 @@ export default function Builder() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium mb-2">Social Proof (optional)</label>
+                <textarea
+                  value={brandInfo.socialProof}
+                  onChange={(e) => setBrandInfo({ ...brandInfo, socialProof: e.target.value })}
+                  className="w-full bg-[#132743] border border-[#1e3a5f] rounded-lg px-4 py-3 text-white placeholder-[#64748b] focus:border-[#3b82f6] focus:outline-none"
+                  placeholder="10,000+ meals delivered, 4.8 stars on Trustpilot, Featured in Forbes..."
+                  rows={2}
+                />
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium mb-2">Call to Action</label>
                 <input
                   type="text"
@@ -295,7 +473,7 @@ export default function Builder() {
           </div>
         )}
 
-        {/* Step 3: Generating */}
+        {/* Step 4: Generating */}
         {step === 'generating' && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 border-4 border-[#3b82f6] border-t-transparent rounded-full animate-spin mb-6" />
@@ -304,7 +482,7 @@ export default function Builder() {
           </div>
         )}
 
-        {/* Step 4: Preview */}
+        {/* Step 5: Preview */}
         {step === 'preview' && (
           <div className="flex gap-6 h-[calc(100vh-200px)]">
             {/* Preview */}
@@ -313,8 +491,24 @@ export default function Builder() {
             </div>
 
             {/* Edit Panel */}
-            <div className="w-80 bg-[#132743] rounded-xl p-5 flex flex-col">
+            <div className="w-96 bg-[#132743] rounded-xl p-5 flex flex-col">
               <h3 className="text-lg font-semibold mb-4">Make Changes</h3>
+
+              {/* Quick Edits */}
+              <div className="mb-4">
+                <p className="text-xs text-[#64748b] mb-2">Quick edits:</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickEdits.map((edit) => (
+                    <button
+                      key={edit}
+                      onClick={() => setEditInstruction(edit)}
+                      className="text-xs bg-[#1e3a5f] hover:bg-[#2d4a6f] text-[#94a3b8] hover:text-white px-2 py-1 rounded transition-colors"
+                    >
+                      {edit}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <textarea
                 value={editInstruction}
@@ -323,7 +517,7 @@ export default function Builder() {
                 placeholder="Describe what you want to change...
 
 Examples:
-• Make the headline more urgent
+• Make the headline bigger and bolder
 • Change CTA button to green
 • Add a testimonial section
 • Make it more professional"
@@ -338,6 +532,25 @@ Examples:
               </button>
 
               <div className="border-t border-[#1e3a5f] pt-4 mt-auto">
+                <button
+                  onClick={() => {
+                    // Download HTML
+                    const blob = new Blob([generatedHtml], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${brandInfo.businessName.toLowerCase().replace(/\s+/g, '-')}.html`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="w-full bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white font-medium py-2 px-4 rounded-lg transition-colors mb-3 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download HTML
+                </button>
+
                 <button
                   onClick={handleDeploy}
                   className="w-full bg-[#22c55e] hover:bg-[#16a34a] text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
@@ -357,7 +570,7 @@ Examples:
           </div>
         )}
 
-        {/* Step 5: Deploying */}
+        {/* Step 6: Deploying */}
         {step === 'deploying' && (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 border-4 border-[#22c55e] border-t-transparent rounded-full animate-spin mb-6" />
@@ -366,7 +579,7 @@ Examples:
           </div>
         )}
 
-        {/* Step 6: Deployed */}
+        {/* Step 7: Deployed */}
         {step === 'deployed' && deployedUrl && (
           <div className="max-w-xl mx-auto text-center py-12">
             <div className="w-20 h-20 bg-[#22c55e] rounded-full flex items-center justify-center mx-auto mb-6">

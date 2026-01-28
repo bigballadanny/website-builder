@@ -23,23 +23,35 @@ if (!import.meta.env.SSR) {
     import.meta.hot?.data.webcontainer ??
     Promise.resolve()
       .then(() => {
+        console.log('[WebContainer] 🚀 Booting WebContainer...');
         return WebContainer.boot({
           coep: 'credentialless',
           workdirName: WORK_DIR_NAME,
           forwardPreviewErrors: true, // Enable error forwarding from iframes
         });
       })
-      .then(async (webcontainer) => {
+      .then(async (wc) => {
+        console.log('[WebContainer] ✅ WebContainer booted successfully');
+        console.log('[WebContainer] 📁 Working directory:', wc.workdir);
         webcontainerContext.loaded = true;
+        
+        // Add listener for port events
+        wc.on('port', (port, type, url) => {
+          console.log('[WebContainer] 🔌 Port event:', { port, type, url });
+        });
+        
+        wc.on('server-ready', (port, url) => {
+          console.log('[WebContainer] 🌐 Server ready:', { port, url });
+        });
 
         const { workbenchStore } = await import('~/lib/stores/workbench');
 
         const response = await fetch('/inspector-script.js');
         const inspectorScript = await response.text();
-        await webcontainer.setPreviewScript(inspectorScript);
+        await wc.setPreviewScript(inspectorScript);
 
         // Listen for preview errors
-        webcontainer.on('preview-message', (message) => {
+        wc.on('preview-message', (message) => {
           console.log('WebContainer preview message:', message);
 
           // Handle both uncaught exceptions and unhandled promise rejections
@@ -56,7 +68,7 @@ if (!import.meta.env.SSR) {
           }
         });
 
-        return webcontainer;
+        return wc;
       });
 
   if (import.meta.hot) {

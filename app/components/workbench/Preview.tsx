@@ -62,6 +62,9 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const hasSelectedPreview = useRef(false);
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
+  
+  // Debug logging
+  console.log('[Preview.tsx] 🖼️ Render - previews:', previews, 'activeIndex:', activePreviewIndex, 'activePreview:', activePreview);
   const [displayPath, setDisplayPath] = useState('/');
   const [iframeUrl, setIframeUrl] = useState<string | undefined>();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -69,6 +72,8 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const [isDeviceModeOn, setIsDeviceModeOn] = useState(false);
   const [widthPercent, setWidthPercent] = useState<number>(37.5);
   const [currentWidth, setCurrentWidth] = useState<number>(0);
+  const [isIframeLoading, setIsIframeLoading] = useState(true);
+  const [iframeError, setIframeError] = useState<string | null>(null);
 
   const resizingState = useRef({
     isResizing: false,
@@ -91,17 +96,36 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const [isExpoQrModalOpen, setIsExpoQrModalOpen] = useState(false);
 
   useEffect(() => {
+    console.log('[Preview.tsx] 🔄 activePreview changed:', activePreview);
     if (!activePreview) {
+      console.log('[Preview.tsx] ⚠️ No active preview, clearing iframe URL');
       setIframeUrl(undefined);
       setDisplayPath('/');
+      setIsIframeLoading(true);
+      setIframeError(null);
 
       return;
     }
 
     const { baseUrl } = activePreview;
+    console.log('[Preview.tsx] ✅ Setting iframe URL to:', baseUrl);
     setIframeUrl(baseUrl);
     setDisplayPath('/');
+    setIsIframeLoading(true);
+    setIframeError(null);
   }, [activePreview]);
+
+  const handleIframeLoad = useCallback(() => {
+    console.log('[Preview.tsx] ✅ Iframe loaded successfully');
+    setIsIframeLoading(false);
+    setIframeError(null);
+  }, []);
+
+  const handleIframeError = useCallback(() => {
+    console.log('[Preview.tsx] ❌ Iframe failed to load');
+    setIsIframeLoading(false);
+    setIframeError('Failed to load preview. The server may have stopped or encountered an error.');
+  }, []);
 
   const findMinPortIndex = useCallback(
     (minIndex: number, preview: { port: number }, index: number, array: { port: number }[]) => {
@@ -119,6 +143,8 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
 
   const reloadPreview = () => {
     if (iframeRef.current) {
+      setIsIframeLoading(true);
+      setIframeError(null);
       iframeRef.current.src = iframeRef.current.src;
     }
   };
@@ -912,6 +938,27 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
         >
           {activePreview ? (
             <>
+              {/* Loading overlay when iframe is loading */}
+              {isIframeLoading && iframeUrl && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-bolt-elements-background-depth-1 z-10">
+                  <div className="i-svg-spinners:90-ring-with-bg text-4xl text-bolt-elements-loader-progress mb-4"></div>
+                  <p className="text-bolt-elements-textSecondary text-sm">Loading preview...</p>
+                </div>
+              )}
+              {/* Error state when iframe fails to load */}
+              {iframeError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-bolt-elements-background-depth-1 z-10">
+                  <div className="i-ph:warning-circle text-4xl text-red-500 mb-4"></div>
+                  <p className="text-bolt-elements-textPrimary text-sm font-medium mb-2">Preview Error</p>
+                  <p className="text-bolt-elements-textSecondary text-sm text-center max-w-md">{iframeError}</p>
+                  <button
+                    onClick={reloadPreview}
+                    className="mt-4 px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
               {isDeviceModeOn && showDeviceFrameInPreview ? (
                 <div
                   className="device-wrapper"
@@ -991,6 +1038,8 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                       src={iframeUrl}
                       sandbox="allow-scripts allow-forms allow-popups allow-modals allow-storage-access-by-user-activation allow-same-origin"
                       allow="cross-origin-isolated"
+                      onLoad={handleIframeLoad}
+                      onError={handleIframeError}
                     />
                   </div>
                 </div>
@@ -1002,6 +1051,8 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                   src={iframeUrl}
                   sandbox="allow-scripts allow-forms allow-popups allow-modals allow-storage-access-by-user-activation allow-same-origin"
                   allow="geolocation; ch-ua-full-version-list; cross-origin-isolated; screen-wake-lock; publickey-credentials-get; shared-storage-select-url; ch-ua-arch; bluetooth; compute-pressure; ch-prefers-reduced-transparency; deferred-fetch; usb; ch-save-data; publickey-credentials-create; shared-storage; deferred-fetch-minimal; run-ad-auction; ch-ua-form-factors; ch-downlink; otp-credentials; payment; ch-ua; ch-ua-model; ch-ect; autoplay; camera; private-state-token-issuance; accelerometer; ch-ua-platform-version; idle-detection; private-aggregation; interest-cohort; ch-viewport-height; local-fonts; ch-ua-platform; midi; ch-ua-full-version; xr-spatial-tracking; clipboard-read; gamepad; display-capture; keyboard-map; join-ad-interest-group; ch-width; ch-prefers-reduced-motion; browsing-topics; encrypted-media; gyroscope; serial; ch-rtt; ch-ua-mobile; window-management; unload; ch-dpr; ch-prefers-color-scheme; ch-ua-wow64; attribution-reporting; fullscreen; identity-credentials-get; private-state-token-redemption; hid; ch-ua-bitness; storage-access; sync-xhr; ch-device-memory; ch-viewport-width; picture-in-picture; magnetometer; clipboard-write; microphone"
+                  onLoad={handleIframeLoad}
+                  onError={handleIframeError}
                 />
               )}
               <ScreenshotSelector
@@ -1011,8 +1062,14 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
               />
             </>
           ) : (
-            <div className="flex w-full h-full justify-center items-center bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary">
-              No preview available
+            <div className="flex flex-col w-full h-full justify-center items-center bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary gap-4">
+              <div className="i-svg-spinners:90-ring-with-bg text-5xl text-bolt-elements-loader-progress"></div>
+              <div className="text-center">
+                <p className="text-lg font-medium mb-2">Waiting for server...</p>
+                <p className="text-sm text-bolt-elements-textSecondary max-w-md">
+                  The development server is starting up. This may take a moment while dependencies are installed.
+                </p>
+              </div>
             </div>
           )}
 

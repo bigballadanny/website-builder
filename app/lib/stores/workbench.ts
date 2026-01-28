@@ -7,7 +7,7 @@ import type { ITerminal } from '~/types/terminal';
 import { unreachable } from '~/utils/unreachable';
 import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
-import { PreviewsStore } from './previews';
+import { PreviewsStore, setPreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
 import JSZip from 'jszip';
 import fileSaver from 'file-saver';
@@ -36,7 +36,13 @@ type Artifacts = MapStore<Record<string, ArtifactState>>;
 export type WorkbenchViewType = 'code' | 'diff' | 'preview';
 
 export class WorkbenchStore {
-  #previewsStore = new PreviewsStore(webcontainer);
+  #previewsStore = (() => {
+    console.log('[WorkbenchStore] 🏗️ Creating PreviewsStore with webcontainer promise');
+    const store = new PreviewsStore(webcontainer);
+    // Register the store as the singleton so usePreviewStore() returns the same instance
+    setPreviewsStore(store);
+    return store;
+  })();
   #filesStore = new FilesStore(webcontainer);
   #editorStore = new EditorStore(this.#filesStore);
   #terminalStore = new TerminalStore(webcontainer);
@@ -80,7 +86,15 @@ export class WorkbenchStore {
   }
 
   addToExecutionQueue(callback: () => Promise<void>) {
-    this.#globalExecutionQueue = this.#globalExecutionQueue.then(() => callback());
+    console.log('[WORKBENCH] 📋 Adding to execution queue');
+    this.#globalExecutionQueue = this.#globalExecutionQueue
+      .then(() => {
+        console.log('[WORKBENCH] 📋 Executing queued callback');
+        return callback();
+      })
+      .catch((error) => {
+        console.error('[WORKBENCH] ❌ Execution queue error:', error);
+      });
   }
 
   get previews() {
@@ -466,9 +480,11 @@ export class WorkbenchStore {
   }
 
   addArtifact({ messageId, title, id, type }: ArtifactCallbackData) {
+    console.log('[WORKBENCH] 🎨 addArtifact called:', { id, title, type, messageId });
     const artifact = this.#getArtifact(id);
 
     if (artifact) {
+      console.log('[WORKBENCH] ⏭️ Artifact already exists:', id);
       return;
     }
 
@@ -476,6 +492,7 @@ export class WorkbenchStore {
       this.artifactIdList.push(id);
     }
 
+    console.log('[WORKBENCH] ✅ Creating new artifact with ActionRunner:', id);
     this.artifacts.setKey(id, {
       id,
       title,
@@ -507,6 +524,7 @@ export class WorkbenchStore {
         },
       ),
     });
+    console.log('[WORKBENCH] ✅ Artifact created successfully:', id);
   }
 
   updateArtifact({ artifactId }: ArtifactCallbackData, state: Partial<ArtifactUpdateState>) {
@@ -523,23 +541,36 @@ export class WorkbenchStore {
     this.artifacts.setKey(artifactId, { ...artifact, ...state });
   }
   addAction(data: ActionCallbackData) {
+    console.log('[WORKBENCH] 📥 addAction queued:', {
+      type: data.action.type,
+      actionId: data.actionId,
+      artifactId: data.artifactId,
+    });
     // this._addAction(data);
 
     this.addToExecutionQueue(() => this._addAction(data));
   }
   async _addAction(data: ActionCallbackData) {
     const { artifactId } = data;
+    console.log('[WORKBENCH] 📥 _addAction executing:', { artifactId, actionId: data.actionId });
 
     const artifact = this.#getArtifact(artifactId);
 
     if (!artifact) {
+      console.error('[WORKBENCH] ❌ Artifact not found:', artifactId);
       unreachable('Artifact not found');
     }
 
+    console.log('[WORKBENCH] ✅ Found artifact, adding action to runner');
     return artifact.runner.addAction(data);
   }
 
   runAction(data: ActionCallbackData, isStreaming: boolean = false) {
+    console.log('[WORKBENCH] 🏃 runAction called:', {
+      type: data.action.type,
+      actionId: data.actionId,
+      isStreaming,
+    });
     if (isStreaming) {
       this.actionStreamSampler(data, isStreaming);
     } else {
@@ -548,22 +579,40 @@ export class WorkbenchStore {
   }
   async _runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { artifactId } = data;
+    console.log('[WORKBENCH] 🏃 _runAction executing:', {
+      type: data.action.type,
+      actionId: data.actionId,
+      artifactId,
+      isStreaming,
+    });
 
     const artifact = this.#getArtifact(artifactId);
 
     if (!artifact) {
+      console.error('[WORKBENCH] ❌ Artifact not found for runAction:', artifactId);
       unreachable('Artifact not found');
     }
 
     const action = artifact.runner.actions.get()[data.actionId];
+    console.log('[WORKBENCH] 🔍 Action state:', {
+      actionExists: !!action,
+      actionExecuted: action?.executed,
+      actionStatus: action?.status,
+    });
 
     if (!action || action.executed) {
+      console.log('[WORKBENCH] ⏭️ Skipping action (not found or already executed)');
       return;
     }
 
     if (data.action.type === 'file') {
+      console.log('[WORKBENCH] 📄 Processing file action:', {
+        filePath: data.action.filePath,
+        contentLength: data.action.content?.length || 0,
+      });
       const wc = await webcontainer;
       const fullPath = path.join(wc.workdir, data.action.filePath);
+      console.log('[WORKBENCH] 📄 Full path:', fullPath);
 
       /*
        * For scoped locks, we would need to implement diff checking here
@@ -582,20 +631,25 @@ export class WorkbenchStore {
       const doc = this.#editorStore.documents.get()[fullPath];
 
       if (!doc) {
+        console.log('[WORKBENCH] 📄 No doc exists, running action to create file');
         await artifact.runner.runAction(data, isStreaming);
       }
 
+      console.log('[WORKBENCH] 📄 Updating editor file');
       this.#editorStore.updateFile(fullPath, data.action.content);
 
       if (!isStreaming && data.action.content) {
+        console.log('[WORKBENCH] 💾 Saving file');
         await this.saveFile(fullPath);
       }
 
       if (!isStreaming) {
+        console.log('[WORKBENCH] ✅ Running final action');
         await artifact.runner.runAction(data);
         this.resetAllFileModifications();
       }
     } else {
+      console.log('[WORKBENCH] 🐚 Running non-file action:', data.action.type);
       await artifact.runner.runAction(data);
     }
   }

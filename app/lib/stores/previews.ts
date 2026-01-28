@@ -167,11 +167,13 @@ export class PreviewsStore {
   }
 
   async #init() {
+    console.log('[PreviewsStore] 🔧 Initializing PreviewsStore, waiting for WebContainer...');
     const webcontainer = await this.#webcontainer;
+    console.log('[PreviewsStore] ✅ WebContainer resolved, setting up listeners...');
 
     // Listen for server ready events
     webcontainer.on('server-ready', (port, url) => {
-      console.log('[Preview] Server ready on port:', port, url);
+      console.log('[PreviewsStore] 🎯 SERVER-READY EVENT on port:', port, 'url:', url);
       this.broadcastUpdate(url);
 
       // Initial storage sync when preview is ready
@@ -180,9 +182,11 @@ export class PreviewsStore {
 
     // Listen for port events
     webcontainer.on('port', (port, type, url) => {
+      console.log('[PreviewsStore] 🔌 PORT EVENT:', { port, type, url });
       let previewInfo = this.#availablePreviews.get(port);
 
       if (type === 'close' && previewInfo) {
+        console.log('[PreviewsStore] ❌ Port closed, removing preview for port:', port);
         this.#availablePreviews.delete(port);
         this.previews.set(this.previews.get().filter((preview) => preview.port !== port));
 
@@ -195,17 +199,21 @@ export class PreviewsStore {
         previewInfo = { port, ready: type === 'open', baseUrl: url };
         this.#availablePreviews.set(port, previewInfo);
         previews.push(previewInfo);
+        console.log('[PreviewsStore] ➕ New preview added:', previewInfo);
       }
 
       previewInfo.ready = type === 'open';
       previewInfo.baseUrl = url;
 
+      console.log('[PreviewsStore] 📊 Updating previews atom with:', [...previews]);
       this.previews.set([...previews]);
 
       if (type === 'open') {
         this.broadcastUpdate(url);
       }
     });
+    
+    console.log('[PreviewsStore] ✅ Listeners set up complete');
   }
 
   // Helper to extract preview ID from URL
@@ -297,16 +305,25 @@ export class PreviewsStore {
   }
 }
 
-// Create a singleton instance
+// Create a singleton instance - this is correctly initialized via workbenchStore
 let previewsStore: PreviewsStore | null = null;
 
-export function usePreviewStore() {
+export function setPreviewsStore(store: PreviewsStore) {
+  console.log('[PreviewsStore] 🔗 Setting singleton previewsStore reference');
+  previewsStore = store;
+}
+
+export function usePreviewStore(): PreviewsStore {
   if (!previewsStore) {
-    /*
-     * Initialize with a Promise that resolves to WebContainer
-     * This should match how you're initializing WebContainer elsewhere
-     */
-    previewsStore = new PreviewsStore(Promise.resolve({} as WebContainer));
+    console.warn('[PreviewsStore] ⚠️ usePreviewStore called before workbenchStore initialized! This may cause issues.');
+    // Import workbenchStore to ensure it's initialized
+    // This will trigger the PreviewsStore creation in WorkbenchStore
+    const { workbenchStore } = require('~/lib/stores/workbench');
+    // The workbenchStore should have set the previewsStore by now
+    if (!previewsStore) {
+      console.error('[PreviewsStore] ❌ CRITICAL: previewsStore still null after workbenchStore import');
+      throw new Error('PreviewsStore not initialized');
+    }
   }
 
   return previewsStore;

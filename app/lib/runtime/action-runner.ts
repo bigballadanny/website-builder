@@ -90,17 +90,24 @@ export class ActionRunner {
 
   addAction(data: ActionCallbackData) {
     const { actionId } = data;
+    console.log('[ACTION-RUNNER] ➕ addAction called:', {
+      actionId,
+      actionType: data.action.type,
+      filePath: 'filePath' in data.action ? data.action.filePath : undefined,
+    });
 
     const actions = this.actions.get();
     const action = actions[actionId];
 
     if (action) {
+      console.log('[ACTION-RUNNER] ⏭️ Action already exists, skipping:', actionId);
       // action already added
       return;
     }
 
     const abortController = new AbortController();
 
+    console.log('[ACTION-RUNNER] ✅ Adding new action to store:', actionId);
     this.actions.setKey(actionId, {
       ...data.action,
       status: 'pending',
@@ -113,6 +120,7 @@ export class ActionRunner {
     });
 
     this.#currentExecutionPromise.then(() => {
+      console.log('[ACTION-RUNNER] 🔄 Action status -> running:', actionId);
       this.#updateAction(actionId, { status: 'running' });
     });
   }
@@ -120,50 +128,73 @@ export class ActionRunner {
   async runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { actionId } = data;
     const action = this.actions.get()[actionId];
+    console.log('[ACTION-RUNNER] 🎬 runAction called:', {
+      actionId,
+      actionType: action?.type,
+      isStreaming,
+      actionExists: !!action,
+      actionExecuted: action?.executed,
+    });
 
     if (!action) {
+      console.error('[ACTION-RUNNER] ❌ Action not found:', actionId);
       unreachable(`Action ${actionId} not found`);
     }
 
     if (action.executed) {
+      console.log('[ACTION-RUNNER] ⏭️ Action already executed, skipping');
       return; // No return value here
     }
 
     if (isStreaming && action.type !== 'file') {
+      console.log('[ACTION-RUNNER] ⏭️ Streaming non-file action, skipping');
       return; // No return value here
     }
 
+    console.log('[ACTION-RUNNER] 🔄 Updating action state, executing...');
     this.#updateAction(actionId, { ...action, ...data.action, executed: !isStreaming });
 
     this.#currentExecutionPromise = this.#currentExecutionPromise
       .then(() => {
+        console.log('[ACTION-RUNNER] ▶️ Executing action:', actionId);
         return this.#executeAction(actionId, isStreaming);
       })
       .catch((error) => {
+        console.error('[ACTION-RUNNER] ❌ Action execution promise failed:', error);
         logger.error('Action execution promise failed:', error);
       });
 
     await this.#currentExecutionPromise;
+    console.log('[ACTION-RUNNER] ✅ Action execution complete:', actionId);
 
     return;
   }
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {
     const action = this.actions.get()[actionId];
+    console.log('[ACTION-RUNNER] ⚙️ #executeAction:', {
+      actionId,
+      actionType: action?.type,
+      isStreaming,
+      filePath: action?.type === 'file' ? (action as any).filePath : undefined,
+    });
 
     this.#updateAction(actionId, { status: 'running' });
 
     try {
       switch (action.type) {
         case 'shell': {
+          console.log('[ACTION-RUNNER] ⚙️ Dispatching to #runShellAction');
           await this.#runShellAction(action);
           break;
         }
         case 'file': {
+          console.log('[ACTION-RUNNER] ⚙️ Dispatching to #runFileAction');
           await this.#runFileAction(action);
           break;
         }
         case 'supabase': {
+          console.log('[ACTION-RUNNER] ⚙️ Dispatching to handleSupabaseAction');
           try {
             await this.handleSupabaseAction(action as SupabaseAction);
           } catch (error: any) {
@@ -179,6 +210,7 @@ export class ActionRunner {
           break;
         }
         case 'build': {
+          console.log('[ACTION-RUNNER] ⚙️ Dispatching to #runBuildAction');
           const buildOutput = await this.#runBuildAction(action);
 
           // Store build output for deployment
@@ -186,6 +218,7 @@ export class ActionRunner {
           break;
         }
         case 'start': {
+          console.log('[ACTION-RUNNER] ⚙️ Dispatching to #runStartAction');
           // making the start app non blocking
 
           this.#runStartAction(action)
@@ -252,10 +285,16 @@ export class ActionRunner {
       unreachable('Expected shell action');
     }
 
+    console.log('[ACTION-RUNNER] 🐚 #runShellAction started:', {
+      command: action.content,
+    });
+
     const shell = this.#shellTerminal();
+    console.log('[ACTION-RUNNER] 🐚 Waiting for shell to be ready...');
     await shell.ready();
 
     if (!shell || !shell.terminal || !shell.process) {
+      console.error('[ACTION-RUNNER] ❌ Shell terminal not found');
       unreachable('Shell terminal not found');
     }
 
@@ -263,20 +302,26 @@ export class ActionRunner {
     const validationResult = await this.#validateShellCommand(action.content);
 
     if (validationResult.shouldModify && validationResult.modifiedCommand) {
+      console.log('[ACTION-RUNNER] 🐚 Command modified:', action.content, '->', validationResult.modifiedCommand);
       logger.debug(`Modified command: ${action.content} -> ${validationResult.modifiedCommand}`);
       action.content = validationResult.modifiedCommand;
     }
 
+    console.log('[ACTION-RUNNER] 🐚 Executing shell command:', action.content);
     const resp = await shell.executeCommand(this.runnerId.get(), action.content, () => {
       logger.debug(`[${action.type}]:Aborting Action\n\n`, action);
       action.abort();
     });
+    console.log('[ACTION-RUNNER] 🐚 Shell command response:', { exitCode: resp?.exitCode });
     logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`);
 
     if (resp?.exitCode != 0) {
+      console.error('[ACTION-RUNNER] ❌ Shell command failed:', { exitCode: resp?.exitCode, output: resp?.output?.slice(0, 200) });
       const enhancedError = this.#createEnhancedShellError(action.content, resp?.exitCode, resp?.output);
       throw new ActionCommandError(enhancedError.title, enhancedError.details);
     }
+
+    console.log('[ACTION-RUNNER] ✅ Shell action completed successfully');
   }
 
   async #runStartAction(action: ActionState) {
@@ -284,27 +329,38 @@ export class ActionRunner {
       unreachable('Expected shell action');
     }
 
+    console.log('[ACTION-RUNNER] 🚀 #runStartAction started:', {
+      command: action.content,
+    });
+
     if (!this.#shellTerminal) {
+      console.error('[ACTION-RUNNER] ❌ Shell terminal not found');
       unreachable('Shell terminal not found');
     }
 
     const shell = this.#shellTerminal();
+    console.log('[ACTION-RUNNER] 🚀 Waiting for shell to be ready...');
     await shell.ready();
 
     if (!shell || !shell.terminal || !shell.process) {
+      console.error('[ACTION-RUNNER] ❌ Shell terminal components not found');
       unreachable('Shell terminal not found');
     }
 
+    console.log('[ACTION-RUNNER] 🚀 Executing start command:', action.content);
     const resp = await shell.executeCommand(this.runnerId.get(), action.content, () => {
       logger.debug(`[${action.type}]:Aborting Action\n\n`, action);
       action.abort();
     });
+    console.log('[ACTION-RUNNER] 🚀 Start command response:', { exitCode: resp?.exitCode });
     logger.debug(`${action.type} Shell Response: [exit code:${resp?.exitCode}]`);
 
     if (resp?.exitCode != 0) {
+      console.error('[ACTION-RUNNER] ❌ Start command failed with exit code:', resp?.exitCode);
       throw new ActionCommandError('Failed To Start Application', resp?.output || 'No Output Available');
     }
 
+    console.log('[ACTION-RUNNER] ✅ Start action completed successfully');
     return resp;
   }
 
@@ -313,8 +369,16 @@ export class ActionRunner {
       unreachable('Expected file action');
     }
 
+    console.log('[ACTION-RUNNER] 📄 #runFileAction started:', {
+      filePath: action.filePath,
+      contentLength: action.content?.length || 0,
+    });
+
     const webcontainer = await this.#webcontainer;
+    console.log('[ACTION-RUNNER] 📄 WebContainer ready, workdir:', webcontainer.workdir);
+    
     const relativePath = nodePath.relative(webcontainer.workdir, action.filePath);
+    console.log('[ACTION-RUNNER] 📄 Relative path:', relativePath);
 
     let folder = nodePath.dirname(relativePath);
 
@@ -323,17 +387,23 @@ export class ActionRunner {
 
     if (folder !== '.') {
       try {
+        console.log('[ACTION-RUNNER] 📁 Creating folder:', folder);
         await webcontainer.fs.mkdir(folder, { recursive: true });
+        console.log('[ACTION-RUNNER] 📁 Folder created successfully:', folder);
         logger.debug('Created folder', folder);
       } catch (error) {
+        console.error('[ACTION-RUNNER] ❌ Failed to create folder:', folder, error);
         logger.error('Failed to create folder\n\n', error);
       }
     }
 
     try {
+      console.log('[ACTION-RUNNER] 📝 Writing file:', relativePath, 'content length:', action.content?.length || 0);
       await webcontainer.fs.writeFile(relativePath, action.content);
+      console.log('[ACTION-RUNNER] ✅ File written successfully:', relativePath);
       logger.debug(`File written ${relativePath}`);
     } catch (error) {
+      console.error('[ACTION-RUNNER] ❌ Failed to write file:', relativePath, error);
       logger.error('Failed to write file\n\n', error);
     }
   }

@@ -22,6 +22,7 @@ import type { Snapshot } from './types';
 import { webcontainer } from '~/lib/webcontainer';
 import { detectProjectCommands, createCommandActionsString } from '~/utils/projectCommands';
 import type { ContextAnnotation } from '~/types/context';
+import { setSaving, setSaved, setSaveError } from '~/components/ui/AutoSaveIndicator';
 
 export interface ChatHistoryItem {
   id: string;
@@ -213,9 +214,12 @@ ${value.content}
 
       // localStorage.setItem(`snapshot:${id}`, JSON.stringify(snapshot)); // Remove localStorage usage
       try {
+        setSaving();
         await setSnapshot(db, id, snapshot);
+        setSaved();
       } catch (error) {
         console.error('Failed to save snapshot:', error);
+        setSaveError();
         toast.error('Failed to save chat snapshot.');
       }
     },

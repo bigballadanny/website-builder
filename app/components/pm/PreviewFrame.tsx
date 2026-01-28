@@ -1,6 +1,7 @@
 /**
  * Preview Frame Component
  * Shows the generated website in an iframe with device switching
+ * Includes form handling preview and mobile responsiveness testing
  */
 
 import { useState, useRef, useEffect } from 'react';
@@ -9,6 +10,7 @@ interface PreviewFrameProps {
   html: string;
   css?: string;
   deviceWidth?: 'desktop' | 'tablet' | 'mobile';
+  onFormSubmit?: (data: Record<string, string>) => void;
 }
 
 const deviceWidths = {
@@ -17,12 +19,22 @@ const deviceWidths = {
   mobile: 375,
 };
 
-export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFrameProps) {
+const deviceHeights = {
+  desktop: 800,
+  tablet: 1024,
+  mobile: 667,
+};
+
+export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit }: PreviewFrameProps) {
   const [device, setDevice] = useState(deviceWidth);
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Build complete HTML document
-  const fullHtml = `
+  // Check if HTML already includes DOCTYPE/html tags
+  const isCompleteHtml = html.includes('<!DOCTYPE') || html.includes('<html');
+  
+  // Build complete HTML document only if needed
+  const fullHtml = isCompleteHtml ? html : `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,6 +42,9 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Preview</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     ${css || ''}
     /* PM Base Styles */
@@ -37,10 +52,41 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
       margin: 0;
       font-family: system-ui, -apple-system, sans-serif;
     }
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+    /* Form focus styles */
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
   ${html}
+  <script>
+    // Intercept form submissions for preview
+    document.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => {
+        if (!key.startsWith('_')) { // Ignore honeypot fields
+          data[key] = value;
+        }
+      });
+      // Show success message
+      const successDiv = document.createElement('div');
+      successDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:16px 24px;border-radius:8px;z-index:9999;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+      successDiv.textContent = '✓ Form submitted successfully (preview mode)';
+      document.body.appendChild(successDiv);
+      setTimeout(() => successDiv.remove(), 3000);
+      // Send to parent
+      window.parent.postMessage({ type: 'form-submit', data }, '*');
+    });
+  </script>
 </body>
 </html>
 `;
@@ -58,8 +104,28 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
     }
   }, [fullHtml]);
 
+  // Listen for form submission messages from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'form-submit' && onFormSubmit) {
+        onFormSubmit(event.data.data);
+        setFormSubmitted(true);
+        setTimeout(() => setFormSubmitted(false), 3000);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [onFormSubmit]);
+
   return (
     <div className="pm-preview-container flex flex-col h-full">
+      {/* Form Submission Toast */}
+      {formSubmitted && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
+          ✓ Form submission captured (preview mode)
+        </div>
+      )}
+      
       {/* Device Switcher */}
       <div className="flex items-center justify-between p-3 bg-[#0d1f35] border-b border-[#1e3a5f]">
         <div className="pm-device-switcher flex gap-1">
@@ -160,7 +226,7 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
           style={{
             width: deviceWidths[device],
             maxWidth: '100%',
-            height: device === 'mobile' ? '667px' : device === 'tablet' ? '1024px' : 'auto',
+            height: device === 'desktop' ? 'auto' : `${deviceHeights[device]}px`,
             minHeight: device === 'desktop' ? '600px' : undefined,
           }}
         >
@@ -168,7 +234,7 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
             ref={iframeRef}
             className="w-full h-full border-0"
             title="Website Preview"
-            sandbox="allow-scripts allow-same-origin"
+            sandbox="allow-scripts allow-same-origin allow-forms"
           />
         </div>
       </div>

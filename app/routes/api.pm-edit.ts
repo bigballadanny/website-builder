@@ -2,10 +2,22 @@
  * PM Website Edit API
  *
  * Takes current HTML and natural language instruction, returns updated HTML.
+ * Supports color changes, layout tweaks, content updates, and more.
  */
 
 import type { ActionFunction } from '@remix-run/cloudflare';
 import Anthropic from '@anthropic-ai/sdk';
+import type { ColorScheme } from '~/lib/pm/color-schemes';
+
+interface StylingInput {
+  colorScheme?: ColorScheme;
+  font?: {
+    id: string;
+    name: string;
+    family: string;
+    style: string;
+  };
+}
 
 export const action: ActionFunction = async ({ request, context }) => {
   if (request.method !== 'POST') {
@@ -14,7 +26,7 @@ export const action: ActionFunction = async ({ request, context }) => {
 
   try {
     const body = await request.json();
-    const { currentHtml, instruction, brandInfo } = body as {
+    const { currentHtml, instruction, brandInfo, styling } = body as {
       currentHtml: string;
       instruction: string;
       brandInfo: {
@@ -24,7 +36,9 @@ export const action: ActionFunction = async ({ request, context }) => {
         problemSolved: string;
         transformation: string;
         callToAction: string;
+        socialProof?: string;
       };
+      styling?: StylingInput;
     };
 
     // Get API key
@@ -34,33 +48,67 @@ export const action: ActionFunction = async ({ request, context }) => {
       return new Response('ANTHROPIC_API_KEY not configured', { status: 500 });
     }
 
+    // Get color scheme info for context
+    const colors = styling?.colorScheme?.colors || {
+      background: '#0a1628',
+      surface: '#132743',
+      primary: '#3b82f6',
+      secondary: '#1e3a5f',
+      accent: '#60a5fa',
+      text: '#ffffff',
+      textMuted: '#94a3b8',
+      border: '#1e3a5f',
+    };
+
     // Generate with Claude
     const client = new Anthropic({ apiKey });
 
     const systemPrompt = `You are a website editor for Pocket Marketer.
 You receive an existing HTML page and an edit instruction.
-Apply the edit while maintaining the brand consistency.
+Apply the requested changes while maintaining design consistency.
+
+CRITICAL RULES:
+1. Output ONLY the complete updated HTML - no explanations, no markdown, no code fences
+2. Start directly with <!DOCTYPE html>
+3. Preserve ALL existing structure unless explicitly asked to change it
+4. Keep Tailwind CSS classes consistent
+5. Maintain mobile responsiveness
+6. Keep forms working (don't remove form attributes)
 
 BRAND CONTEXT:
 - Business: ${brandInfo.businessName}
 - Description: ${brandInfo.businessDescription}
 - Customer: ${brandInfo.idealCustomer}
+- CTA: ${brandInfo.callToAction}
 
-OUTPUT FORMAT:
-- Return ONLY the complete updated HTML page
-- Keep all existing structure unless explicitly asked to change
-- Maintain Tailwind CSS styling
-- Keep responsive design
+COLOR PALETTE (reference for "change colors" requests):
+- Primary: ${colors.primary} (use for buttons, links, accents)
+- Background: ${colors.background}
+- Surface: ${colors.surface} (cards, sections)
+- Text: ${colors.text}
+- Muted text: ${colors.textMuted}
 
-IMPORTANT: Output ONLY the HTML, no explanation or markdown code fences.`;
+COMMON EDIT PATTERNS:
+- "make headline bigger" → increase text size classes (text-4xl → text-5xl, etc.)
+- "change colors to blue" → update primary color classes to blue variants
+- "change colors to green" → update primary color classes to green variants  
+- "add more white space" → increase padding/margin (py-8 → py-16, etc.)
+- "make it more professional" → adjust typography, spacing, tone
+- "add testimonial section" → insert new section with placeholder testimonials
+- "make CTA button green" → change button background to green
+
+IMPORTANT: Output complete, valid HTML starting with <!DOCTYPE html>`;
 
     const userPrompt = `CURRENT HTML:
+\`\`\`html
 ${currentHtml}
+\`\`\`
 
 EDIT INSTRUCTION:
-${instruction}
+"${instruction}"
 
-Apply this edit and return the complete updated HTML.`;
+Apply this edit and return the COMPLETE updated HTML page.
+Remember: Output ONLY the HTML, starting with <!DOCTYPE html>`;
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -78,6 +126,16 @@ Apply this edit and return the complete updated HTML.`;
       .replace(/^```html?\n?/i, '')
       .replace(/\n?```$/i, '')
       .trim();
+
+    // Ensure it starts with DOCTYPE
+    if (!html.startsWith('<!DOCTYPE')) {
+      const doctypeIndex = html.indexOf('<!DOCTYPE');
+      if (doctypeIndex > 0) {
+        html = html.substring(doctypeIndex);
+      } else if (html.includes('<html')) {
+        html = '<!DOCTYPE html>\n' + html;
+      }
+    }
 
     return new Response(JSON.stringify({ html }), {
       headers: { 'Content-Type': 'application/json' },

@@ -33,18 +33,30 @@ export class EnhancedStreamingMessageParser extends StreamingMessageParser {
   }
 
   parse(messageId: string, input: string): string {
+    const hasArtifacts = this._hasDetectedArtifacts(input);
+    console.log('[PARSER] 📝 parse called:', {
+      messageId,
+      inputLength: input.length,
+      hasArtifacts,
+      inputPreview: input.slice(0, 200),
+    });
+
     // First try the normal parsing
     let output = super.parse(messageId, input);
 
     // If no artifacts were detected, check for code blocks that should be files
-    if (!this._hasDetectedArtifacts(input)) {
+    if (!hasArtifacts) {
+      console.log('[PARSER] 🔍 No artifacts detected, checking for code blocks...');
       const enhancedInput = this._detectAndWrapCodeBlocks(messageId, input);
 
       if (enhancedInput !== input) {
+        console.log('[PARSER] 🔄 Enhanced input detected, reparsing...');
         // Reset and reparse with enhanced input
         this.reset();
         output = super.parse(messageId, enhancedInput);
       }
+    } else {
+      console.log('[PARSER] ✅ Artifacts detected in input');
     }
 
     return output;

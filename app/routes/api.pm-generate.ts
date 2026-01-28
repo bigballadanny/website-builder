@@ -1,13 +1,24 @@
 /**
  * PM Website Generation API
  *
- * Takes brand info and template, generates a complete landing page.
+ * Takes brand info, template, and styling - generates a complete landing page.
  */
 
 import type { ActionFunction } from '@remix-run/cloudflare';
 import Anthropic from '@anthropic-ai/sdk';
 import { getTemplate, type TemplateId } from '~/templates';
 import type { BrandDNA } from '~/lib/pm/types';
+import type { ColorScheme } from '~/lib/pm/color-schemes';
+
+interface StylingInput {
+  colorScheme?: ColorScheme;
+  font?: {
+    id: string;
+    name: string;
+    family: string;
+    style: string;
+  };
+}
 
 export const action: ActionFunction = async ({ request, context }) => {
   if (request.method !== 'POST') {
@@ -16,7 +27,7 @@ export const action: ActionFunction = async ({ request, context }) => {
 
   try {
     const body = await request.json();
-    const { templateId, brandInfo } = body as {
+    const { templateId, brandInfo, styling } = body as {
       templateId: TemplateId;
       brandInfo: {
         businessName: string;
@@ -25,7 +36,9 @@ export const action: ActionFunction = async ({ request, context }) => {
         problemSolved: string;
         transformation: string;
         callToAction: string;
+        socialProof?: string;
       };
+      styling?: StylingInput;
     };
 
     // Get template
@@ -49,7 +62,7 @@ export const action: ActionFunction = async ({ request, context }) => {
       customerAcquisition: '',
       salesProcess: '',
       objections: '',
-      socialProof: '',
+      socialProof: brandInfo.socialProof || '',
       mainGoal: '',
     };
 
@@ -60,26 +73,65 @@ export const action: ActionFunction = async ({ request, context }) => {
       return new Response('ANTHROPIC_API_KEY not configured', { status: 500 });
     }
 
+    // Build color scheme CSS
+    const colors = styling?.colorScheme?.colors || {
+      background: '#0a1628',
+      surface: '#132743',
+      primary: '#3b82f6',
+      secondary: '#1e3a5f',
+      accent: '#60a5fa',
+      text: '#ffffff',
+      textMuted: '#94a3b8',
+      border: '#1e3a5f',
+    };
+    
+    const fontFamily = styling?.font?.family || 'Inter, system-ui, sans-serif';
+    const isDark = styling?.colorScheme?.isDark ?? true;
+
     // Generate with Claude
     const client = new Anthropic({ apiKey });
 
-    const systemPrompt = `You are a website generator for Pocket Marketer. 
-Generate high-converting, professional marketing pages.
+    const systemPrompt = `You are an expert website generator for Pocket Marketer. 
+Generate high-converting, professional marketing pages with clean HTML.
 
-OUTPUT FORMAT:
-- Return ONLY the complete HTML page
-- Use Tailwind CSS via CDN
-- Include all sections inline (no external files)
-- Make it mobile-responsive
-- Use this color scheme:
-  - Background: #0a1628 (dark navy)
-  - Cards/sections: #132743
-  - Accent: #3b82f6 (blue)
-  - Text: white and #94a3b8 (gray)
+CRITICAL RULES:
+1. Output ONLY raw HTML - no markdown, no code fences, no explanations
+2. Use Tailwind CSS via CDN for styling
+3. Make it MOBILE-FIRST responsive (use sm:, md:, lg: breakpoints)
+4. Include working form with action="https://formspree.io/f/placeholder" method="POST"
+5. Use semantic HTML (header, main, section, footer)
+6. Add proper meta tags and viewport
 
-IMPORTANT: Output ONLY the HTML, no explanation or markdown code fences.`;
+COLOR SCHEME (use these exact colors):
+- Background: ${colors.background}
+- Surface/Cards: ${colors.surface}
+- Primary (buttons, links): ${colors.primary}
+- Secondary: ${colors.secondary}
+- Accent: ${colors.accent}
+- Text: ${colors.text}
+- Muted text: ${colors.textMuted}
+- Borders: ${colors.border}
 
-    const userPrompt = template.prompt(brandDNA);
+TYPOGRAPHY:
+- Font: ${fontFamily}
+- Ensure good contrast and readability
+- Use proper heading hierarchy (h1 > h2 > h3)
+
+MOBILE RESPONSIVENESS:
+- Stack columns on mobile, side-by-side on desktop
+- Ensure touch targets are at least 44x44px
+- Text should be readable without zooming (min 16px base)
+- Forms should be easy to fill on mobile
+
+FORM HANDLING (for lead capture templates):
+- Include name and email fields
+- Use proper input types (type="email")
+- Include honeypot field for spam: <input type="text" name="_gotcha" style="display:none">
+- Submit button should be prominent
+
+IMPORTANT: Start your response directly with <!DOCTYPE html>`;
+
+    const userPrompt = buildUserPrompt(template.id as TemplateId, brandDNA, colors, fontFamily, isDark);
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -98,20 +150,36 @@ IMPORTANT: Output ONLY the HTML, no explanation or markdown code fences.`;
       .replace(/\n?```$/i, '')
       .trim();
 
-    // Ensure it's wrapped in proper HTML structure
-    if (!html.includes('<!DOCTYPE') && !html.includes('<html')) {
-      html = `<!DOCTYPE html>
+    // Ensure it starts with DOCTYPE
+    if (!html.startsWith('<!DOCTYPE') && !html.startsWith('<html')) {
+      // Try to find the start of valid HTML
+      const doctypeIndex = html.indexOf('<!DOCTYPE');
+      const htmlIndex = html.indexOf('<html');
+      if (doctypeIndex > 0) {
+        html = html.substring(doctypeIndex);
+      } else if (htmlIndex > 0) {
+        html = '<!DOCTYPE html>\n' + html.substring(htmlIndex);
+      } else {
+        // Wrap in basic structure
+        html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${brandInfo.businessName}</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: ${fontFamily}; }
+  </style>
 </head>
-<body class="bg-[#0a1628]">
+<body style="background-color: ${colors.background}; color: ${colors.text};">
 ${html}
 </body>
 </html>`;
+      }
     }
 
     return new Response(JSON.stringify({ html }), {
@@ -122,3 +190,163 @@ ${html}
     return new Response(error instanceof Error ? error.message : 'Generation failed', { status: 500 });
   }
 };
+
+function buildUserPrompt(
+  templateId: TemplateId,
+  brandDNA: BrandDNA,
+  colors: Record<string, string>,
+  fontFamily: string,
+  isDark: boolean
+): string {
+  const baseContext = `
+BRAND DETAILS:
+- Business Name: ${brandDNA.companyName}
+- What they do: ${brandDNA.businessDescription}
+- Ideal Customer: ${brandDNA.idealCustomer}
+- Problem Solved: ${brandDNA.problemSolved}
+- Transformation: ${brandDNA.desiredTransformation}
+- CTA: ${brandDNA.callToAction}
+${brandDNA.socialProof ? `- Social Proof: ${brandDNA.socialProof}` : ''}
+
+STYLING:
+- Colors: Background ${colors.background}, Cards ${colors.surface}, Buttons ${colors.primary}, Text ${colors.text}
+- Font: ${fontFamily}
+- Theme: ${isDark ? 'Dark' : 'Light'}
+`;
+
+  switch (templateId) {
+    case 'landing-page':
+      return `${baseContext}
+
+Generate a LANDING PAGE with these sections:
+
+1. HERO SECTION (full viewport height on desktop)
+   - Bold headline addressing customer pain/desire
+   - Subheadline explaining the solution (1-2 sentences)
+   - Primary CTA button: "${brandDNA.callToAction}"
+   - Trust indicator below CTA (if social proof provided)
+
+2. PAIN POINTS SECTION
+   - "Sound familiar?" intro
+   - 3 pain points with icons (use emoji or simple SVG)
+   - Make them feel understood
+
+3. SOLUTION SECTION  
+   - "Here's how we help" intro
+   - 3 simple steps with numbers
+   - Brief description for each
+
+4. BENEFITS SECTION
+   - 3-4 outcome-focused benefits
+   - Use cards with icons
+   - Focus on transformation, not features
+
+5. SOCIAL PROOF (if provided, otherwise use placeholder)
+   - Testimonial cards or trust badges
+   - Customer results/stats
+
+6. FINAL CTA SECTION
+   - Recap the transformation
+   - Same CTA button
+   - Risk reversal (free trial, guarantee, etc.)
+
+7. FOOTER
+   - Logo/company name
+   - Copyright ${new Date().getFullYear()}
+   - Privacy & Terms links (can be # placeholders)
+
+Output complete, valid HTML.`;
+
+    case 'sales-page':
+      return `${baseContext}
+
+Generate a LONG-FORM SALES PAGE with these sections:
+
+1. HERO - Big promise headline, qualifier subhead, CTA
+2. PROBLEM - Paint the pain (3-4 specific struggles)
+3. AGITATION - What happens if nothing changes?
+4. SOLUTION - Introduce your offer as the bridge
+5. FEATURES/BENEFITS - 5-6 items, each feature→benefit
+6. HOW IT WORKS - 3 simple steps
+7. SOCIAL PROOF - Testimonials (use placeholders if none)
+8. PRICING/OFFER - Clear value proposition
+9. FAQ - 4-5 objection-handling questions
+10. GUARANTEE - Risk reversal
+11. FINAL CTA - Urgency + main CTA
+12. FOOTER
+
+Make it compelling and conversion-focused. Output complete HTML.`;
+
+    case 'lead-magnet':
+      return `${baseContext}
+
+Generate a LEAD MAGNET OPT-IN PAGE with:
+
+1. HERO with EMAIL FORM
+   - Headline about the FREE resource
+   - "Get instant access to [resource]"
+   - Form with Name + Email + Submit button
+   - Use form action="https://formspree.io/f/placeholder" method="POST"
+   - Add honeypot: <input type="text" name="_gotcha" style="display:none">
+
+2. WHAT'S INSIDE
+   - "Inside this [guide/checklist], you'll discover:"
+   - 4-5 bullet points with checkmarks
+   - Specific, outcome-focused
+
+3. WHO THIS IS FOR
+   - "Perfect for you if..."
+   - 3-4 qualifying bullet points
+
+4. BRIEF ABOUT/CREDIBILITY
+   - Why trust this resource
+   - Quick credential mention
+
+5. SIMPLE FOOTER
+   - "We respect your privacy" note
+   - Copyright
+
+Keep it SIMPLE and FOCUSED on conversion. Single-column, no distractions.
+Output complete HTML with working form.`;
+
+    case 'coming-soon':
+      return `${baseContext}
+
+Generate a COMING SOON / PRE-LAUNCH PAGE:
+
+1. CENTERED HERO (full viewport)
+   - Logo or company name prominent
+   - "Coming Soon" or creative variant
+   - One powerful headline about what's coming
+   - 1-2 sentence teaser
+
+2. EMAIL WAITLIST FORM
+   - "Be the first to know"
+   - Email input + Submit button ("Join Waitlist")
+   - Form action="https://formspree.io/f/placeholder" method="POST"
+   - Add honeypot field
+   - Optional: "Join 500+ others" social proof
+
+3. WHAT TO EXPECT (optional, 3 teaser items)
+   - Feature icons
+   - Brief descriptions
+   - Build anticipation
+
+4. SOCIAL LINKS (optional)
+   - "Follow for updates"
+   - Twitter, Instagram, etc. (placeholder links)
+
+5. MINIMAL FOOTER
+   - Contact email
+   - Copyright
+
+Make it EXCITING and EXCLUSIVE feeling.
+Full-screen hero, centered layout.
+Output complete HTML.`;
+
+    default:
+      return `${baseContext}
+Generate a professional marketing landing page with hero, features, CTA, and footer.
+Output complete HTML.`;
+  }
+}
