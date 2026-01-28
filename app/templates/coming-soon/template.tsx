@@ -1,7 +1,7 @@
 /**
  * Coming Soon Page Template
  * Pre-launch page to build anticipation and collect emails
- * 
+ *
  * Use cases:
  * - New product launch
  * - New business launch
@@ -14,7 +14,7 @@ import type { BrandDNA } from '~/lib/pm/types';
 export interface ComingSoonPageProps {
   brandDNA: BrandDNA;
   launchDetails?: {
-    launchDate?: string;      // "March 2024" or specific date
+    launchDate?: string; // "March 2024" or specific date
     waitlistIncentive?: string; // "Early access", "50% off", etc.
     socialLinks?: {
       twitter?: string;
@@ -24,7 +24,10 @@ export interface ComingSoonPageProps {
   };
 }
 
-export const comingSoonPagePrompt = (brandDNA: BrandDNA, launchDetails?: { launchDate?: string; waitlistIncentive?: string }) => `
+export const comingSoonPagePrompt = (
+  brandDNA: BrandDNA,
+  launchDetails?: { launchDate?: string; waitlistIncentive?: string },
+) => `
 Generate a compelling coming soon / pre-launch page.
 
 BRAND CONTEXT:

@@ -1,7 +1,7 @@
 /**
  * Sales Page Template
  * Long-form sales page for products/services
- * 
+ *
  * Structure follows proven copywriting frameworks:
  * - Problem → Agitation → Solution (PAS)
  * - Features → Benefits → Proof → Action

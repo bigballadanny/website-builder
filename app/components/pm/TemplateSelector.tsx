@@ -14,20 +14,14 @@ interface TemplateSelectorProps {
 export function TemplateSelector({ onSelect, selectedId }: TemplateSelectorProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  const filteredTemplates = activeCategory
-    ? templateList.filter(t => t.category === activeCategory)
-    : templateList;
+  const filteredTemplates = activeCategory ? templateList.filter((t) => t.category === activeCategory) : templateList;
 
   return (
     <div className="pm-template-selector">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">
-          Choose Your Template
-        </h2>
-        <p className="text-[#94a3b8]">
-          Select a starting point for your website. We'll customize it with your brand.
-        </p>
+        <h2 className="text-2xl font-bold text-white mb-2">Choose Your Template</h2>
+        <p className="text-[#94a3b8]">Select a starting point for your website. We'll customize it with your brand.</p>
       </div>
 
       {/* Category Filter */}
@@ -35,9 +29,7 @@ export function TemplateSelector({ onSelect, selectedId }: TemplateSelectorProps
         <button
           onClick={() => setActiveCategory(null)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            activeCategory === null
-              ? 'bg-[#3b82f6] text-white'
-              : 'bg-[#132743] text-[#94a3b8] hover:text-white'
+            activeCategory === null ? 'bg-[#3b82f6] text-white' : 'bg-[#132743] text-[#94a3b8] hover:text-white'
           }`}
         >
           All Templates
@@ -47,9 +39,7 @@ export function TemplateSelector({ onSelect, selectedId }: TemplateSelectorProps
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              activeCategory === cat.id
-                ? 'bg-[#3b82f6] text-white'
-                : 'bg-[#132743] text-[#94a3b8] hover:text-white'
+              activeCategory === cat.id ? 'bg-[#3b82f6] text-white' : 'bg-[#132743] text-[#94a3b8] hover:text-white'
             }`}
           >
             {cat.name}
@@ -63,9 +53,7 @@ export function TemplateSelector({ onSelect, selectedId }: TemplateSelectorProps
           <button
             key={template.id}
             onClick={() => onSelect(template.id as TemplateId)}
-            className={`pm-template-card text-left ${
-              selectedId === template.id ? 'selected' : ''
-            }`}
+            className={`pm-template-card text-left ${selectedId === template.id ? 'selected' : ''}`}
           >
             {/* Preview Image */}
             <div className="preview bg-[#0d1f35] aspect-video flex items-center justify-center">
@@ -90,21 +78,13 @@ export function TemplateSelector({ onSelect, selectedId }: TemplateSelectorProps
 
             {/* Info */}
             <div className="info p-4">
-              <h3 className="text-white font-semibold mb-1">
-                {template.name}
-              </h3>
-              <p className="text-[#94a3b8] text-sm">
-                {template.description}
-              </p>
-              
+              <h3 className="text-white font-semibold mb-1">{template.name}</h3>
+              <p className="text-[#94a3b8] text-sm">{template.description}</p>
+
               {/* Section count */}
               <div className="mt-3 flex items-center gap-2 text-xs text-[#64748b]">
-                <span className="bg-[#1e3a5f] px-2 py-1 rounded">
-                  {template.sections.length} sections
-                </span>
-                <span className="bg-[#1e3a5f] px-2 py-1 rounded capitalize">
-                  {template.category}
-                </span>
+                <span className="bg-[#1e3a5f] px-2 py-1 rounded">{template.sections.length} sections</span>
+                <span className="bg-[#1e3a5f] px-2 py-1 rounded capitalize">{template.category}</span>
               </div>
             </div>
 

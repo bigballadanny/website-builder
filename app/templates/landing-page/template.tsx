@@ -1,7 +1,7 @@
 /**
  * Landing Page Template
  * For lead generation - simple, focused, high-converting
- * 
+ *
  * Sections:
  * 1. Hero - Headline, subhead, CTA
  * 2. Pain Points - What they're struggling with

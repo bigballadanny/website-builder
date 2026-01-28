@@ -5,27 +5,27 @@
 export const RECOMMENDED_PACKAGES = {
   // Icons - use lucide-react NOT lucide
   icons: {
-    "lucide-react": "^0.460.0"  // Stable version, NOT "lucide" alone
+    'lucide-react': '^0.460.0', // Stable version, NOT "lucide" alone
   },
-  
+
   // Core React ecosystem
   react: {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    react: '^18.2.0',
+    'react-dom': '^18.2.0',
   },
-  
+
   // Build tools
   build: {
-    "vite": "^5.0.0",
-    "@vitejs/plugin-react": "^4.2.0"
+    vite: '^5.0.0',
+    '@vitejs/plugin-react': '^4.2.0',
   },
-  
+
   // Styling
   styling: {
-    "tailwindcss": "^3.4.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0"
-  }
+    tailwindcss: '^3.4.0',
+    autoprefixer: '^10.4.0',
+    postcss: '^8.4.0',
+  },
 };
 
 export const PACKAGE_VERSION_GUIDANCE = `

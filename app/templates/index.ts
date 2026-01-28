@@ -30,7 +30,7 @@ export function getTemplate(id: TemplateId) {
  * Get templates by category
  */
 export function getTemplatesByCategory(category: string) {
-  return templateList.filter(t => t.category === category);
+  return templateList.filter((t) => t.category === category);
 }
 
 /**

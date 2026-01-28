@@ -49,6 +49,7 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
   useEffect(() => {
     if (iframeRef.current) {
       const doc = iframeRef.current.contentDocument;
+
       if (doc) {
         doc.open();
         doc.write(fullHtml);
@@ -65,29 +66,31 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
           <button
             onClick={() => setDevice('desktop')}
             className={`p-2 rounded transition-colors ${
-              device === 'desktop' 
-                ? 'bg-[#3b82f6] text-white' 
-                : 'text-[#94a3b8] hover:text-white'
+              device === 'desktop' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
             }`}
             title="Desktop"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
           </button>
           <button
             onClick={() => setDevice('tablet')}
             className={`p-2 rounded transition-colors ${
-              device === 'tablet' 
-                ? 'bg-[#3b82f6] text-white' 
-                : 'text-[#94a3b8] hover:text-white'
+              device === 'tablet' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
             }`}
             title="Tablet"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
                 d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
               />
             </svg>
@@ -95,14 +98,15 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
           <button
             onClick={() => setDevice('mobile')}
             className={`p-2 rounded transition-colors ${
-              device === 'mobile' 
-                ? 'bg-[#3b82f6] text-white' 
-                : 'text-[#94a3b8] hover:text-white'
+              device === 'mobile' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
             }`}
             title="Mobile"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
                 d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
               />
             </svg>
@@ -113,7 +117,10 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
         <div className="flex-1 mx-4">
           <div className="bg-[#132743] rounded-lg px-3 py-1.5 text-sm text-[#64748b] flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
                 d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
               />
             </svg>
@@ -125,14 +132,20 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
         <div className="flex gap-2">
           <button className="p-2 text-[#94a3b8] hover:text-white transition-colors" title="Refresh">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
           </button>
           <button className="p-2 text-[#94a3b8] hover:text-white transition-colors" title="Open in new tab">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
               />
             </svg>
@@ -142,9 +155,9 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop' }: PreviewFram
 
       {/* Preview Area */}
       <div className="flex-1 bg-[#1e1e1e] overflow-auto flex justify-center p-4">
-        <div 
+        <div
           className="pm-preview-frame bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300"
-          style={{ 
+          style={{
             width: deviceWidths[device],
             maxWidth: '100%',
             height: device === 'mobile' ? '667px' : device === 'tablet' ? '1024px' : 'auto',
@@ -171,7 +184,10 @@ export function PreviewEmpty() {
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
       <div className="w-16 h-16 mb-4 text-[#3b82f6] opacity-50">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1}
             d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
           />
         </svg>

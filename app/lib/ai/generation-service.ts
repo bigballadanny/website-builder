@@ -1,6 +1,6 @@
 /**
  * AI Generation Service
- * 
+ *
  * Handles website generation using Claude
  * Supports direct Anthropic API or OpenRouter proxy
  */
@@ -15,9 +15,7 @@ const OPENROUTER_API_KEY = process.env.OPEN_ROUTER_API_KEY;
 const USE_OPENROUTER = !ANTHROPIC_API_KEY && OPENROUTER_API_KEY;
 
 // Model selection
-const MODEL = USE_OPENROUTER 
-  ? 'anthropic/claude-sonnet-4' 
-  : 'claude-sonnet-4-20250514';
+const MODEL = USE_OPENROUTER ? 'anthropic/claude-sonnet-4' : 'claude-sonnet-4-20250514';
 
 /**
  * Generate a website page using AI
@@ -25,15 +23,17 @@ const MODEL = USE_OPENROUTER
 export async function generatePage(
   templateId: TemplateId,
   context: GenerationContext,
-  customInstructions?: string
+  customInstructions?: string,
 ): Promise<GenerationResult> {
   const template = getTemplate(templateId);
+
   if (!template) {
     throw new Error(`Template not found: ${templateId}`);
   }
 
   const systemPrompt = buildSystemPrompt(context);
-  const userPrompt = template.prompt(context.brandDNA) + 
+  const userPrompt =
+    template.prompt(context.brandDNA) +
     (customInstructions ? `\n\nADDITIONAL INSTRUCTIONS:\n${customInstructions}` : '');
 
   // Call the appropriate API
@@ -55,7 +55,7 @@ export async function generatePage(
 export async function editPage(
   currentCode: string,
   instruction: string,
-  context: GenerationContext
+  context: GenerationContext,
 ): Promise<GenerationResult> {
   const systemPrompt = buildSystemPrompt(context);
   const userPrompt = `
@@ -100,13 +100,12 @@ async function callAnthropic(systemPrompt: string, userPrompt: string): Promise<
     model: MODEL,
     max_tokens: 8192,
     system: systemPrompt,
-    messages: [
-      { role: 'user', content: userPrompt }
-    ],
+    messages: [{ role: 'user', content: userPrompt }],
   });
 
   // Extract text from response
-  const textBlock = response.content.find(block => block.type === 'text');
+  const textBlock = response.content.find((block) => block.type === 'text');
+
   return textBlock?.text || '';
 }
 
@@ -121,7 +120,7 @@ async function callOpenRouter(systemPrompt: string, userPrompt: string): Promise
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': 'https://pocketmarketer.app',
       'X-Title': 'Pocket Marketer Website Builder',
@@ -141,7 +140,8 @@ async function callOpenRouter(systemPrompt: string, userPrompt: string): Promise
     throw new Error(`OpenRouter API error: ${error}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+
   return data.choices?.[0]?.message?.content || '';
 }
 
@@ -151,6 +151,7 @@ async function callOpenRouter(systemPrompt: string, userPrompt: string): Promise
 function extractCode(response: string, language: string): string | null {
   const regex = new RegExp(`\`\`\`${language}\\n([\\s\\S]*?)\`\`\``, 'i');
   const match = response.match(regex);
+
   return match ? match[1].trim() : null;
 }
 
@@ -178,8 +179,10 @@ export function getAIProvider(): { name: string; model: string; configured: bool
   if (ANTHROPIC_API_KEY) {
     return { name: 'Anthropic', model: MODEL, configured: true };
   }
+
   if (OPENROUTER_API_KEY) {
     return { name: 'OpenRouter', model: MODEL, configured: true };
   }
+
   return { name: 'None', model: MODEL, configured: false };
 }

@@ -1,7 +1,7 @@
 /**
  * Lead Magnet Page Template
  * Simple opt-in page for free resources (guides, checklists, etc.)
- * 
+ *
  * Goal: Maximum conversions with minimal friction
  * Keep it simple, focused, compelling
  */
@@ -11,9 +11,9 @@ import type { BrandDNA } from '~/lib/pm/types';
 export interface LeadMagnetPageProps {
   brandDNA: BrandDNA;
   leadMagnet: {
-    title: string;           // "The Ultimate Guide to..."
+    title: string; // "The Ultimate Guide to..."
     type: 'guide' | 'checklist' | 'template' | 'video' | 'webinar' | 'other';
-    description: string;     // What they'll learn/get
+    description: string; // What they'll learn/get
     deliveryMethod: 'email' | 'instant' | 'both';
   };
 }

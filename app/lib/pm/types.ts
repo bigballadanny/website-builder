@@ -1,6 +1,6 @@
 /**
  * Pocket Marketer Integration Types
- * 
+ *
  * These types represent the data we'll pull from PM's existing
  * Interview, Knowledge Base, and Copy Vault features.
  */
@@ -10,24 +10,24 @@
  */
 export interface BrandDNA {
   // From Interview Questions
-  businessDescription: string;      // "What does your business do, in one sentence?"
-  idealCustomer: string;            // "Who is your ideal customer?"
-  problemSolved: string;            // "What specific problem do you solve for them?"
-  desiredTransformation: string;    // "What result or transformation do they want most?"
-  offering: string;                 // "What exactly are you selling them?"
-  differentiators: string;          // "Why should they choose you over someone else?"
-  customerAcquisition: string;      // "How do customers usually find you?"
-  callToAction: string;             // "What do you want them to do when they find you?"
-  salesProcess: string;             // "How do you usually make the sale?"
-  objections: string;               // "What makes people hesitate or say 'no'?"
-  socialProof: string;              // "Do you have any reviews, testimonials, or proof?"
-  mainGoal: string;                 // "What's your biggest goal right now?"
-  
+  businessDescription: string; // "What does your business do, in one sentence?"
+  idealCustomer: string; // "Who is your ideal customer?"
+  problemSolved: string; // "What specific problem do you solve for them?"
+  desiredTransformation: string; // "What result or transformation do they want most?"
+  offering: string; // "What exactly are you selling them?"
+  differentiators: string; // "Why should they choose you over someone else?"
+  customerAcquisition: string; // "How do customers usually find you?"
+  callToAction: string; // "What do you want them to do when they find you?"
+  salesProcess: string; // "How do you usually make the sale?"
+  objections: string; // "What makes people hesitate or say 'no'?"
+  socialProof: string; // "Do you have any reviews, testimonials, or proof?"
+  mainGoal: string; // "What's your biggest goal right now?"
+
   // From Project Setup
   projectName: string;
   companyName: string;
   website?: string;
-  
+
   // Extracted/derived
   voiceTone?: 'professional' | 'casual' | 'friendly' | 'authoritative';
   industry?: string;
@@ -38,12 +38,12 @@ export interface BrandDNA {
  */
 export interface BrandAssets {
   logo?: Asset;
-  brandColors?: string[];           // Hex colors
-  brandFonts?: string[];            // Font names
+  brandColors?: string[]; // Hex colors
+  brandFonts?: string[]; // Font names
   productImages?: Asset[];
   teamPhotos?: Asset[];
   certifications?: Asset[];
-  guidelines?: Asset;               // Brand guidelines PDF
+  guidelines?: Asset; // Brand guidelines PDF
 }
 
 /**
@@ -51,10 +51,10 @@ export interface BrandAssets {
  */
 export interface CopyAssets {
   strategyDoc?: string;
-  headlines?: string[];             // From "Hooks and Headlines"
+  headlines?: string[]; // From "Hooks and Headlines"
   promotionalEmails?: string[];
   followUpEmails?: string[];
-  offers?: string[];                // From "Offers and Promotions"
+  offers?: string[]; // From "Offers and Promotions"
   adCopy?: string[];
   socialContent?: string[];
   salesCopy?: string[];
@@ -70,7 +70,7 @@ export interface Testimonial {
   title?: string;
   company?: string;
   avatar?: string;
-  rating?: number;                  // 1-5 stars
+  rating?: number; // 1-5 stars
 }
 
 /**
@@ -95,7 +95,7 @@ export interface PMProjectContext {
   assets: BrandAssets;
   copy: CopyAssets;
   testimonials: Testimonial[];
-  
+
   // Metadata
   createdAt: Date;
   updatedAt: Date;
@@ -106,25 +106,25 @@ export interface PMProjectContext {
  */
 export interface WebsiteProject {
   id: string;
-  pmProjectId: string;              // Link to PM project
+  pmProjectId: string; // Link to PM project
   userId: string;
-  
+
   // Config
   name: string;
   template: 'landing-page' | 'sales-page' | 'lead-magnet' | 'coming-soon';
   customDomain?: string;
-  
+
   // Generated content
   pages: WebsitePage[];
-  
+
   // Deployment
   cloudflareProjectId?: string;
   liveUrl?: string;
   lastDeployed?: Date;
-  
+
   // History
   versions: WebsiteVersion[];
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -136,11 +136,11 @@ export interface WebsitePage {
   id: string;
   slug: string;
   title: string;
-  
+
   // Content
-  html: string;                     // Generated HTML
-  css?: string;                     // Page-specific CSS
-  
+  html: string; // Generated HTML
+  css?: string; // Page-specific CSS
+
   // SEO
   meta: {
     title: string;
@@ -156,7 +156,7 @@ export interface WebsiteVersion {
   id: string;
   timestamp: Date;
   changes: string;
-  snapshot: string;                 // HTML snapshot
+  snapshot: string; // HTML snapshot
 }
 
 /**
@@ -166,7 +166,7 @@ export interface GenerationRequest {
   pmProjectId: string;
   template: WebsiteProject['template'];
   customizations?: {
-    sections?: string[];            // Which sections to include
+    sections?: string[]; // Which sections to include
     style?: Record<string, string>; // Style overrides
     content?: Record<string, string>; // Content overrides
   };
@@ -178,8 +178,10 @@ export interface GenerationRequest {
 export interface EditRequest {
   websiteProjectId: string;
   pageId: string;
-  instruction: string;              // Natural language instruction
-  // e.g., "Make the headline more urgent"
-  // e.g., "Change the CTA button to green"
-  // e.g., "Add a testimonial section after the benefits"
+  instruction: string; // Natural language instruction
+  /*
+   * e.g., "Make the headline more urgent"
+   * e.g., "Change the CTA button to green"
+   * e.g., "Add a testimonial section after the benefits"
+   */
 }
