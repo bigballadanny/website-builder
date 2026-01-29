@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026-01-28] - Agent SDK & Copywriting Night
+
+### Added
+- **Claude Agent SDK Integration** (058468e)
+  - Streaming responses via Anthropic API or OpenRouter
+  - Model selection: Sonnet 4 (standard) / Opus 4 (premium)
+  - 5-step workflow: understand → structure → copy → code → refine
+  - AgentPanel chat interface with streaming
+  - AgentProgressBar with visual progress
+  - RefinementCommands: shorter, longer, urgent, simpler, emotional
+  - AIBuildButton floating action
+  - Token counting & cost estimation
+  - nanostores-based state management
+
+---
+
 ## [2026-01-28] - Beast Mode Night
 
 ### Fixed
