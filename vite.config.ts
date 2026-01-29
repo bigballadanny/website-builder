@@ -13,6 +13,10 @@ dotenv.config();
 
 export default defineConfig((config) => {
   return {
+    server: {
+      host: "::",
+      port: 5000,  // Pocket Marketer - see ~/clawd/PORT-MAP.md
+    },
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     },

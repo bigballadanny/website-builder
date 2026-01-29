@@ -131,4 +131,101 @@ All generated code MUST:
 
 ---
 
+## 🚀 Marketing Skills & Tools
+
+### Pocket Marketer Tool Suite (10 Tools)
+
+Load from `~/clawd/skills/pocket-marketer/`:
+
+| Tool | Purpose | Reference File |
+|------|---------|----------------|
+| **Marketing Domination** | Strategic orchestrator | `MARKETING-DOMINATION-PROMPT.md` |
+| **Customer Avatar** | Deep audience profiling | Part of orchestrator |
+| **Offer Architect** | Offer positioning + Big Idea | Part of orchestrator |
+| **Pocket Copywriter** | Direct response copywriting | `Pocket-Copywriter-Prompt.txt` |
+| **Campaign Architect** | Customer journey mapping | Part of orchestrator |
+| **Hooks & Headlines** | Messaging library (10-20 angles) | Part of orchestrator |
+| **Paid Ad Builder** | 18-27 ad variations | Separate tool |
+| **VSL Architect** | Video/sales letter scripts | Separate tool |
+| **Intimate Letter** | Email sequences | Separate tool |
+| **Growth Consultant** | Scaling strategy | Separate tool |
+| **CRO Coach** | Conversion optimization | Separate tool |
+
+### Marketing Foundation Hierarchy
+
+```
+1. Customer Avatar (WHO) ← REQUIRED FIRST
+   ↓
+2. Core Offer Framework (WHAT) ← Build on avatar
+   ↓
+3. Big Idea (WHY different) ← Differentiation
+   ↓
+4. Campaign Framework (HOW) ← Journey mapping
+   ↓
+5. Hooks Library (WHAT stops scroll) ← Messaging
+   ↓
+6. TACTICAL EXECUTION ← Ads, emails, VSLs, pages
+```
+
+### Reference Materials (GDrive)
+
+Knowledge base: `daniel@toolsavants.com` Drive
+- Great Leads
+- Copywriting Secrets - Jim Edwards
+- E5 Method - Todd Brown
+- Agora Black Book
+- Ultimate Sales Letter
+- Big Idea Book - Todd Brown
+- $100M Offers - Alex Hormozi
+- Autoresponder Madness
+- 16 Word Sales Letter
+
+### Additional Skills (~/clawd/skills/)
+
+| Skill | Use For |
+|-------|---------|
+| `marketing-mode` | 23 marketing playbooks |
+| `marketing-skills/references/copywriting` | AIDA, PAS frameworks |
+| `marketing-skills/references/seo-audit` | Technical SEO |
+| `marketing-skills/references/page-cro` | Landing page optimization |
+| `marketing-skills/references/email-sequence` | Email campaigns |
+| `marketing-skills/references/paid-ads` | Google/Meta/LinkedIn |
+| `frontend-design` | Production-grade UI |
+| `vercel-react-best-practices` | React patterns |
+
+### Prompt Files Location
+
+```
+~/clawd/skills/pocket-marketer/references/
+├── MARKETING-DOMINATION-PROMPT.md  (104KB - full system)
+├── PM-Library.txt                   (117KB - categorized prompts)
+├── PM-Prompts-Updates.txt           (766KB - extended collection)
+├── Marketing-GPT-Bank.txt           (169KB - GPT configs)
+└── Pocket-Copywriter-Prompt.txt     (new - copywriter tool)
+```
+
+### Integration Decision Tree
+
+```
+User Request Arrives
+↓
+Have foundations? (Avatar, Offer, Big Idea)
+├─ NO → Build foundations FIRST
+│   ├─ No Avatar → Customer Avatar Tool
+│   └─ No Offer → Offer Architect
+│
+└─ YES → Strategic or Tactical?
+    ├─ Strategic → Marketing Domination
+    └─ Tactical → Route to specialist
+        ├─ Copy → Pocket Copywriter
+        ├─ Ads → Paid Ad Builder
+        ├─ Emails → Intimate Letter
+        ├─ VSL → VSL Architect
+        ├─ Headlines → Hooks Builder
+        └─ Optimize → CRO Coach
+```
+
+---
+
 *Part of Pocket Marketer ecosystem*
+*Updated 2026-01-28 — Marketing skills integrated*

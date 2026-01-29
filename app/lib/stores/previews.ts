@@ -1,5 +1,6 @@
 import type { WebContainer } from '@webcontainer/api';
 import { atom } from 'nanostores';
+import { setPreviewStage } from './preview-status';
 
 // Extend Window interface to include our custom property
 declare global {
@@ -174,6 +175,10 @@ export class PreviewsStore {
     // Listen for server ready events
     webcontainer.on('server-ready', (port, url) => {
       console.log('[PreviewsStore] 🎯 SERVER-READY EVENT on port:', port, 'url:', url);
+      
+      // Set preview status to ready
+      setPreviewStage('ready', `Preview ready on port ${port}!`);
+      
       this.broadcastUpdate(url);
 
       // Initial storage sync when preview is ready

@@ -51,3 +51,4 @@ modelfiles/
 # Generated
 app/commit.json
 site/
+.vercel

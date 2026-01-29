@@ -19,7 +19,9 @@ class SaveStatusEmitter {
     this.listeners.add(listener);
     // Immediately notify of current status
     listener(this.currentStatus);
-    return () => this.listeners.delete(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
   }
 
   emit(status: SaveStatus) {

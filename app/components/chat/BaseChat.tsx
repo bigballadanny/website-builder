@@ -3,7 +3,7 @@
  * Preventing TS checks with files presented in the video for a better presentation.
  */
 import type { JSONValue, Message } from 'ai';
-import React, { type RefCallback, useEffect, useState } from 'react';
+import React, { type RefCallback, useEffect, useState, useRef, useMemo } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { Workbench } from '~/components/workbench/Workbench.client';
@@ -17,6 +17,7 @@ import styles from './BaseChat.module.scss';
 import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import GitCloneButton from './GitCloneButton';
+import { RecentProjects } from './RecentProjects';
 import type { ProviderInfo } from '~/types/model';
 import StarterTemplates from './StarterTemplates';
 import type { ActionAlert, SupabaseAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
@@ -33,6 +34,7 @@ import { ChatBox } from './ChatBox';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import LlmErrorAlert from './LLMApiAlert';
+import { LoadingOverlay } from '~/components/pm';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -144,6 +146,60 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const [progressAnnotations, setProgressAnnotations] = useState<ProgressAnnotation[]>([]);
     const expoUrl = useStore(expoUrlAtom);
     const [qrModalOpen, setQrModalOpen] = useState(false);
+    
+    // Premium loading overlay state
+    const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+    const [loadingStage, setLoadingStage] = useState<string>('Analyzing your request...');
+    const streamingStartTime = useRef<number | null>(null);
+    const previousMessageCount = useRef<number>(0);
+    
+    // Generation stage tips
+    const GENERATION_TIPS = useMemo(() => [
+      "Pro tip: Be specific about your target audience",
+      "Include color preferences for better results",
+      "Mention your industry for tailored copy",
+      "Ask for mobile-first design for best results",
+      "Describe your brand personality for matching tone",
+      "Specify any must-have sections or features",
+      "Reference competitors you admire for inspiration",
+      "Include your call-to-action goals upfront",
+    ], []);
+    
+    // Track streaming state and update loading stages
+    useEffect(() => {
+      const messageCount = messages?.length || 0;
+      const isFirstGeneration = previousMessageCount.current <= 1 && messageCount <= 2;
+      
+      if (isStreaming && chatMode === 'build') {
+        if (!streamingStartTime.current) {
+          streamingStartTime.current = Date.now();
+          // Show overlay only on first generation or when transitioning from discuss to build
+          if (isFirstGeneration) {
+            setShowLoadingOverlay(true);
+            setLoadingStage('Analyzing your request...');
+          }
+        }
+        
+        // Update stage based on elapsed time (simulates progress through stages)
+        const elapsed = Date.now() - streamingStartTime.current;
+        if (elapsed > 2000 && elapsed <= 5000) {
+          setLoadingStage('Planning page structure...');
+        } else if (elapsed > 5000 && elapsed <= 10000) {
+          setLoadingStage('Generating components...');
+        } else if (elapsed > 10000) {
+          setLoadingStage('Building your website...');
+        }
+      } else {
+        // Streaming stopped
+        if (streamingStartTime.current) {
+          streamingStartTime.current = null;
+          // Delay hiding the overlay slightly for smooth transition
+          setTimeout(() => setShowLoadingOverlay(false), 300);
+        }
+      }
+      
+      previousMessageCount.current = messageCount;
+    }, [isStreaming, chatMode, messages?.length]);
 
     useEffect(() => {
       if (expoUrl) {
@@ -354,7 +410,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   Where ideas begin
                 </h1>
                 <p className="text-md lg:text-xl mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
-                  Bring ideas to life in seconds or get help on existing projects.
+                  {chatMode === 'discuss' 
+                    ? "Tell me your idea and I'll ask the right questions to build it perfectly."
+                    : "Bring ideas to life in seconds or get help on existing projects."}
                 </p>
               </div>
             )}
@@ -470,10 +528,16 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             </StickToBottom>
             <div className="flex flex-col justify-center">
               {!chatStarted && (
-                <div className="flex justify-center gap-2">
-                  {ImportButtons(importChat)}
-                  <GitCloneButton importChat={importChat} />
-                </div>
+                <>
+                  {/* Recent Projects Section */}
+                  <div className="mb-6">
+                    <RecentProjects maxProjects={4} />
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    {ImportButtons(importChat)}
+                    <GitCloneButton importChat={importChat} />
+                  </div>
+                </>
               )}
               <div className="flex flex-col gap-5">
                 {!chatStarted &&
@@ -498,7 +562,20 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       </div>
     );
 
-    return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;
+    return (
+      <Tooltip.Provider delayDuration={200}>
+        {baseChat}
+        <LoadingOverlay
+          isVisible={showLoadingOverlay}
+          message="Creating your landing page"
+          stage={loadingStage}
+          tips={GENERATION_TIPS}
+          tipInterval={4000}
+          blur={true}
+          zIndex={100}
+        />
+      </Tooltip.Provider>
+    );
   },
 );
 

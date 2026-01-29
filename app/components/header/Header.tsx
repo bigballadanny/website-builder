@@ -4,6 +4,7 @@ import { chatStore } from '~/lib/stores/chat';
 import { classNames } from '~/utils/classNames';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
+import { AutoSaveIndicatorCompact } from '~/components/ui/AutoSaveIndicator';
 
 export function Header() {
   const chat = useStore(chatStore);
@@ -24,8 +25,9 @@ export function Header() {
       </div>
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
         <>
-          <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
+          <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary flex items-center justify-center gap-2">
             <ClientOnly>{() => <ChatDescription />}</ClientOnly>
+            <ClientOnly>{() => <AutoSaveIndicatorCompact />}</ClientOnly>
           </span>
           <ClientOnly>
             {() => (

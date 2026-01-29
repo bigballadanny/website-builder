@@ -7,6 +7,8 @@ import { ScreenshotSelector } from './ScreenshotSelector';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import type { ElementInfo } from './Inspector';
+import { LoadingScreen } from '~/components/pm';
+import { previewStatus, type PreviewStatus } from '~/lib/stores/preview-status';
 
 type ResizeSide = 'left' | 'right' | null;
 
@@ -52,6 +54,9 @@ const WINDOW_SIZES: WindowSize[] = [
   { name: '4K Display', width: 3840, height: 2160, icon: 'i-ph:monitor', hasFrame: true, frameType: 'desktop' },
 ];
 
+// Preview loading timeout configuration
+const PREVIEW_TIMEOUT_MS = 120000; // 2 minutes
+
 export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -62,9 +67,11 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const hasSelectedPreview = useRef(false);
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
+  const currentPreviewStatus = useStore(previewStatus);
+  const [previewTimedOut, setPreviewTimedOut] = useState(false);
   
   // Debug logging
-  console.log('[Preview.tsx] 🖼️ Render - previews:', previews, 'activeIndex:', activePreviewIndex, 'activePreview:', activePreview);
+  console.log('[Preview.tsx] 🖼️ Render - previews:', previews, 'activeIndex:', activePreviewIndex, 'activePreview:', activePreview, 'status:', currentPreviewStatus);
   const [displayPath, setDisplayPath] = useState('/');
   const [iframeUrl, setIframeUrl] = useState<string | undefined>();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -74,6 +81,28 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const [currentWidth, setCurrentWidth] = useState<number>(0);
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [iframeError, setIframeError] = useState<string | null>(null);
+
+  // Timeout for preview loading
+  useEffect(() => {
+    if (activePreview) {
+      setPreviewTimedOut(false);
+      return;
+    }
+
+    // Only start timeout when we're in a loading state
+    if (currentPreviewStatus.stage === 'idle') {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      if (!activePreview && currentPreviewStatus.stage !== 'ready' && currentPreviewStatus.stage !== 'error') {
+        console.log('[Preview.tsx] ⏰ Preview loading timed out after', PREVIEW_TIMEOUT_MS, 'ms');
+        setPreviewTimedOut(true);
+      }
+    }, PREVIEW_TIMEOUT_MS);
+
+    return () => clearTimeout(timeoutId);
+  }, [activePreview, currentPreviewStatus.stage]);
 
   const resizingState = useRef({
     isResizing: false,
@@ -941,8 +970,11 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
               {/* Loading overlay when iframe is loading */}
               {isIframeLoading && iframeUrl && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-bolt-elements-background-depth-1 z-10">
-                  <div className="i-svg-spinners:90-ring-with-bg text-4xl text-bolt-elements-loader-progress mb-4"></div>
-                  <p className="text-bolt-elements-textSecondary text-sm">Loading preview...</p>
+                  <LoadingScreen 
+                    message="Loading preview..."
+                    variant="minimal"
+                    showProgress={true}
+                  />
                 </div>
               )}
               {/* Error state when iframe fails to load */}
@@ -1062,14 +1094,19 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
               />
             </>
           ) : (
-            <div className="flex flex-col w-full h-full justify-center items-center bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary gap-4">
-              <div className="i-svg-spinners:90-ring-with-bg text-5xl text-bolt-elements-loader-progress"></div>
-              <div className="text-center">
-                <p className="text-lg font-medium mb-2">Waiting for server...</p>
-                <p className="text-sm text-bolt-elements-textSecondary max-w-md">
-                  The development server is starting up. This may take a moment while dependencies are installed.
-                </p>
-              </div>
+            <div className="flex flex-col w-full h-full justify-center items-center bg-bolt-elements-background-depth-1">
+              <LoadingScreen 
+                message="Starting development server..."
+                tips={[
+                  "Installing dependencies...",
+                  "Setting up the preview environment",
+                  "Compiling your components",
+                  "Starting the dev server",
+                  "Almost there!",
+                ]}
+                variant="compact"
+                tipInterval={3000}
+              />
             </div>
           )}
 

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 
 interface LoadingOverlayProps {
@@ -148,7 +150,7 @@ export function LoadingOverlay({
             className="relative w-full h-full"
             style={{ 
               animation: 'pm-float-logo 3s ease-in-out infinite',
-              filter: 'drop-shadow(0 0 30px rgba(168, 85, 247, 0.6))'
+              filter: 'drop-shadow(0 0 30px rgba(14, 165, 233, 0.6))'
             }}
           >
             <img
@@ -177,7 +179,7 @@ export function LoadingOverlay({
             <div 
               className="h-full rounded"
               style={{
-                background: 'linear-gradient(90deg, #a855f7, #ec4899, #a855f7)',
+                background: 'linear-gradient(90deg, #0ea5e9, #06b6d4, #0ea5e9)',
                 backgroundSize: '200% 100%',
                 width: isDeterminate ? `${progress}%` : '30%',
                 transition: 'width 0.3s ease',

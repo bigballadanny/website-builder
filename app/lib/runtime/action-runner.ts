@@ -6,8 +6,16 @@ import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
+import { setPreviewStage, incrementRetryCount } from '~/lib/stores/preview-status';
 
 const logger = createScopedLogger('ActionRunner');
+
+// Configuration for retry logic
+const RETRY_CONFIG = {
+  maxRetries: 2,
+  retryDelay: 2000, // ms
+  retryableCommands: ['npm install', 'npm i ', 'pnpm install', 'yarn install', 'yarn add'],
+};
 
 export type ActionStatus = 'pending' | 'running' | 'complete' | 'aborted' | 'failed';
 
@@ -280,13 +288,31 @@ export class ActionRunner {
     }
   }
 
-  async #runShellAction(action: ActionState) {
+  // Check if a command is retryable (npm install, etc.)
+  #isRetryableCommand(command: string): boolean {
+    return RETRY_CONFIG.retryableCommands.some(pattern => 
+      command.toLowerCase().includes(pattern.toLowerCase())
+    );
+  }
+
+  async #runShellAction(action: ActionState, retryAttempt: number = 0) {
     if (action.type !== 'shell') {
       unreachable('Expected shell action');
     }
 
+    const isInstallCommand = this.#isRetryableCommand(action.content);
+    
+    // Update preview status for install commands
+    if (isInstallCommand && retryAttempt === 0) {
+      setPreviewStage('installing', 'Installing dependencies...');
+    } else if (isInstallCommand && retryAttempt > 0) {
+      setPreviewStage('installing', `Retrying install (attempt ${retryAttempt + 1}/${RETRY_CONFIG.maxRetries + 1})...`);
+    }
+
     console.log('[ACTION-RUNNER] 🐚 #runShellAction started:', {
       command: action.content,
+      retryAttempt,
+      isRetryable: isInstallCommand,
     });
 
     const shell = this.#shellTerminal();
@@ -317,7 +343,34 @@ export class ActionRunner {
 
     if (resp?.exitCode != 0) {
       console.error('[ACTION-RUNNER] ❌ Shell command failed:', { exitCode: resp?.exitCode, output: resp?.output?.slice(0, 200) });
+      
+      // Check if we should retry this command
+      if (isInstallCommand && retryAttempt < RETRY_CONFIG.maxRetries) {
+        console.log(`[ACTION-RUNNER] 🔄 Retrying install command (attempt ${retryAttempt + 1}/${RETRY_CONFIG.maxRetries})...`);
+        incrementRetryCount();
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, RETRY_CONFIG.retryDelay));
+        
+        // Clean node_modules and retry
+        try {
+          console.log('[ACTION-RUNNER] 🧹 Cleaning node_modules before retry...');
+          await shell.executeCommand(this.runnerId.get(), 'rm -rf node_modules package-lock.json', () => {});
+        } catch (cleanError) {
+          console.warn('[ACTION-RUNNER] ⚠️ Failed to clean node_modules:', cleanError);
+        }
+        
+        // Retry the install
+        return this.#runShellAction(action, retryAttempt + 1);
+      }
+      
       const enhancedError = this.#createEnhancedShellError(action.content, resp?.exitCode, resp?.output);
+      
+      // Set error state for preview status
+      if (isInstallCommand) {
+        setPreviewStage('error', 'Failed to install dependencies', enhancedError.details);
+      }
+      
       throw new ActionCommandError(enhancedError.title, enhancedError.details);
     }
 
@@ -329,12 +382,16 @@ export class ActionRunner {
       unreachable('Expected shell action');
     }
 
+    // Update preview status
+    setPreviewStage('starting', 'Starting development server...');
+
     console.log('[ACTION-RUNNER] 🚀 #runStartAction started:', {
       command: action.content,
     });
 
     if (!this.#shellTerminal) {
       console.error('[ACTION-RUNNER] ❌ Shell terminal not found');
+      setPreviewStage('error', 'Shell terminal not found');
       unreachable('Shell terminal not found');
     }
 
@@ -344,8 +401,12 @@ export class ActionRunner {
 
     if (!shell || !shell.terminal || !shell.process) {
       console.error('[ACTION-RUNNER] ❌ Shell terminal components not found');
+      setPreviewStage('error', 'Shell terminal components not found');
       unreachable('Shell terminal not found');
     }
+
+    // Update to waiting for port after starting
+    setPreviewStage('waiting-for-port', 'Server starting, waiting for port...');
 
     console.log('[ACTION-RUNNER] 🚀 Executing start command:', action.content);
     const resp = await shell.executeCommand(this.runnerId.get(), action.content, () => {
@@ -357,6 +418,7 @@ export class ActionRunner {
 
     if (resp?.exitCode != 0) {
       console.error('[ACTION-RUNNER] ❌ Start command failed with exit code:', resp?.exitCode);
+      setPreviewStage('error', 'Failed to start application', resp?.output || 'No Output Available');
       throw new ActionCommandError('Failed To Start Application', resp?.output || 'No Output Available');
     }
 
@@ -377,7 +439,17 @@ export class ActionRunner {
     const webcontainer = await this.#webcontainer;
     console.log('[ACTION-RUNNER] 📄 WebContainer ready, workdir:', webcontainer.workdir);
     
-    const relativePath = nodePath.relative(webcontainer.workdir, action.filePath);
+    // Handle both absolute and relative paths
+    // If filePath is absolute and starts with workdir, calculate relative path
+    // If filePath is already relative (doesn't start with /), use it directly
+    let relativePath: string;
+    if (action.filePath.startsWith('/')) {
+      // Absolute path - calculate relative from workdir
+      relativePath = nodePath.relative(webcontainer.workdir, action.filePath);
+    } else {
+      // Already a relative path - use directly
+      relativePath = action.filePath;
+    }
     console.log('[ACTION-RUNNER] 📄 Relative path:', relativePath);
 
     let folder = nodePath.dirname(relativePath);

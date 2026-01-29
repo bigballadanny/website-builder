@@ -79,9 +79,10 @@ export function RecentProjects({ className, maxProjects = 4 }: RecentProjectsPro
             // Trigger sidebar open by simulating mouse movement to the left edge
             const event = new MouseEvent('mousemove', {
               clientX: 0,
-              pageX: 0,
               bubbles: true,
             });
+            // Set pageX manually as it's read-only in MouseEventInit
+            Object.defineProperty(event, 'pageX', { value: 0 });
             window.dispatchEvent(event);
           }}
           className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
@@ -139,9 +140,9 @@ export function RecentProjects({ className, maxProjects = 4 }: RecentProjectsPro
                   // Open sidebar and navigate to settings
                   const event = new MouseEvent('mousemove', {
                     clientX: 0,
-                    pageX: 0,
                     bubbles: true,
                   });
+                  Object.defineProperty(event, 'pageX', { value: 0 });
                   window.dispatchEvent(event);
                 }}
                 className="underline hover:no-underline"

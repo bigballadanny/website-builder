@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, CSSProperties } from 'react';
-import Image from 'next/image';
+import { useState, useEffect, useCallback } from 'react';
+import type { CSSProperties } from 'react';
 
 interface LoadingScreenProps {
   /** Custom tips to display (uses defaults if not provided) */
@@ -97,7 +97,7 @@ export function LoadingScreen({
     const dotStyle: CSSProperties = {
       width: 6,
       height: 6,
-      background: '#a855f7',
+      background: '#0ea5e9',
       borderRadius: '50%',
       animation: 'pm-dot-pulse 1.4s ease-in-out infinite',
     };
@@ -139,7 +139,7 @@ export function LoadingScreen({
   const glowStyle: CSSProperties = {
     position: 'absolute',
     inset: -20,
-    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)',
+    background: 'radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, transparent 70%)',
     borderRadius: '50%',
     animation: 'pm-glow-pulse 2s ease-in-out infinite',
     filter: 'blur(20px)',
@@ -148,7 +148,7 @@ export function LoadingScreen({
   const ringBaseStyle: CSSProperties = {
     position: 'absolute',
     inset: -8,
-    border: '2px solid rgba(168, 85, 247, 0.3)',
+    border: '2px solid rgba(14, 165, 233, 0.3)',
     borderRadius: '50%',
     animation: 'pm-ring-expand 2s ease-out infinite',
   };
@@ -158,7 +158,7 @@ export function LoadingScreen({
     width: '100%',
     height: '100%',
     animation: 'pm-logo-float 3s ease-in-out infinite',
-    filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.5))',
+    filter: 'drop-shadow(0 0 20px rgba(14, 165, 233, 0.5))',
   };
 
   const shimmerStyle: CSSProperties = {
@@ -207,7 +207,7 @@ export function LoadingScreen({
 
   const waveBarStyle = (delay: number): CSSProperties => ({
     width: 4,
-    background: 'linear-gradient(to top, #a855f7, #ec4899)',
+    background: 'linear-gradient(to top, #0ea5e9, #06b6d4)',
     borderRadius: 2,
     animation: `pm-wave 1s ease-in-out infinite`,
     animationDelay: `${delay}s`,
@@ -224,12 +224,10 @@ export function LoadingScreen({
           <div style={{ ...ringBaseStyle, animationDelay: '0.5s' }} />
           <div style={{ ...ringBaseStyle, animationDelay: '1s' }} />
           <div style={logoImageStyle}>
-            <Image
+            <img
               src="/pm-logo-white.png"
               alt="Pocket Marketer"
-              fill
-              style={{ objectFit: 'contain' }}
-              priority
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
             <div style={shimmerStyle} />
           </div>
@@ -241,7 +239,7 @@ export function LoadingScreen({
         {/* Rotating Tips */}
         <div style={tipsContainerStyle}>
           <p style={tipStyle}>
-            <span style={{ display: 'inline-block', marginRight: 6, color: '#a855f7' }}>💡</span>
+            <span style={{ display: 'inline-block', marginRight: 6, color: '#0ea5e9' }}>💡</span>
             {tips[currentTipIndex]}
           </p>
         </div>

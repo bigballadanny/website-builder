@@ -57,7 +57,7 @@ export function useChatHistory() {
       if (persistenceEnabled) {
         const error = new Error('Chat persistence is unavailable');
         logStore.logError('Chat persistence initialization failed', error);
-        toast.error('Chat persistence is unavailable');
+        console.warn('Chat persistence not ready yet');
       }
 
       return;
@@ -220,7 +220,7 @@ ${value.content}
       } catch (error) {
         console.error('Failed to save snapshot:', error);
         setSaveError();
-        toast.error('Failed to save chat snapshot.');
+        console.warn('Chat snapshot save failed');
       }
     },
     [db],
@@ -331,20 +331,28 @@ ${value.content}
 
       if (!finalChatId) {
         console.error('Cannot save messages, chat ID is not set.');
-        toast.error('Failed to save chat messages: Chat ID missing.');
+        console.warn('Chat save skipped: ID not set yet');
 
         return;
       }
 
-      await setMessages(
-        db,
-        finalChatId, // Use the potentially updated chatId
-        [...archivedMessages, ...messages],
-        urlId,
-        description.get(),
-        undefined,
-        chatMetadata.get(),
-      );
+      try {
+        setSaving();
+        await setMessages(
+          db,
+          finalChatId, // Use the potentially updated chatId
+          [...archivedMessages, ...messages],
+          urlId,
+          description.get(),
+          undefined,
+          chatMetadata.get(),
+        );
+        setSaved();
+      } catch (error) {
+        console.error('Failed to save messages:', error);
+        setSaveError();
+        console.warn('Chat save failed - will retry');
+      }
     },
     duplicateCurrentChat: async (listItemId: string) => {
       if (!db || (!mixedId && !listItemId)) {

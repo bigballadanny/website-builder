@@ -9,6 +9,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getTemplate, type TemplateId } from '~/templates';
 import type { BrandDNA } from '~/lib/pm/types';
 import type { ColorScheme } from '~/lib/pm/color-schemes';
+import { getSkillContext, buildAvatarContext, buildBigIdeaContext } from '~/lib/skills';
 
 interface StylingInput {
   colorScheme?: ColorScheme;
@@ -198,7 +199,17 @@ function buildUserPrompt(
   fontFamily: string,
   isDark: boolean
 ): string {
+  // Get marketing frameworks for this template type
+  const skillContext = getSkillContext(templateId);
+  const avatarContext = buildAvatarContext(brandDNA.idealCustomer, brandDNA.problemSolved);
+  const bigIdeaContext = buildBigIdeaContext(brandDNA.differentiators);
+  
   const baseContext = `
+${skillContext}
+
+${avatarContext}
+${bigIdeaContext}
+
 BRAND DETAILS:
 - Business Name: ${brandDNA.companyName}
 - What they do: ${brandDNA.businessDescription}
