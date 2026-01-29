@@ -15,6 +15,7 @@ import { TemplateSelector } from '~/components/pm/TemplateSelector';
 import { PreviewFrame } from '~/components/pm/PreviewFrame';
 import { AICopywritingModal, type InsertableCopy } from '~/components/pm/AICopywritingModal';
 import { TextImprovementPopover } from '~/components/pm/TextImprovementPopover';
+import { AgentContainer } from '~/components/agent';
 import { type TemplateId, getTemplate } from '~/templates';
 import { colorSchemes, fontOptions, type ColorScheme } from '~/lib/pm/color-schemes';
 import type { SectionType } from '~/routes/api.pm-copywriting';
@@ -818,6 +819,38 @@ Examples:
         sectionType={currentSectionType}
         onReplace={handleReplaceText}
         position={improvementPosition}
+      />
+
+      {/* AI Build Mode - Agent Panel */}
+      <AgentContainer
+        onCodeGenerated={(code) => {
+          // Convert the React code to HTML for the preview
+          // For now, we wrap it in a basic HTML structure
+          const htmlWrapper = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${brandInfo.businessName || 'Generated Page'}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root">
+    <!-- Generated React Component Preview -->
+    <div class="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      <div class="container mx-auto px-4 py-8">
+        <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+          <h3 class="text-xl font-semibold mb-4 text-purple-400">✨ AI Generated Component</h3>
+          <pre class="text-sm text-gray-300 overflow-x-auto whitespace-pre-wrap">${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+          setGeneratedHtml(htmlWrapper);
+          setStep('preview');
+        }}
       />
     </div>
   );
