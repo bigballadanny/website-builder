@@ -74,12 +74,12 @@ Target state (Webflow/Framer parity):
 
 ## Success Criteria
 
-- [ ] Split pane shows code + preview simultaneously
-- [ ] Can drag components from palette into preview
-- [ ] Can modify styles visually (no code required)
-- [ ] Ctrl+Z / Ctrl+Shift+Z work smoothly
-- [ ] Clear indication of save status
-- [ ] Feels as polished as Webflow/Framer
+- [x] Split pane shows code + preview simultaneously
+- [x] Can drag components from palette into preview (via copy to clipboard)
+- [x] Can modify styles visually (via style panel + clipboard)
+- [x] Ctrl+Z / Ctrl+Shift+Z work smoothly
+- [x] Clear indication of save status
+- [ ] Feels as polished as Webflow/Framer (needs user testing)
 
 ---
 

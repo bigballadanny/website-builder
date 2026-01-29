@@ -10,11 +10,14 @@
  * 6. Deploy to Cloudflare
  */
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { TemplateSelector } from '~/components/pm/TemplateSelector';
 import { PreviewFrame } from '~/components/pm/PreviewFrame';
+import { AICopywritingModal, type InsertableCopy } from '~/components/pm/AICopywritingModal';
+import { TextImprovementPopover } from '~/components/pm/TextImprovementPopover';
 import { type TemplateId, getTemplate } from '~/templates';
 import { colorSchemes, fontOptions, type ColorScheme } from '~/lib/pm/color-schemes';
+import type { SectionType } from '~/routes/api.pm-copywriting';
 
 type BuilderStep = 'template' | 'styling' | 'brand' | 'generating' | 'preview' | 'deploying' | 'deployed';
 
@@ -54,6 +57,13 @@ export default function Builder() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // AI Copywriting state
+  const [showCopywritingModal, setShowCopywritingModal] = useState(false);
+  const [showImprovementPopover, setShowImprovementPopover] = useState(false);
+  const [selectedText, setSelectedText] = useState('');
+  const [improvementPosition, setImprovementPosition] = useState<{ x: number; y: number } | undefined>();
+  const [currentSectionType, setCurrentSectionType] = useState<SectionType>('hero');
 
   const selectedScheme = colorSchemes.find(s => s.id === styling.colorScheme);
   const selectedFont = fontOptions.find(f => f.id === styling.font);
@@ -180,6 +190,101 @@ export default function Builder() {
     'Add a testimonial section',
     'Make it feel more premium',
   ];
+
+  // Handle AI-generated copy insertion
+  const handleInsertCopy = useCallback(
+    async (copy: InsertableCopy) => {
+      if (!generatedHtml) return;
+
+      setIsGenerating(true);
+      setError(null);
+
+      try {
+        // Use the edit API to insert the AI-generated copy
+        const instruction = `Update the page with this new copy:
+- Headline: "${copy.headline}"
+- Subheadline: "${copy.subheadline}"
+- Update body text with: "${copy.bodyCopy}"
+- CTA button text: "${copy.ctaText}"
+
+Apply these changes to the ${currentSectionType} section. Keep the design and layout intact.`;
+
+        const response = await fetch('/api/pm-edit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentHtml: generatedHtml,
+            instruction,
+            brandInfo,
+            styling: {
+              colorScheme: selectedScheme,
+              font: selectedFont,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        const data = (await response.json()) as { html: string };
+        setGeneratedHtml(data.html);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to insert copy');
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [generatedHtml, brandInfo, selectedScheme, selectedFont, currentSectionType]
+  );
+
+  // Handle text improvement replacement
+  const handleReplaceText = useCallback(
+    async (newText: string) => {
+      if (!generatedHtml || !selectedText) return;
+
+      setIsGenerating(true);
+      setError(null);
+
+      try {
+        const instruction = `Replace this text: "${selectedText}" with: "${newText}"
+Keep everything else exactly the same.`;
+
+        const response = await fetch('/api/pm-edit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentHtml: generatedHtml,
+            instruction,
+            brandInfo,
+            styling: {
+              colorScheme: selectedScheme,
+              font: selectedFont,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        const data = (await response.json()) as { html: string };
+        setGeneratedHtml(data.html);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to replace text');
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [generatedHtml, selectedText, brandInfo, selectedScheme, selectedFont]
+  );
+
+  // Handle text selection for improvement
+  const handleOpenImprovePopover = (text: string, x: number, y: number) => {
+    setSelectedText(text);
+    setImprovementPosition({ x, y });
+    setShowImprovementPopover(true);
+  };
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
@@ -492,10 +597,78 @@ export default function Builder() {
 
             {/* Edit Panel */}
             <div className="w-96 bg-[#132743] rounded-xl p-5 flex flex-col">
-              <h3 className="text-lg font-semibold mb-4">Make Changes</h3>
+              {/* AI Copywriting Section */}
+              <div className="mb-5 pb-4 border-b border-[#1e3a5f]">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span className="text-purple-400">✨</span> AI Copywriting
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setShowCopywritingModal(true)}
+                    className="p-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-lg text-left transition-all group"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span className="font-medium text-white text-sm">AI Write</span>
+                    </div>
+                    <p className="text-xs text-[#94a3b8]">Generate headlines & copy</p>
+                  </button>
+                  <button
+                    onClick={() => {
+                      const selection = window.getSelection();
+                      const text = selection?.toString().trim();
+                      if (text && text.length > 3) {
+                        const rect = selection?.getRangeAt(0).getBoundingClientRect();
+                        handleOpenImprovePopover(
+                          text,
+                          rect?.right || window.innerWidth / 2,
+                          rect?.bottom || window.innerHeight / 2
+                        );
+                      } else {
+                        // Show prompt to select text
+                        setError('Select some text in the preview to improve it');
+                        setTimeout(() => setError(null), 3000);
+                      }
+                    }}
+                    className="p-3 bg-[#1e3a5f]/50 hover:bg-[#1e3a5f] border border-[#1e3a5f] hover:border-[#3b82f6]/50 rounded-lg text-left transition-all"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <span className="font-medium text-white text-sm">Improve</span>
+                    </div>
+                    <p className="text-xs text-[#94a3b8]">Refine selected text</p>
+                  </button>
+                </div>
+
+                {/* Section Type Selector */}
+                <div className="mt-3">
+                  <p className="text-xs text-[#64748b] mb-1.5">Currently editing:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {(['hero', 'features', 'benefits', 'cta', 'about', 'testimonials'] as SectionType[]).map((section) => (
+                      <button
+                        key={section}
+                        onClick={() => setCurrentSectionType(section)}
+                        className={`text-xs px-2 py-1 rounded transition-colors capitalize ${
+                          currentSectionType === section
+                            ? 'bg-[#3b82f6] text-white'
+                            : 'bg-[#0d1f35] text-[#64748b] hover:text-white'
+                        }`}
+                      >
+                        {section}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-lg font-semibold mb-3">Make Changes</h3>
 
               {/* Quick Edits */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <p className="text-xs text-[#64748b] mb-2">Quick edits:</p>
                 <div className="flex flex-wrap gap-2">
                   {quickEdits.map((edit) => (
@@ -513,7 +686,7 @@ export default function Builder() {
               <textarea
                 value={editInstruction}
                 onChange={(e) => setEditInstruction(e.target.value)}
-                className="flex-1 bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-4 py-3 text-white placeholder-[#64748b] focus:border-[#3b82f6] focus:outline-none resize-none mb-4"
+                className="flex-1 min-h-[100px] bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-4 py-3 text-white placeholder-[#64748b] focus:border-[#3b82f6] focus:outline-none resize-none mb-4"
                 placeholder="Describe what you want to change...
 
 Examples:
@@ -626,6 +799,26 @@ Examples:
           </div>
         )}
       </main>
+
+      {/* AI Copywriting Modal */}
+      <AICopywritingModal
+        isOpen={showCopywritingModal}
+        onClose={() => setShowCopywritingModal(false)}
+        onInsert={handleInsertCopy}
+        businessName={brandInfo.businessName}
+        businessDescription={brandInfo.businessDescription}
+        currentSectionType={currentSectionType}
+      />
+
+      {/* Text Improvement Popover */}
+      <TextImprovementPopover
+        isOpen={showImprovementPopover}
+        onClose={() => setShowImprovementPopover(false)}
+        selectedText={selectedText}
+        sectionType={currentSectionType}
+        onReplace={handleReplaceText}
+        position={improvementPosition}
+      />
     </div>
   );
 }

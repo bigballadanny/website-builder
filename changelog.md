@@ -9,6 +9,24 @@
   - Dev server starts on localhost:5174
 
 ### Added
+- **AI Copywriting Assistant** - Generate compelling marketing copy with AI
+  - **AI Write Button** - Opens modal to generate headlines, subheadlines, body copy, and CTAs
+  - **Tone Selection** - Professional, Casual, Bold, Friendly options
+  - **Section-Aware** - Contextual copy for Hero, Features, CTA, About, Testimonials, etc.
+  - **3 Headline Variations** - Pick from multiple options
+  - **Improve This Feature** - Refine selected text (Make shorter, longer, persuasive, simpler, urgent, emotional)
+  - Uses Gemini API for fast, cost-effective generation
+  - New files: AICopywritingModal.tsx, TextImprovementPopover.tsx, api.pm-copywriting.ts
+
+- **Visual Editor Improvements** (PRD-003) - Webflow/Framer-style editing
+  - **Split View Mode** - Code + Preview side-by-side with resizable panels
+  - **Component Palette** - 10+ drag-and-drop components (Hero, Features, CTA, Testimonials, Pricing, Footer)
+  - **Style Panel** - Visual controls for colors, fonts, spacing
+  - **Responsive Preview Toggle** - Desktop/Tablet/Mobile viewport switching
+  - **Undo/Redo System** - Ctrl+Z / Ctrl+Shift+Z with history store
+  - **Autosave Indicator** - Real-time save status (Saved/Saving/Unsaved)
+  - New files: SplitEditor.tsx, ComponentPalette.tsx, StylePanel.tsx, history.ts, autosave.ts
+
 - **Template Library** (d172d5f) - 6 templates with gallery UI
   - Templates: landing-page, sales-page, lead-magnet, coming-soon, agency-portfolio, local-business
   - Enhanced TemplateSelector with grid view
@@ -17,7 +35,7 @@
   - "Start from Scratch" option
 
 ### Known Issues
-- Pre-existing TypeScript errors in RecentProjects.tsx, LoadingScreen.tsx, AutoSaveIndicator.tsx (unrelated to tonight's work)
+- Pre-existing TypeScript errors in RecentProjects.tsx, LoadingScreen.tsx (unrelated to tonight's work)
 
 ---
 
