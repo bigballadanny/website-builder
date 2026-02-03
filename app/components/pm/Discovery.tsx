@@ -105,7 +105,7 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
   const [answers, setAnswers] = useState<Record<string, string>>(
     initialData ? ({ ...initialData } as Record<string, string>) : {},
   );
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('landing-page');
+  const [, setSelectedTemplate] = useState<string>('landing-page');
 
   const step = DISCOVERY_STEPS[currentStep];
   const progress = ((currentStep + 1) / DISCOVERY_STEPS.length) * 100;
@@ -213,7 +213,6 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
           {/* Answer input */}
           <div className="space-y-4">
             {step.options ? (
-              // Option buttons for first question
               <div className="grid gap-3">
                 {step.options.map((option) => (
                   <button
@@ -241,7 +240,6 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
                 ))}
               </div>
             ) : (
-              // Text input for other questions
               <textarea
                 value={answers[step.field] || ''}
                 onChange={(e) => handleAnswer(e.target.value)}

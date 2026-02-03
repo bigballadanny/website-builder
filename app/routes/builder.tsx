@@ -40,7 +40,7 @@ export default function Builder() {
   // Check for PM context (will be replaced with real API call)
   const [hasPMContext, setHasPMContext] = useState<boolean | null>(null);
   const [pmBrandDNA, setPmBrandDNA] = useState<BrandDNA | null>(null);
-  
+
   const [step, setStep] = useState<BuilderStep>('discovery');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId | null>(null);
   const [styling, setStyling] = useState<StylingOptions>({
@@ -62,25 +62,29 @@ export default function Builder() {
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const selectedScheme = colorSchemes.find(s => s.id === styling.colorScheme);
-  const selectedFont = fontOptions.find(f => f.id === styling.font);
+  const selectedScheme = colorSchemes.find((s) => s.id === styling.colorScheme);
+  const selectedFont = fontOptions.find((f) => f.id === styling.font);
 
   // Check for PM project context on mount
   useEffect(() => {
-    // TODO: Replace with real PM API call
-    // For now, simulate no context (will run Discovery)
+    /*
+     * TODO: Replace with real PM API call
+     * For now, simulate no context (will run Discovery)
+     */
     const checkPMContext = async () => {
       try {
-        // const response = await fetch('/api/pm-context');
-        // const data = await response.json();
-        // if (data.hasContext) {
-        //   setPmBrandDNA(data.brandDNA);
-        //   setHasPMContext(true);
-        //   setStep('template');
-        // } else {
-        //   setHasPMContext(false);
-        // }
-        
+        /*
+         * const response = await fetch('/api/pm-context');
+         * const data = await response.json();
+         * if (data.hasContext) {
+         *   setPmBrandDNA(data.brandDNA);
+         *   setHasPMContext(true);
+         *   setStep('template');
+         * } else {
+         *   setHasPMContext(false);
+         * }
+         */
+
         // For now, always start with discovery
         setHasPMContext(false);
       } catch (err) {
@@ -103,18 +107,18 @@ export default function Builder() {
       callToAction: brandDNA.callToAction,
       socialProof: brandDNA.socialProof,
     });
-    
+
     // Recommend template based on goal
     const goalToTemplate: Record<string, TemplateId> = {
-      'leads': 'lead-magnet',
+      leads: 'lead-magnet',
       'sell-low': 'landing-page',
       'sell-high': 'sales-page',
-      'calls': 'landing-page',
-      'launch': 'coming-soon',
+      calls: 'landing-page',
+      launch: 'coming-soon',
     };
     const recommendedTemplate = goalToTemplate[brandDNA.mainGoal] || 'landing-page';
     setSelectedTemplate(recommendedTemplate);
-    
+
     setStep('template');
   };
 
@@ -253,7 +257,7 @@ export default function Builder() {
               <h1 className="text-xl font-semibold">Website Builder</h1>
             </div>
 
-          {/* Step Indicator */}
+            {/* Step Indicator */}
             <div className="flex items-center gap-2 text-sm">
               {['template', 'styling', 'brand', 'preview', 'deployed'].map((s, i) => (
                 <div key={s} className="flex items-center">
@@ -272,7 +276,7 @@ export default function Builder() {
                 </div>
               ))}
             </div>
-        </div>
+          </div>
         </header>
       )}
 
@@ -306,7 +310,17 @@ export default function Builder() {
             {pmBrandDNA?.mainGoal && (
               <div className="mb-6 p-4 rounded-lg bg-[#3b82f6]/10 border border-[#3b82f6]/30">
                 <p className="text-sm text-[#3b82f6]">
-                  ✨ Based on your goal ({pmBrandDNA.mainGoal === 'leads' ? 'capturing leads' : pmBrandDNA.mainGoal === 'sell-low' ? 'selling a product' : pmBrandDNA.mainGoal === 'sell-high' ? 'selling high-ticket' : pmBrandDNA.mainGoal === 'launch' ? 'pre-launch' : 'booking calls'}), we recommend the <strong>{getTemplate(selectedTemplate!)?.name}</strong>.
+                  ✨ Based on your goal (
+                  {pmBrandDNA.mainGoal === 'leads'
+                    ? 'capturing leads'
+                    : pmBrandDNA.mainGoal === 'sell-low'
+                      ? 'selling a product'
+                      : pmBrandDNA.mainGoal === 'sell-high'
+                        ? 'selling high-ticket'
+                        : pmBrandDNA.mainGoal === 'launch'
+                          ? 'pre-launch'
+                          : 'booking calls'}
+                  ), we recommend the <strong>{getTemplate(selectedTemplate!)?.name}</strong>.
                 </p>
               </div>
             )}
@@ -327,9 +341,7 @@ export default function Builder() {
             </div>
 
             <h2 className="text-2xl font-bold mb-2">Choose Your Style</h2>
-            <p className="text-[#94a3b8] mb-8">
-              Select a color scheme and font that matches your brand personality.
-            </p>
+            <p className="text-[#94a3b8] mb-8">Select a color scheme and font that matches your brand personality.</p>
 
             {/* Color Schemes */}
             <div className="mb-8">
@@ -347,18 +359,9 @@ export default function Builder() {
                   >
                     {/* Color Preview */}
                     <div className="flex gap-1 mb-3">
-                      <div
-                        className="w-8 h-8 rounded-lg"
-                        style={{ backgroundColor: scheme.colors.primary }}
-                      />
-                      <div
-                        className="w-8 h-8 rounded-lg"
-                        style={{ backgroundColor: scheme.colors.background }}
-                      />
-                      <div
-                        className="w-8 h-8 rounded-lg"
-                        style={{ backgroundColor: scheme.colors.surface }}
-                      />
+                      <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: scheme.colors.primary }} />
+                      <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: scheme.colors.background }} />
+                      <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: scheme.colors.surface }} />
                     </div>
                     <div className="font-medium text-white text-sm">{scheme.name}</div>
                     <div className="text-xs text-[#64748b]">{scheme.description}</div>
@@ -381,10 +384,7 @@ export default function Builder() {
                         : 'border-[#1e3a5f] bg-[#0d1f35] hover:border-[#3b82f6]/50'
                     }`}
                   >
-                    <div
-                      className="text-2xl font-semibold text-white mb-2"
-                      style={{ fontFamily: font.family }}
-                    >
+                    <div className="text-2xl font-semibold text-white mb-2" style={{ fontFamily: font.family }}>
                       Aa
                     </div>
                     <div className="font-medium text-white text-sm">{font.name}</div>
@@ -406,14 +406,8 @@ export default function Builder() {
                     fontFamily: selectedFont?.family,
                   }}
                 >
-                  <div
-                    className="rounded-lg p-4 mb-4"
-                    style={{ backgroundColor: selectedScheme.colors.surface }}
-                  >
-                    <h4
-                      className="text-xl font-bold mb-2"
-                      style={{ color: selectedScheme.colors.text }}
-                    >
+                  <div className="rounded-lg p-4 mb-4" style={{ backgroundColor: selectedScheme.colors.surface }}>
+                    <h4 className="text-xl font-bold mb-2" style={{ color: selectedScheme.colors.text }}>
                       Your Amazing Headline Here
                     </h4>
                     <p style={{ color: selectedScheme.colors.textMuted }}>
@@ -626,7 +620,12 @@ Examples:
                   className="w-full bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white font-medium py-2 px-4 rounded-lg transition-colors mb-3 flex items-center justify-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                   Download HTML
                 </button>
