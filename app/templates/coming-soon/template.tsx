@@ -99,7 +99,7 @@ export default {
   name: 'Coming Soon',
   description: 'Pre-launch page with email capture',
   category: 'launch',
-  thumbnail: '/templates/coming-soon/preview.png',
+  thumbnail: '/templates/coming-soon/preview.svg',
   prompt: comingSoonPagePrompt,
   sections: comingSoonPageSections,
 };

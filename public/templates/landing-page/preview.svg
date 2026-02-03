@@ -1,0 +1,51 @@
+<svg width="400" height="250" viewBox="0 0 400 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="250" fill="#0a1628"/>
+  
+  <!-- Hero Section -->
+  <rect x="20" y="15" width="360" height="70" rx="4" fill="#132743"/>
+  <!-- Hero headline -->
+  <rect x="100" y="25" width="200" height="12" rx="2" fill="#3b82f6"/>
+  <!-- Hero subtext -->
+  <rect x="120" y="45" width="160" height="6" rx="1" fill="#64748b"/>
+  <!-- CTA Button -->
+  <rect x="155" y="60" width="90" height="18" rx="4" fill="#3b82f6"/>
+  <text x="200" y="73" font-family="system-ui" font-size="8" fill="white" text-anchor="middle">Get Started</text>
+  
+  <!-- Pain Points Section (3 columns) -->
+  <rect x="20" y="95" width="110" height="50" rx="4" fill="#132743"/>
+  <rect x="145" y="95" width="110" height="50" rx="4" fill="#132743"/>
+  <rect x="270" y="95" width="110" height="50" rx="4" fill="#132743"/>
+  <!-- Icons -->
+  <circle cx="75" cy="110" r="8" fill="#3b82f6" opacity="0.8"/>
+  <circle cx="200" cy="110" r="8" fill="#3b82f6" opacity="0.8"/>
+  <circle cx="325" cy="110" r="8" fill="#3b82f6" opacity="0.8"/>
+  <!-- Text lines -->
+  <rect x="35" y="125" width="80" height="4" rx="1" fill="#64748b"/>
+  <rect x="35" y="133" width="60" height="4" rx="1" fill="#475569"/>
+  <rect x="160" y="125" width="80" height="4" rx="1" fill="#64748b"/>
+  <rect x="160" y="133" width="60" height="4" rx="1" fill="#475569"/>
+  <rect x="285" y="125" width="80" height="4" rx="1" fill="#64748b"/>
+  <rect x="285" y="133" width="60" height="4" rx="1" fill="#475569"/>
+  
+  <!-- Benefits Section -->
+  <rect x="20" y="155" width="175" height="40" rx="4" fill="#132743"/>
+  <rect x="205" y="155" width="175" height="40" rx="4" fill="#132743"/>
+  <!-- Checkmarks and text -->
+  <rect x="30" y="163" width="8" height="8" rx="2" fill="#3b82f6"/>
+  <rect x="42" y="165" width="80" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="30" y="177" width="8" height="8" rx="2" fill="#3b82f6"/>
+  <rect x="42" y="179" width="70" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="215" y="163" width="8" height="8" rx="2" fill="#3b82f6"/>
+  <rect x="227" y="165" width="80" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="215" y="177" width="8" height="8" rx="2" fill="#3b82f6"/>
+  <rect x="227" y="179" width="70" height="4" rx="1" fill="#94a3b8"/>
+  
+  <!-- CTA Section -->
+  <rect x="20" y="205" width="360" height="30" rx="4" fill="#132743"/>
+  <rect x="135" y="212" width="130" height="8" rx="2" fill="white" opacity="0.9"/>
+  <rect x="165" y="223" width="70" height="5" rx="1" fill="#64748b"/>
+  
+  <!-- Label -->
+  <text x="200" y="245" font-family="system-ui" font-size="9" fill="#94a3b8" text-anchor="middle" font-weight="500">Landing Page</text>
+</svg>

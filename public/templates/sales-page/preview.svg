@@ -1,0 +1,65 @@
+<svg width="400" height="250" viewBox="0 0 400 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="250" fill="#0a1628"/>
+  
+  <!-- Scrollable long-form indicator -->
+  <rect x="385" y="20" width="4" height="40" rx="2" fill="#3b82f6" opacity="0.6"/>
+  
+  <!-- Hero Section -->
+  <rect x="20" y="15" width="360" height="45" rx="4" fill="#132743"/>
+  <rect x="80" y="22" width="240" height="10" rx="2" fill="#3b82f6"/>
+  <rect x="100" y="38" width="200" height="5" rx="1" fill="#64748b"/>
+  <rect x="165" y="48" width="70" height="6" rx="2" fill="#3b82f6" opacity="0.8"/>
+  
+  <!-- Problem Section -->
+  <rect x="20" y="65" width="175" height="35" rx="4" fill="#132743"/>
+  <text x="30" y="78" font-family="system-ui" font-size="7" fill="#f87171">Problem</text>
+  <rect x="30" y="83" width="120" height="4" rx="1" fill="#64748b"/>
+  <rect x="30" y="90" width="100" height="4" rx="1" fill="#475569"/>
+  
+  <!-- Solution Section -->
+  <rect x="205" y="65" width="175" height="35" rx="4" fill="#132743"/>
+  <text x="215" y="78" font-family="system-ui" font-size="7" fill="#22c55e">Solution</text>
+  <rect x="215" y="83" width="120" height="4" rx="1" fill="#64748b"/>
+  <rect x="215" y="90" width="100" height="4" rx="1" fill="#475569"/>
+  
+  <!-- Features/Benefits Section -->
+  <rect x="20" y="105" width="360" height="40" rx="4" fill="#132743"/>
+  <text x="30" y="118" font-family="system-ui" font-size="7" fill="#94a3b8">What You Get</text>
+  <!-- Feature items -->
+  <rect x="30" y="123" width="100" height="15" rx="2" fill="#0a1628"/>
+  <circle cx="40" cy="130" r="4" fill="#3b82f6"/>
+  <rect x="48" y="128" width="60" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="140" y="123" width="100" height="15" rx="2" fill="#0a1628"/>
+  <circle cx="150" cy="130" r="4" fill="#3b82f6"/>
+  <rect x="158" y="128" width="60" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="250" y="123" width="100" height="15" rx="2" fill="#0a1628"/>
+  <circle cx="260" cy="130" r="4" fill="#3b82f6"/>
+  <rect x="268" y="128" width="60" height="4" rx="1" fill="#94a3b8"/>
+  
+  <!-- Testimonials Section -->
+  <rect x="20" y="150" width="175" height="35" rx="4" fill="#132743"/>
+  <circle cx="40" cy="167" r="10" fill="#64748b"/>
+  <rect x="55" y="160" width="80" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="55" y="168" width="100" height="4" rx="1" fill="#64748b"/>
+  <rect x="55" y="176" width="60" height="3" rx="1" fill="#475569"/>
+  
+  <!-- Pricing Section -->
+  <rect x="205" y="150" width="175" height="35" rx="4" fill="#132743"/>
+  <rect x="215" y="157" width="40" height="6" rx="1" fill="#3b82f6"/>
+  <text x="265" y="162" font-family="system-ui" font-size="10" fill="white" font-weight="bold">$97</text>
+  <rect x="215" y="168" width="120" height="4" rx="1" fill="#64748b"/>
+  <rect x="215" y="175" width="80" height="4" rx="1" fill="#475569"/>
+  
+  <!-- FAQ Section -->
+  <rect x="20" y="190" width="360" height="25" rx="4" fill="#132743"/>
+  <text x="30" y="203" font-family="system-ui" font-size="7" fill="#94a3b8">FAQ</text>
+  <rect x="30" y="207" width="330" height="3" rx="1" fill="#0a1628"/>
+  
+  <!-- Final CTA -->
+  <rect x="100" y="220" width="200" height="18" rx="4" fill="#3b82f6"/>
+  <text x="200" y="232" font-family="system-ui" font-size="9" fill="white" text-anchor="middle" font-weight="500">Buy Now</text>
+  
+  <!-- Label -->
+  <text x="200" y="247" font-family="system-ui" font-size="9" fill="#94a3b8" text-anchor="middle" font-weight="500">Sales Page</text>
+</svg>

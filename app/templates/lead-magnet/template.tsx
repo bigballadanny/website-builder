@@ -91,7 +91,7 @@ export default {
   name: 'Lead Magnet Page',
   description: 'Simple opt-in page for free resources',
   category: 'lead-gen',
-  thumbnail: '/templates/lead-magnet/preview.png',
+  thumbnail: '/templates/lead-magnet/preview.svg',
   prompt: leadMagnetPagePrompt,
   sections: leadMagnetPageSections,
 };
