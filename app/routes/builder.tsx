@@ -2,21 +2,24 @@
  * PM Website Builder - Main Route
  *
  * Complete flow:
- * 1. Select template
- * 2. Choose styling (colors, fonts)
- * 3. Enter brand info
- * 4. Generate page with AI
- * 5. Preview and edit
- * 6. Deploy to Cloudflare
+ * 1. Discovery (if no PM context) - Enhanced interview questions with marketing skills
+ * 2. Select template (recommended based on goal)
+ * 3. Choose styling (colors, fonts)
+ * 4. Review/edit brand info
+ * 5. Generate page with AI
+ * 6. Preview and edit
+ * 7. Deploy to Cloudflare
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TemplateSelector } from '~/components/pm/TemplateSelector';
 import { PreviewFrame } from '~/components/pm/PreviewFrame';
+import { Discovery } from '~/components/pm/Discovery';
 import { type TemplateId, getTemplate } from '~/templates';
 import { colorSchemes, fontOptions, type ColorScheme } from '~/lib/pm/color-schemes';
+import type { BrandDNA } from '~/lib/pm/types';
 
-type BuilderStep = 'template' | 'styling' | 'brand' | 'generating' | 'preview' | 'deploying' | 'deployed';
+type BuilderStep = 'discovery' | 'template' | 'styling' | 'brand' | 'generating' | 'preview' | 'deploying' | 'deployed';
 
 interface BrandInfo {
   businessName: string;
@@ -34,7 +37,11 @@ interface StylingOptions {
 }
 
 export default function Builder() {
-  const [step, setStep] = useState<BuilderStep>('template');
+  // Check for PM context (will be replaced with real API call)
+  const [hasPMContext, setHasPMContext] = useState<boolean | null>(null);
+  const [pmBrandDNA, setPmBrandDNA] = useState<BrandDNA | null>(null);
+  
+  const [step, setStep] = useState<BuilderStep>('discovery');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId | null>(null);
   const [styling, setStyling] = useState<StylingOptions>({
     colorScheme: 'midnight-blue',
@@ -57,6 +64,59 @@ export default function Builder() {
 
   const selectedScheme = colorSchemes.find(s => s.id === styling.colorScheme);
   const selectedFont = fontOptions.find(f => f.id === styling.font);
+
+  // Check for PM project context on mount
+  useEffect(() => {
+    // TODO: Replace with real PM API call
+    // For now, simulate no context (will run Discovery)
+    const checkPMContext = async () => {
+      try {
+        // const response = await fetch('/api/pm-context');
+        // const data = await response.json();
+        // if (data.hasContext) {
+        //   setPmBrandDNA(data.brandDNA);
+        //   setHasPMContext(true);
+        //   setStep('template');
+        // } else {
+        //   setHasPMContext(false);
+        // }
+        
+        // For now, always start with discovery
+        setHasPMContext(false);
+      } catch (err) {
+        console.error('Failed to check PM context:', err);
+        setHasPMContext(false);
+      }
+    };
+    checkPMContext();
+  }, []);
+
+  // Handle discovery completion
+  const handleDiscoveryComplete = (brandDNA: BrandDNA) => {
+    setPmBrandDNA(brandDNA);
+    setBrandInfo({
+      businessName: brandDNA.companyName,
+      businessDescription: brandDNA.businessDescription,
+      idealCustomer: brandDNA.idealCustomer,
+      problemSolved: brandDNA.problemSolved,
+      transformation: brandDNA.desiredTransformation,
+      callToAction: brandDNA.callToAction,
+      socialProof: brandDNA.socialProof,
+    });
+    
+    // Recommend template based on goal
+    const goalToTemplate: Record<string, TemplateId> = {
+      'leads': 'lead-magnet',
+      'sell-low': 'landing-page',
+      'sell-high': 'sales-page',
+      'calls': 'landing-page',
+      'launch': 'coming-soon',
+    };
+    const recommendedTemplate = goalToTemplate[brandDNA.mainGoal] || 'landing-page';
+    setSelectedTemplate(recommendedTemplate);
+    
+    setStep('template');
+  };
 
   // Handle template selection
   const handleTemplateSelect = (templateId: TemplateId) => {
@@ -183,37 +243,40 @@ export default function Builder() {
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-white">
-      {/* Header */}
-      <header className="border-b border-[#1e3a5f] bg-[#0d1f35]">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#3b82f6] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">PM</span>
+      {/* Header - Hidden during Discovery (it has its own) */}
+      {step !== 'discovery' && (
+        <header className="border-b border-[#1e3a5f] bg-[#0d1f35]">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/pm-logo-white.png" alt="Pocket Marketer" className="h-8" />
+              <span className="text-[#94a3b8]">→</span>
+              <h1 className="text-xl font-semibold">Website Builder</h1>
             </div>
-            <h1 className="text-xl font-semibold">Website Builder</h1>
-          </div>
 
-          {/* Step Indicator */}
-          <div className="flex items-center gap-2 text-sm">
-            {['template', 'styling', 'brand', 'preview', 'deployed'].map((s, i) => (
-              <div key={s} className="flex items-center">
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                    step === s
-                      ? 'bg-[#3b82f6] text-white'
-                      : ['template', 'styling', 'brand', 'generating', 'preview', 'deployed'].indexOf(step) > i
-                        ? 'bg-green-500 text-white'
-                        : 'bg-[#1e3a5f] text-[#64748b]'
-                  }`}
-                >
-                  {i + 1}
+          {/* Step Indicator - Hide during discovery for cleaner UX */}
+          {step !== 'discovery' && (
+            <div className="flex items-center gap-2 text-sm">
+              {['template', 'styling', 'brand', 'preview', 'deployed'].map((s, i) => (
+                <div key={s} className="flex items-center">
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                      step === s
+                        ? 'bg-[#3b82f6] text-white'
+                        : ['template', 'styling', 'brand', 'generating', 'preview', 'deployed'].indexOf(step) > i
+                          ? 'bg-green-500 text-white'
+                          : 'bg-[#1e3a5f] text-[#64748b]'
+                    }`}
+                  >
+                    {i + 1}
+                  </div>
+                  {i < 4 && <div className="w-8 h-0.5 bg-[#1e3a5f] mx-1" />}
                 </div>
-                {i < 4 && <div className="w-8 h-0.5 bg-[#1e3a5f] mx-1" />}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
-      </header>
+        </header>
+      )}
 
       {/* Error Banner */}
       {error && (
@@ -228,10 +291,29 @@ export default function Builder() {
       )}
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-6">
+      <main className={step === 'discovery' ? '' : 'max-w-7xl mx-auto p-6'}>
+        {/* Step 0: Discovery (if no PM context) */}
+        {step === 'discovery' && (
+          <Discovery
+            onComplete={handleDiscoveryComplete}
+            onSkip={() => setStep('template')}
+            initialData={pmBrandDNA || undefined}
+          />
+        )}
+
         {/* Step 1: Template Selection */}
         {step === 'template' && (
-          <TemplateSelector onSelect={handleTemplateSelect} selectedId={selectedTemplate || undefined} />
+          <div>
+            {/* Show recommended template banner if we came from discovery */}
+            {pmBrandDNA?.mainGoal && (
+              <div className="mb-6 p-4 rounded-lg bg-[#3b82f6]/10 border border-[#3b82f6]/30">
+                <p className="text-sm text-[#3b82f6]">
+                  ✨ Based on your goal ({pmBrandDNA.mainGoal === 'leads' ? 'capturing leads' : pmBrandDNA.mainGoal === 'sell-low' ? 'selling a product' : pmBrandDNA.mainGoal === 'sell-high' ? 'selling high-ticket' : pmBrandDNA.mainGoal === 'launch' ? 'pre-launch' : 'booking calls'}), we recommend the <strong>{getTemplate(selectedTemplate!)?.name}</strong>.
+                </p>
+              </div>
+            )}
+            <TemplateSelector onSelect={handleTemplateSelect} selectedId={selectedTemplate || undefined} />
+          </div>
         )}
 
         {/* Step 2: Styling Options */}
