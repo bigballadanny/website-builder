@@ -253,8 +253,7 @@ export default function Builder() {
               <h1 className="text-xl font-semibold">Website Builder</h1>
             </div>
 
-          {/* Step Indicator - Hide during discovery for cleaner UX */}
-          {step !== 'discovery' && (
+          {/* Step Indicator */}
             <div className="flex items-center gap-2 text-sm">
               {['template', 'styling', 'brand', 'preview', 'deployed'].map((s, i) => (
                 <div key={s} className="flex items-center">
@@ -273,7 +272,6 @@ export default function Builder() {
                 </div>
               ))}
             </div>
-          )}
         </div>
         </header>
       )}

@@ -295,7 +295,7 @@ export class ActionRunner {
     );
   }
 
-  async #runShellAction(action: ActionState, retryAttempt: number = 0) {
+  async #runShellAction(action: ActionState, retryAttempt: number = 0): Promise<void> {
     if (action.type !== 'shell') {
       unreachable('Expected shell action');
     }

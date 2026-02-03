@@ -1,13 +1,14 @@
 /**
  * Discovery Flow Component
- * 
+ *
  * Enhanced version of PM's Interview questions with marketing skill guidance.
  * Used when user enters Website Builder without PM project context.
- * 
+ *
  * Maps to PM's 12 Interview Questions + adds skill-based enhancements.
  */
 
 import { useState } from 'react';
+import { Link } from '@remix-run/react';
 import type { BrandDNA } from '~/lib/pm/types';
 
 interface DiscoveryProps {
@@ -21,7 +22,7 @@ const DISCOVERY_STEPS = [
   {
     id: 'goal',
     question: "What's the ONE thing you want this website to accomplish?",
-    helper: "Every great marketing page has a single focused goal.",
+    helper: 'Every great marketing page has a single focused goal.',
     options: [
       { value: 'leads', label: '📧 Capture leads (email opt-ins)', template: 'lead-magnet' },
       { value: 'sell-low', label: '💳 Sell a product/service (<$500)', template: 'landing-page' },
@@ -34,64 +35,64 @@ const DISCOVERY_STEPS = [
   },
   {
     id: 'business',
-    question: "What does your business do, in one sentence?",
+    question: 'What does your business do, in one sentence?',
     helper: "Clear and simple. Pretend you're explaining it to a friend.",
-    placeholder: "e.g., We help busy professionals get fit with 20-minute home workouts",
+    placeholder: 'e.g., We help busy professionals get fit with 20-minute home workouts',
     field: 'businessDescription',
     skillContext: 'The clearer your description, the sharper your messaging. Confusion kills sales.',
   },
   {
     id: 'customer',
-    question: "Who is your ideal customer?",
+    question: 'Who is your ideal customer?',
     helper: "Be specific. 'Everyone' is not a customer.",
-    placeholder: "e.g., Working moms aged 30-45 who want to lose weight but have no time for the gym",
+    placeholder: 'e.g., Working moms aged 30-45 who want to lose weight but have no time for the gym',
     field: 'idealCustomer',
     skillContext: 'Customer Avatar Tool: The more specific, the better. Speak to ONE person, reach millions.',
   },
   {
     id: 'problem',
-    question: "What specific problem do you solve for them?",
-    helper: "What pain point are they trying to escape?",
+    question: 'What specific problem do you solve for them?',
+    helper: 'What pain point are they trying to escape?',
     placeholder: "e.g., They've tried diets and gym memberships but always quit because it takes too much time",
     field: 'problemSolved',
     skillContext: 'PAS Framework: Agitate the problem before offering the solution. Make them feel understood.',
   },
   {
     id: 'transformation',
-    question: "What result or transformation do they want most?",
+    question: 'What result or transformation do they want most?',
     helper: "What's the 'after' state they're dreaming of?",
-    placeholder: "e.g., Feel confident in their body, have more energy, fit into their favorite clothes again",
+    placeholder: 'e.g., Feel confident in their body, have more energy, fit into their favorite clothes again',
     field: 'desiredTransformation',
     skillContext: 'Sell the transformation, not the process. People buy outcomes.',
   },
   {
     id: 'offering',
-    question: "What exactly are you selling?",
-    helper: "The specific product, service, or offer.",
-    placeholder: "e.g., 8-week online fitness program with daily 20-minute video workouts and meal plans",
+    question: 'What exactly are you selling?',
+    helper: 'The specific product, service, or offer.',
+    placeholder: 'e.g., 8-week online fitness program with daily 20-minute video workouts and meal plans',
     field: 'offering',
     skillContext: 'Offer Architect: Stack value. What do they get? Be specific with deliverables.',
   },
   {
     id: 'why-you',
-    question: "Why should they choose you over someone else?",
-    helper: "Your unique mechanism or differentiator.",
-    placeholder: "e.g., Our workouts are designed by a NASA scientist for maximum results in minimum time",
+    question: 'Why should they choose you over someone else?',
+    helper: 'Your unique mechanism or differentiator.',
+    placeholder: 'e.g., Our workouts are designed by a NASA scientist for maximum results in minimum time',
     field: 'differentiators',
     skillContext: 'Big Idea: What makes you DIFFERENT, not just better? This is your hook.',
   },
   {
     id: 'cta',
-    question: "What do you want them to do?",
-    helper: "The specific action. One clear CTA.",
-    placeholder: "e.g., Start your free 7-day trial",
+    question: 'What do you want them to do?',
+    helper: 'The specific action. One clear CTA.',
+    placeholder: 'e.g., Start your free 7-day trial',
     field: 'callToAction',
     skillContext: 'Action-oriented, benefit-focused. "Get" beats "Submit". "Start Free Trial" beats "Sign Up".',
   },
   {
     id: 'proof',
-    question: "Do you have any social proof?",
-    helper: "Testimonials, reviews, results, credentials, press?",
+    question: 'Do you have any social proof?',
+    helper: 'Testimonials, reviews, results, credentials, press?',
     placeholder: "e.g., 500+ members, 4.9 star reviews, featured in Women's Health magazine",
     field: 'socialProof',
     isOptional: true,
@@ -102,7 +103,7 @@ const DISCOVERY_STEPS = [
 export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>(
-    initialData ? { ...initialData } as Record<string, string> : {}
+    initialData ? ({ ...initialData } as Record<string, string>) : {},
   );
   const [selectedTemplate, setSelectedTemplate] = useState<string>('landing-page');
 
@@ -115,9 +116,11 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
 
   const handleOptionSelect = (option: { value: string; label: string; template?: string }) => {
     setAnswers((prev) => ({ ...prev, [step.field]: option.value }));
+
     if (option.template) {
       setSelectedTemplate(option.template);
     }
+
     // Auto-advance for option selections
     setTimeout(() => handleNext(), 300);
   };
@@ -156,25 +159,33 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
   const canProceed = step.isOptional || answers[step.field]?.trim();
 
   return (
-    <div className="min-h-screen bg-bolt-elements-background-depth-1 flex flex-col">
-      {/* Progress bar */}
-      <div className="h-1 bg-bolt-elements-background-depth-3">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0a1628' }}>
+      {/* Progress bar - sleek design */}
+      <div className="h-1" style={{ backgroundColor: '#132743' }}>
         <div
-          className="h-full bg-bolt-elements-button-primary-background transition-all duration-300"
-          style={{ width: `${progress}%` }}
+          className="h-full transition-all duration-500 ease-out"
+          style={{
+            width: `${progress}%`,
+            backgroundColor: '#3b82f6',
+          }}
         />
       </div>
 
       {/* Header */}
-      <div className="px-6 py-4 border-b border-bolt-elements-borderColor flex items-center justify-between">
+      <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: '#1e3a5f' }}>
         <div className="flex items-center gap-3">
-          <img src="/pm-logo-white.png" alt="Pocket Marketer" className="h-8" />
-          <span className="text-bolt-elements-textSecondary">Website Builder</span>
+          <Link to="/" className="cursor-pointer hover:opacity-80 transition-opacity">
+            <img src="/pm-logo-white.png" alt="Pocket Marketer" className="h-8" />
+          </Link>
+          <span style={{ color: '#94a3b8' }}>Website Builder</span>
         </div>
         {onSkip && (
           <button
             onClick={onSkip}
-            className="text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary text-sm"
+            className="text-sm transition-colors"
+            style={{ color: '#64748b' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#94a3b8')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
           >
             Skip for now →
           </button>
@@ -185,17 +196,19 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-2xl">
           {/* Step indicator */}
-          <div className="text-center mb-2">
-            <span className="text-bolt-elements-textTertiary text-sm">
+          <div className="text-center mb-3">
+            <span className="text-sm font-medium" style={{ color: '#64748b' }}>
               Step {currentStep + 1} of {DISCOVERY_STEPS.length}
             </span>
           </div>
 
           {/* Question */}
-          <h1 className="text-2xl md:text-3xl font-bold text-bolt-elements-textPrimary text-center mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-center mb-2" style={{ color: 'white' }}>
             {step.question}
           </h1>
-          <p className="text-bolt-elements-textSecondary text-center mb-8">{step.helper}</p>
+          <p className="text-center mb-8" style={{ color: '#94a3b8' }}>
+            {step.helper}
+          </p>
 
           {/* Answer input */}
           <div className="space-y-4">
@@ -206,13 +219,24 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
                   <button
                     key={option.value}
                     onClick={() => handleOptionSelect(option)}
-                    className={`p-4 rounded-lg border text-left transition-all ${
-                      answers[step.field] === option.value
-                        ? 'border-bolt-elements-button-primary-background bg-bolt-elements-button-primary-background/10'
-                        : 'border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive bg-bolt-elements-background-depth-3'
-                    }`}
+                    className="p-4 rounded-xl text-left transition-all duration-200"
+                    style={{
+                      backgroundColor: answers[step.field] === option.value ? 'rgba(59, 130, 246, 0.15)' : '#132743',
+                      border: answers[step.field] === option.value ? '2px solid #3b82f6' : '2px solid #1e3a5f',
+                      color: 'white',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (answers[step.field] !== option.value) {
+                        e.currentTarget.style.borderColor = '#3b82f6';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (answers[step.field] !== option.value) {
+                        e.currentTarget.style.borderColor = '#1e3a5f';
+                      }
+                    }}
                   >
-                    <span className="text-bolt-elements-textPrimary">{option.label}</span>
+                    <span>{option.label}</span>
                   </button>
                 ))}
               </div>
@@ -221,46 +245,108 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
               <textarea
                 value={answers[step.field] || ''}
                 onChange={(e) => handleAnswer(e.target.value)}
+                onKeyDown={(e) => {
+                  // Allow Enter to proceed (Shift+Enter for new line)
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+
+                    if (canProceed) {
+                      handleNext();
+                    }
+                  }
+                }}
                 placeholder={step.placeholder}
                 rows={3}
-                className="w-full p-4 rounded-lg border border-bolt-elements-borderColor bg-bolt-elements-background-depth-3 text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary focus:border-bolt-elements-button-primary-background focus:outline-none resize-none"
+                className="w-full p-4 rounded-xl resize-none transition-all duration-200 focus:outline-none"
+                style={{
+                  backgroundColor: '#132743',
+                  border: '2px solid #1e3a5f',
+                  color: 'white',
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#3b82f6')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#1e3a5f')}
                 autoFocus
               />
             )}
 
             {/* Skill context hint */}
-            <div className="p-3 rounded-lg bg-bolt-elements-button-primary-background/10 border border-bolt-elements-button-primary-background/30">
-              <p className="text-sm text-bolt-elements-textSecondary">
-                <span className="text-bolt-elements-button-primary-background font-medium">💡 Pro tip:</span>{' '}
+            <div
+              className="p-4 rounded-xl"
+              style={{
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+              }}
+            >
+              <p className="text-sm" style={{ color: '#94a3b8' }}>
+                <span className="font-semibold" style={{ color: '#3b82f6' }}>
+                  💡 Pro tip:
+                </span>{' '}
                 {step.skillContext}
               </p>
             </div>
           </div>
 
-          {/* Navigation */}
-          <div className="flex justify-between mt-8">
+          {/* Navigation - Clean & Prominent */}
+          <div className="flex items-center justify-between mt-10 pt-6" style={{ borderTop: '1px solid #1e3a5f' }}>
             <button
               onClick={handleBack}
               disabled={currentStep === 0}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                currentStep === 0
-                  ? 'text-bolt-elements-textTertiary cursor-not-allowed'
-                  : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
-              }`}
+              className="px-5 py-3 rounded-xl font-medium transition-all duration-200"
+              style={{
+                color: currentStep === 0 ? '#475569' : '#94a3b8',
+                cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
+                opacity: currentStep === 0 ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (currentStep > 0) {
+                  e.currentTarget.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (currentStep > 0) {
+                  e.currentTarget.style.color = '#94a3b8';
+                }
+              }}
             >
               ← Back
             </button>
-            <button
-              onClick={handleNext}
-              disabled={!canProceed}
-              className={`px-6 py-3 rounded-lg font-medium transition-all ${
-                canProceed
-                  ? 'bg-bolt-elements-button-primary-background text-white hover:bg-bolt-elements-button-primary-backgroundHover'
-                  : 'bg-bolt-elements-background-depth-3 text-bolt-elements-textTertiary cursor-not-allowed'
-              }`}
-            >
-              {currentStep === DISCOVERY_STEPS.length - 1 ? 'Generate Website →' : 'Continue →'}
-            </button>
+
+            <div className="flex items-center gap-4">
+              {/* Press Enter hint - subtle but visible */}
+              {canProceed && !step.options && (
+                <span className="text-sm hidden sm:block" style={{ color: '#64748b' }}>
+                  Press{' '}
+                  <kbd className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#1e3a5f', color: '#94a3b8' }}>
+                    Enter ↵
+                  </kbd>
+                </span>
+              )}
+
+              {/* Continue button - ALWAYS blue when enabled */}
+              <button
+                onClick={handleNext}
+                disabled={!canProceed}
+                className="px-8 py-3.5 rounded-xl font-semibold transition-all duration-200 shadow-lg"
+                style={{
+                  backgroundColor: canProceed ? '#3b82f6' : '#1e3a5f',
+                  color: canProceed ? 'white' : '#475569',
+                  cursor: canProceed ? 'pointer' : 'not-allowed',
+                  boxShadow: canProceed ? '0 4px 14px rgba(59, 130, 246, 0.35)' : 'none',
+                }}
+                onMouseEnter={(e) => {
+                  if (canProceed) {
+                    e.currentTarget.style.backgroundColor = '#2563eb';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (canProceed) {
+                    e.currentTarget.style.backgroundColor = '#3b82f6';
+                  }
+                }}
+              >
+                {currentStep === DISCOVERY_STEPS.length - 1 ? 'Generate Website →' : 'Continue →'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
