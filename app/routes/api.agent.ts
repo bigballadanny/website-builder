@@ -18,13 +18,13 @@ import type { AgentStep, PageStructure, SectionContent, ModelTier } from '~/lib/
 
 // Model selection
 const MODELS = {
-  standard: 'claude-sonnet-4-20250514',
-  premium: 'claude-opus-4-20250514',
+  standard: 'claude-3-5-sonnet-20241022',
+  premium: 'claude-3-opus-20240229',
 };
 
 const OPENROUTER_MODELS = {
-  standard: 'anthropic/claude-sonnet-4',
-  premium: 'anthropic/claude-opus-4',
+  standard: 'anthropic/claude-3.5-sonnet',
+  premium: 'anthropic/claude-3-opus',
 };
 
 interface AgentRequest {
@@ -79,7 +79,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
     switch (action) {
       case 'understand':
-        userPrompt = getUnderstandingPrompt(body.message || '');
+        userPrompt = getUnderstandingPrompt(body.message || '', body.context);
         break;
 
       case 'structure':

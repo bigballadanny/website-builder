@@ -38,6 +38,10 @@ interface AgentPanelProps {
   onAcceptCode: (code: string) => void;
   onRegenerate: () => void;
   generatedCode?: string | null;
+  brandDetails?: {
+    businessName: string;
+    mainGoal: string;
+  };
 }
 
 export function AgentPanel({
@@ -46,6 +50,7 @@ export function AgentPanel({
   onAcceptCode,
   onRegenerate,
   generatedCode,
+  brandDetails,
 }: AgentPanelProps) {
   const messages = useStore(agentMessages);
   const step = useStore(agentStep);
@@ -130,11 +135,10 @@ export function AgentPanel({
           {/* Model tier toggle */}
           <button
             onClick={() => setModelTier(modelTier === 'standard' ? 'premium' : 'standard')}
-            className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-              modelTier === 'premium'
-                ? 'bg-amber-500/20 text-amber-500'
-                : 'bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
-            }`}
+            className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${modelTier === 'premium'
+              ? 'bg-amber-500/20 text-amber-500'
+              : 'bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+              }`}
             title={modelTier === 'premium' ? 'Using Opus 4 (Premium)' : 'Using Sonnet 4 (Standard)'}
           >
             {modelTier === 'premium' ? (
@@ -173,17 +177,25 @@ export function AgentPanel({
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <Wand2 className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-semibold text-bolt-elements-textPrimary mb-2">Let's build your page!</h3>
+            <h3 className="text-lg font-semibold text-bolt-elements-textPrimary mb-2">Marketing AI Mode</h3>
             <p className="text-sm text-bolt-elements-textSecondary max-w-xs mx-auto">
-              Tell me what kind of page you want. Be as specific or vague as you like - I'll ask questions to understand
-              your vision.
+              I'm the Pocket Marketer AI, powered by the Bolt engine. I've already indexed your BrandDNA and business goals.
+              <br /><br />
+              Tell me how you'd like to refine your site, or use the suggestions below!
             </p>
             <div className="mt-6 flex flex-wrap gap-2 justify-center">
-              {[
-                'Landing page for my coaching business',
-                'Sales page for an online course',
-                'Coming soon page for a new product',
-              ].map((suggestion) => (
+              {(brandDetails?.businessName
+                ? [
+                  `Build a ${brandDetails.mainGoal || 'landing'} page for ${brandDetails.businessName}`,
+                  `Create a high-converting ${brandDetails.mainGoal || 'lead'} magnet`,
+                  'Make the design more premium',
+                ]
+                : [
+                  'Landing page for my coaching business',
+                  'Sales page for an online course',
+                  'Coming soon page for a new product',
+                ]
+              ).map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => {

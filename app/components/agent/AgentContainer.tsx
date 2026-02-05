@@ -16,13 +16,15 @@ import type { RefinementCommand } from '~/lib/agent/types';
 
 interface AgentContainerProps {
   onCodeGenerated?: (code: string) => void;
+  brandDNA?: any;
+  styling?: any;
 }
 
-export function AgentContainer({ onCodeGenerated }: AgentContainerProps) {
+export function AgentContainer({ onCodeGenerated, brandDNA, styling }: AgentContainerProps) {
   const isVisible = useStore(showAgentPanel);
   const code = useStore(generatedCodeStore);
 
-  const { sendMessage, applyRefinement, regenerate } = useAgent({
+  const { sendMessage, applyRefinement, regenerate, setContext } = useAgent({
     onCodeGenerated: (generatedCode) => {
       onCodeGenerated?.(generatedCode);
       toast.success('🎉 Page generated! Review it in the preview.');
@@ -31,6 +33,19 @@ export function AgentContainer({ onCodeGenerated }: AgentContainerProps) {
       toast.error(`AI Error: ${error}`);
     },
   });
+
+  // Sync context when brandDNA or styling changes
+  React.useEffect(() => {
+    if (brandDNA || styling) {
+      setContext({
+        brandDNA: JSON.stringify(brandDNA),
+        styling: JSON.stringify(styling),
+        businessDescription: brandDNA?.businessDescription,
+        idealCustomer: brandDNA?.idealCustomer,
+        companyName: brandDNA?.companyName,
+      });
+    }
+  }, [brandDNA, styling, setContext]);
 
   const handleSendMessage = useCallback(
     async (message: string) => {
@@ -72,6 +87,14 @@ export function AgentContainer({ onCodeGenerated }: AgentContainerProps) {
             onAcceptCode={handleAcceptCode}
             onRegenerate={handleRegenerate}
             generatedCode={code}
+            brandDetails={
+              brandDNA
+                ? {
+                  businessName: brandDNA.companyName,
+                  mainGoal: brandDNA.mainGoal,
+                }
+                : undefined
+            }
           />
         )}
       </AnimatePresence>

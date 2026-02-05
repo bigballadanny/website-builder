@@ -5,12 +5,27 @@
 
 import { useState } from 'react';
 import { templateList, categories, type TemplateId, templates } from '~/templates';
+import { Layout, FileText, MousePointer2, Rocket, Briefcase, Store } from 'lucide-react';
 
 interface TemplateSelectorProps {
   onSelect: (templateId: TemplateId) => void;
   onStartBlank?: () => void;
   selectedId?: TemplateId;
 }
+
+const templatePreviews: Record<string, string> = {
+  'landing-page': '/templates/landing-page.png',
+  'sales-page': '/templates/sales-page.png',
+};
+
+const templateIcons: Record<string, any> = {
+  'landing-page': Layout,
+  'sales-page': FileText,
+  'lead-magnet': MousePointer2,
+  'coming-soon': Rocket,
+  'agency-portfolio': Briefcase,
+  'local-business': Store,
+};
 
 export function TemplateSelector({ onSelect, onStartBlank, selectedId }: TemplateSelectorProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -46,9 +61,8 @@ export function TemplateSelector({ onSelect, onStartBlank, selectedId }: Templat
       <div className="flex flex-wrap gap-2 mb-6">
         <button
           onClick={() => setActiveCategory(null)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            activeCategory === null ? 'bg-[#3b82f6] text-white' : 'bg-[#132743] text-[#94a3b8] hover:text-white'
-          }`}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeCategory === null ? 'bg-[#3b82f6] text-white' : 'bg-[#132743] text-[#94a3b8] hover:text-white'
+            }`}
         >
           All Templates
         </button>
@@ -56,9 +70,8 @@ export function TemplateSelector({ onSelect, onStartBlank, selectedId }: Templat
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              activeCategory === cat.id ? 'bg-[#3b82f6] text-white' : 'bg-[#132743] text-[#94a3b8] hover:text-white'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeCategory === cat.id ? 'bg-[#3b82f6] text-white' : 'bg-[#132743] text-[#94a3b8] hover:text-white'
+              }`}
           >
             {cat.name}
           </button>
@@ -92,11 +105,18 @@ export function TemplateSelector({ onSelect, onStartBlank, selectedId }: Templat
             className={`pm-template-card relative cursor-pointer group ${selectedId === template.id ? 'ring-2 ring-[#3b82f6]' : ''}`}
           >
             {/* Preview Image */}
-            <div className="preview bg-gradient-to-br from-[#0d1f35] to-[#132743] aspect-video relative overflow-hidden">
-              {/* Template Preview Illustration */}
-              <div className="absolute inset-0 p-3 opacity-60">
-                <TemplatePreviewIllustration templateId={template.id as TemplateId} />
-              </div>
+            <div className="preview bg-[#0d1f35] aspect-video relative overflow-hidden flex items-center justify-center">
+              {templatePreviews[template.id] ? (
+                <img
+                  src={templatePreviews[template.id]}
+                  alt={template.name}
+                  className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity"
+                />
+              ) : (
+                <div className="absolute inset-0 p-4 bg-gradient-to-br from-[#132743] to-[#0a1628]">
+                  <TemplatePreviewIllustration templateId={template.id as TemplateId} />
+                </div>
+              )}
 
               {/* Hover Overlay */}
               <div className="absolute inset-0 bg-[#0a1628]/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
@@ -172,40 +192,22 @@ export function TemplateSelector({ onSelect, onStartBlank, selectedId }: Templat
  */
 function TemplatePreviewIllustration({ templateId }: { templateId: TemplateId }) {
   const template = templates[templateId];
-
-  // Generate a simple visual based on sections
-  const sectionColors: Record<string, string> = {
-    hero: '#3b82f6',
-    services: '#10b981',
-    'pain-points': '#f59e0b',
-    solution: '#8b5cf6',
-    benefits: '#06b6d4',
-    testimonials: '#ec4899',
-    'social-proof': '#ec4899',
-    about: '#6366f1',
-    pricing: '#14b8a6',
-    faq: '#f97316',
-    'final-cta': '#3b82f6',
-    contact: '#22c55e',
-    footer: '#475569',
-    'email-capture': '#3b82f6',
-    portfolio: '#8b5cf6',
-    reviews: '#ec4899',
-    'hours-location': '#f59e0b',
-  };
+  const Icon = templateIcons[templateId] || Layout;
 
   return (
-    <div className="w-full h-full flex flex-col gap-1">
-      {template.sections.slice(0, 6).map((section, index) => (
-        <div
-          key={section.id}
-          className="rounded-sm opacity-80"
-          style={{
-            backgroundColor: sectionColors[section.id] || '#64748b',
-            height: index === 0 ? '30%' : `${70 / Math.min(template.sections.length - 1, 5)}%`,
-          }}
-        />
-      ))}
+    <div className="w-full h-full flex flex-col items-center justify-center relative">
+      <div className="absolute top-2 left-2 right-2 bottom-12 border border-[#1e3a5f]/50 border-dashed rounded flex flex-col gap-1 p-2">
+        <div className="h-4 w-1/3 bg-[#3b82f6]/20 rounded-sm" />
+        <div className="h-2 w-2/3 bg-[#1e3a5f] rounded-sm" />
+        <div className="flex gap-1 flex-1">
+          <div className="flex-[2] bg-[#132743] rounded-sm border border-[#1e3a5f]/30" />
+          <div className="flex-1 bg-[#132743] rounded-sm border border-[#1e3a5f]/30" />
+        </div>
+      </div>
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[#3b82f6]/50">
+        <Icon size={24} strokeWidth={1.5} />
+        <span className="text-[10px] uppercase tracking-wider font-semibold opacity-50">Wireframe Preview</span>
+      </div>
     </div>
   );
 }

@@ -61,19 +61,27 @@ When proposing page structure, use this JSON format:
 /**
  * Prompt for understanding/clarifying stage
  */
-export function getUnderstandingPrompt(userRequest: string): string {
-  return `The user wants to build a page. Here's their initial request:
+export function getUnderstandingPrompt(userRequest: string, context?: Record<string, string>): string {
+  const contextStr = context ? Object.entries(context).map(([k, v]) => `- ${k}: ${v}`).join('\n') : '';
 
+  return `The user wants to build a page. Here's their initial request:
 "${userRequest}"
 
-Your task is to understand their needs better. Ask 2-3 smart clarifying questions that will help you create a page that truly fits their business.
+${context ? `## Current Context (from Discovery Flow)\n${JSON.stringify(context, null, 2)}` : ''}
 
-Focus on:
-1. What makes their business unique?
-2. Who is their ideal customer?
-3. What action do they want visitors to take?
+Your task is to understand their needs better. 
 
-Be conversational and enthusiastic. Don't ask generic questions - make them specific to what they shared.`;
+**CRITICAL RULE:** If the provided Context (BrandDNA) already contains the business description, ideal customer, and specific goals, DO NOT ASK QUESTIONS. Instead, jump straight to proposing the page structure by outputting the PageStructure JSON.
+
+If you DO need to ask questions, ask 2-3 smart clarifying questions. 
+
+Proposing Structure (if ready):
+Output a JSON object wrapped in \`\`\`json \`\`\` tags with:
+- title, description
+- sections (hero, features, benefits, testimonials, cta, etc.)
+- colorScheme (primary, secondary, accent, background, text)
+
+Be conversational and enthusiastic.`;
 }
 
 /**
@@ -84,8 +92,8 @@ export function getStructurePrompt(context: Record<string, string>, userPreferen
 
 ## Business Context
 ${Object.entries(context)
-  .map(([key, value]) => `- ${key}: ${value}`)
-  .join('\n')}
+      .map(([key, value]) => `- ${key}: ${value}`)
+      .join('\n')}
 
 ${userPreferences ? `## User Preferences\n${userPreferences}` : ''}
 
@@ -210,8 +218,8 @@ export function getSectionCopyPrompt(
 
 ## Business Context
 ${Object.entries(context)
-  .map(([key, value]) => `- ${key}: ${value}`)
-  .join('\n')}
+      .map(([key, value]) => `- ${key}: ${value}`)
+      .join('\n')}
 
 ## Page Structure
 ${pageStructure.sections.map((s) => `${s.order}. ${s.title} (${s.type})`).join('\n')}
@@ -258,8 +266,8 @@ ${JSON.stringify(sectionContents, null, 2)}
 
 ## Business Context
 ${Object.entries(context)
-  .map(([key, value]) => `- ${key}: ${value}`)
-  .join('\n')}
+      .map(([key, value]) => `- ${key}: ${value}`)
+      .join('\n')}
 
 ## Requirements
 1. Use React with Tailwind CSS

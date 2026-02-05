@@ -3,6 +3,10 @@
 
 :root,
 :root[data-theme='dark'] {
+  /* Typography */
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'DM Sans', sans-serif;
+
   /* Background layers - Dark navy */
   --bolt-elements-bg-depth-1: #0a1628;
   --bolt-elements-bg-depth-2: #0d1f35;
@@ -21,7 +25,7 @@
   /* Accent colors - PM Blue */
   --bolt-elements-accent: #3b82f6;
   --bolt-elements-accent-hover: #2563eb;
-  
+
   /* Primary button - Blue filled */
   --bolt-elements-button-primary-background: #3b82f6;
   --bolt-elements-button-primary-backgroundHover: #2563eb;
@@ -73,6 +77,21 @@
   --modern-scrollbar-thumb-backgroundHover: rgba(59, 130, 246, 0.5);
 }
 
+body {
+  font-family: var(--font-body);
+  font-optical-sizing: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.text-display {
+  font-family: var(--font-display);
+}
+
 /* Force dark theme */
 :root {
   color-scheme: dark;
@@ -93,7 +112,7 @@
   border-radius: 6px;
   font-weight: 500;
   transition: background 0.2s;
-  
+
   &:hover {
     background: #2563eb;
   }
@@ -105,12 +124,12 @@
   border-radius: 6px;
   padding: 0.75rem 1rem;
   color: white;
-  
+
   &:focus {
     border-color: #3b82f6;
     outline: none;
   }
-  
+
   &::placeholder {
     color: #64748b;
   }
@@ -121,12 +140,12 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  
+
   img {
     height: 32px;
     width: auto;
   }
-  
+
   span {
     font-size: 1.25rem;
     font-weight: 600;
@@ -142,31 +161,31 @@
   overflow: hidden;
   transition: border-color 0.2s, transform 0.2s;
   cursor: pointer;
-  
+
   &:hover {
     border-color: #3b82f6;
     transform: translateY(-2px);
   }
-  
+
   &.selected {
     border-color: #3b82f6;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
   }
-  
+
   .preview {
     aspect-ratio: 16/10;
     background: #0d1f35;
   }
-  
+
   .info {
     padding: 1rem;
-    
+
     h3 {
       color: white;
       font-weight: 600;
       margin-bottom: 0.25rem;
     }
-    
+
     p {
       color: #94a3b8;
       font-size: 0.875rem;
@@ -180,18 +199,18 @@
   border: 1px solid #1e3a5f;
   border-radius: 12px;
   padding: 1rem;
-  
+
   textarea {
     background: transparent;
     border: none;
     color: white;
     width: 100%;
     resize: none;
-    
+
     &:focus {
       outline: none;
     }
-    
+
     &::placeholder {
       color: #64748b;
     }
@@ -213,17 +232,17 @@
   background: #132743;
   padding: 0.25rem;
   border-radius: 8px;
-  
+
   button {
     padding: 0.5rem 1rem;
     border-radius: 6px;
     color: #94a3b8;
     transition: all 0.2s;
-    
+
     &:hover {
       color: white;
     }
-    
+
     &.active {
       background: #3b82f6;
       color: white;

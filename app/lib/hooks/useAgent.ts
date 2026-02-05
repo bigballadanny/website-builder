@@ -203,12 +203,8 @@ export function useAgent(options: UseAgentOptions = {}) {
 
           if (parsedStructure) {
             setPageStructure(parsedStructure);
-            updateStep('generating-structure');
-            updateProgress({
-              progress: 20,
-              message: 'Page structure designed!',
-              sectionsTotal: parsedStructure.sections.length,
-            });
+            // Automatically transition to full generation flow
+            await generateFullPage(message);
           }
         }
       } catch (error) {

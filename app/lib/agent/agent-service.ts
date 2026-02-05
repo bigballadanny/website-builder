@@ -31,14 +31,14 @@ const OPENROUTER_API_KEY = typeof process !== 'undefined' ? process.env.OPEN_ROU
 
 // Model selection based on tier
 const MODELS = {
-  standard: 'claude-sonnet-4-20250514',
-  premium: 'claude-opus-4-20250514',
+  standard: 'claude-3-5-sonnet-20241022',
+  premium: 'claude-3-opus-20240229',
 };
 
 // OpenRouter model names
 const OPENROUTER_MODELS = {
-  standard: 'anthropic/claude-sonnet-4',
-  premium: 'anthropic/claude-opus-4',
+  standard: 'anthropic/claude-3.5-sonnet',
+  premium: 'anthropic/claude-3-opus',
 };
 
 export interface AgentServiceConfig {
