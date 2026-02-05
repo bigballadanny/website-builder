@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
 
 interface LoadingOverlayProps {
@@ -132,17 +130,17 @@ export function LoadingOverlay({
         <div className="relative w-[100px] h-[100px] mb-10">
           {/* Outer spinning ring */}
           <div 
-            className="absolute -inset-5 border-3 border-transparent border-t-purple-500 rounded-full"
+            className="absolute -inset-5 border-3 border-transparent border-t-blue-500 rounded-full"
             style={{ animation: 'pm-spin 1.5s linear infinite' }}
           />
           {/* Middle reverse-spinning ring */}
           <div 
-            className="absolute -inset-3 border-2 border-transparent border-b-pink-500 rounded-full"
+            className="absolute -inset-3 border-2 border-transparent border-b-blue-400 rounded-full"
             style={{ animation: 'pm-spin-reverse 2s linear infinite' }}
           />
           {/* Inner glow */}
           <div 
-            className="absolute -inset-2 bg-gradient-radial from-purple-500/30 to-transparent rounded-full"
+            className="absolute -inset-2 bg-gradient-radial from-blue-500/30 to-transparent rounded-full"
             style={{ animation: 'pm-pulse-glow 2s ease-in-out infinite' }}
           />
           {/* Logo */}
@@ -150,7 +148,7 @@ export function LoadingOverlay({
             className="relative w-full h-full"
             style={{ 
               animation: 'pm-float-logo 3s ease-in-out infinite',
-              filter: 'drop-shadow(0 0 30px rgba(14, 165, 233, 0.6))'
+              filter: 'drop-shadow(0 0 30px rgba(59, 130, 246, 0.6))'
             }}
           >
             <img
@@ -168,7 +166,7 @@ export function LoadingOverlay({
         
         {/* Stage Label */}
         {stage && (
-          <p className="text-base text-purple-500 mb-6 text-center font-medium">
+          <p className="text-base text-blue-500 mb-6 text-center font-medium">
             {stage}
           </p>
         )}
@@ -179,7 +177,7 @@ export function LoadingOverlay({
             <div 
               className="h-full rounded"
               style={{
-                background: 'linear-gradient(90deg, #0ea5e9, #06b6d4, #0ea5e9)',
+                background: 'linear-gradient(90deg, #3b82f6, #2563eb, #3b82f6)',
                 backgroundSize: '200% 100%',
                 width: isDeterminate ? `${progress}%` : '30%',
                 transition: 'width 0.3s ease',
