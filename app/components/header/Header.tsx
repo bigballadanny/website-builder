@@ -25,11 +25,15 @@ export function Header() {
         </a>
       </div>
 
-      {/* Website Builder link - always visible */}
+      {/* Start New Project - triggers Discovery flow */}
       {!chat.started && (
         <div className="flex-1 flex justify-end">
-          <Link
-            to="/builder"
+          <button
+            onClick={() => {
+              // Clear brand context to trigger Discovery
+              localStorage.removeItem('pm-brand-context');
+              window.location.reload();
+            }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-bolt-elements-button-primary-background hover:bg-bolt-elements-button-primary-backgroundHover text-bolt-elements-button-primary-text text-sm font-medium transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,11 +41,11 @@ export function Header() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                d="M12 4v16m8-8H4"
               />
             </svg>
-            Website Builder
-          </Link>
+            New Project
+          </button>
         </div>
       )}
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
