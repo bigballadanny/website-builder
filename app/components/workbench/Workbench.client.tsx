@@ -20,6 +20,7 @@ import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
+import { SplitEditor } from './SplitEditor';
 import useViewport from '~/lib/hooks';
 
 import { usePreviewStore } from '~/lib/stores/previews';
@@ -48,8 +49,8 @@ const sliderOptions: SliderOptions<WorkbenchViewType> = {
     text: 'Code',
   },
   middle: {
-    value: 'diff',
-    text: 'Diff',
+    value: 'split',
+    text: 'Split',
   },
   right: {
     value: 'preview',
@@ -467,6 +468,13 @@ export const Workbench = memo(
                     </div>
                   )}
 
+                  {/* Diff view access button */}
+                  <IconButton
+                    icon="i-ph:git-diff"
+                    title="View file changes"
+                    onClick={() => setSelectedView('diff')}
+                    className={selectedView === 'diff' ? 'bg-bolt-elements-background-depth-3' : ''}
+                  />
                   {selectedView === 'diff' && (
                     <FileModifiedDropdown fileHistory={fileHistory} onSelectFile={handleSelectFile} />
                   )}
@@ -480,7 +488,11 @@ export const Workbench = memo(
                   />
                 </div>
                 <div className="relative flex-1 overflow-hidden">
-                  <View initial={{ x: '0%' }} animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}>
+                  {/* Code-only view */}
+                  <View 
+                    initial={{ x: '0%' }} 
+                    animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}
+                  >
                     <EditorPanel
                       editorDocument={currentDocument}
                       isStreaming={isStreaming}
@@ -495,13 +507,45 @@ export const Workbench = memo(
                       onFileReset={onFileReset}
                     />
                   </View>
+                  {/* Split view - Code + Preview side by side */}
                   <View
                     initial={{ x: '100%' }}
-                    animate={{ x: selectedView === 'diff' ? '0%' : selectedView === 'code' ? '100%' : '-100%' }}
+                    animate={{ 
+                      x: selectedView === 'split' ? '0%' : 
+                         selectedView === 'code' ? '100%' : '-100%' 
+                    }}
+                  >
+                    <SplitEditor
+                      editorDocument={currentDocument}
+                      isStreaming={isStreaming}
+                      selectedFile={selectedFile}
+                      files={files}
+                      unsavedFiles={unsavedFiles}
+                      fileHistory={fileHistory}
+                      onFileSelect={onFileSelect}
+                      onEditorScroll={onEditorScroll}
+                      onEditorChange={onEditorChange}
+                      onFileSave={onFileSave}
+                      onFileReset={onFileReset}
+                      setSelectedElement={setSelectedElement}
+                    />
+                  </View>
+                  {/* Diff view */}
+                  <View
+                    initial={{ x: '100%' }}
+                    animate={{ 
+                      x: selectedView === 'diff' ? '0%' : '100%' 
+                    }}
                   >
                     <DiffView fileHistory={fileHistory} setFileHistory={setFileHistory} />
                   </View>
-                  <View initial={{ x: '100%' }} animate={{ x: selectedView === 'preview' ? '0%' : '100%' }}>
+                  {/* Preview-only view */}
+                  <View 
+                    initial={{ x: '100%' }} 
+                    animate={{ 
+                      x: selectedView === 'preview' ? '0%' : '100%' 
+                    }}
+                  >
                     <Preview setSelectedElement={setSelectedElement} />
                   </View>
                 </div>

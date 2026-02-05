@@ -8,7 +8,8 @@ import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import type { ElementInfo } from './Inspector';
 import { LoadingScreen } from '~/components/pm';
-import { previewStatus, type PreviewStatus } from '~/lib/stores/preview-status';
+import { previewStatus } from '~/lib/stores/preview-status';
+import { staticPreviewState, createStaticPreview } from '~/lib/stores/staticPreview';
 
 type ResizeSide = 'left' | 'right' | null;
 
@@ -68,20 +69,13 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
   const currentPreviewStatus = useStore(previewStatus);
-  const [previewTimedOut, setPreviewTimedOut] = useState(false);
+
+  // Static preview fallback
+  const staticPreview = useStore(staticPreviewState);
+  const files = useStore(workbenchStore.files);
 
   // Debug logging
-  console.log(
-    '[Preview.tsx] 🖼️ Render - previews:',
-    previews,
-    'activeIndex:',
-    activePreviewIndex,
-    'activePreview:',
-    activePreview,
-    'status:',
-    currentPreviewStatus,
-  );
-
+  console.log('[Preview.tsx] 🖼️ Render - previews:', previews, 'activeIndex:', activePreviewIndex, 'activePreview:', activePreview, 'status:', currentPreviewStatus, 'staticPreview:', staticPreview?.url ? 'available' : 'none');
   const [displayPath, setDisplayPath] = useState('/');
   const [iframeUrl, setIframeUrl] = useState<string | undefined>();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -91,6 +85,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const [currentWidth, setCurrentWidth] = useState<number>(0);
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [iframeError, setIframeError] = useState<string | null>(null);
+  const [isUsingStaticPreview, setIsUsingStaticPreview] = useState(false);
 
   // Timeout for preview loading
   useEffect(() => {
@@ -153,7 +148,36 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     setDisplayPath('/');
     setIsIframeLoading(true);
     setIframeError(null);
+    // Switch away from static preview when WebContainer is ready
+    setIsUsingStaticPreview(false);
   }, [activePreview]);
+
+  // Generate static preview when files change and no WebContainer preview is available
+  useEffect(() => {
+    // Only generate static preview if we don't have a WebContainer preview
+    if (activePreview) {
+      console.log('[Preview.tsx] 📦 WebContainer preview available, skipping static preview');
+      return;
+    }
+
+    // Check if we have HTML files to preview
+    const hasHtmlFiles = Object.keys(files).some(path => path.endsWith('.html'));
+    if (!hasHtmlFiles) {
+      console.log('[Preview.tsx] 📄 No HTML files found, skipping static preview');
+      return;
+    }
+
+    console.log('[Preview.tsx] 🔧 Generating static preview from files...');
+    const staticUrl = createStaticPreview(files);
+
+    if (staticUrl) {
+      console.log('[Preview.tsx] ✅ Static preview generated:', staticUrl);
+      setIsUsingStaticPreview(true);
+      setIframeUrl(staticUrl);
+      setIsIframeLoading(true);
+      setIframeError(null);
+    }
+  }, [files, activePreview]);
 
   const handleIframeLoad = useCallback(() => {
     console.log('[Preview.tsx] ✅ Iframe loaded successfully');
@@ -878,36 +902,32 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Show Device Frame</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
-                            showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                          } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                            } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setShowDeviceFrame(!showDeviceFrame);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                              showDeviceFrame ? 'transform translate-x-5' : ''
-                            }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${showDeviceFrame ? 'transform translate-x-5' : ''
+                              }`}
                           />
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Landscape Mode</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
-                            isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                          } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                            } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsLandscape(!isLandscape);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                              isLandscape ? 'transform translate-x-5' : ''
-                            }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${isLandscape ? 'transform translate-x-5' : ''
+                              }`}
                           />
                         </button>
                       </div>
@@ -976,12 +996,29 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
             alignItems: 'center',
           }}
         >
-          {activePreview ? (
+          {(activePreview || isUsingStaticPreview) ? (
             <>
+              {/* Static preview indicator */}
+              {isUsingStaticPreview && (
+                <div className="absolute top-2 left-2 z-20 flex items-center gap-2 bg-blue-500/90 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  <span>Static Preview</span>
+                  {staticPreview.error && (
+                    <span className="opacity-75">• {staticPreview.error}</span>
+                  )}
+                </div>
+              )}
+              {/* WebContainer loading indicator for static preview */}
+              {isUsingStaticPreview && !activePreview && (
+                <div className="absolute bottom-2 left-2 z-20 flex items-center gap-2 bg-zinc-800/90 text-zinc-300 px-3 py-1.5 rounded-lg text-xs shadow-lg">
+                  <div className="i-svg-spinners:90-ring-with-bg text-sm"></div>
+                  <span>WebContainer loading in background...</span>
+                </div>
+              )}
               {/* Loading overlay when iframe is loading */}
               {isIframeLoading && iframeUrl && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-bolt-elements-background-depth-1 z-10">
-                  <LoadingScreen message="Loading preview..." variant="minimal" showProgress={true} />
+                  <LoadingScreen message={isUsingStaticPreview ? 'Loading static preview...' : 'Loading preview...'} variant="minimal" showProgress={true} />
                 </div>
               )}
               {/* Error state when iframe fails to load */}
