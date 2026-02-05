@@ -252,10 +252,28 @@ export default function Builder() {
         <header className="border-b border-[#1e3a5f] bg-[#0d1f35]">
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/pm-logo-white.png" alt="Pocket Marketer" className="h-8" />
+              <a href="/" className="hover:opacity-80 transition-opacity">
+                <img src="/pm-logo-white.png" alt="Pocket Marketer" className="h-8" />
+              </a>
               <span className="text-[#94a3b8]">→</span>
               <h1 className="text-xl font-semibold">Website Builder</h1>
             </div>
+
+            {/* Back to Chat link */}
+            <a
+              href="/"
+              className="text-sm text-[#64748b] hover:text-white transition-colors flex items-center gap-1.5 mr-4"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+              Back to Chat
+            </a>
 
             {/* Step Indicator */}
             <div className="flex items-center gap-2 text-sm">

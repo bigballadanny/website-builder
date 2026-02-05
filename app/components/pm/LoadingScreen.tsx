@@ -6,25 +6,29 @@ import type { CSSProperties } from 'react';
 interface LoadingScreenProps {
   /** Custom tips to display (uses defaults if not provided) */
   tips?: string[];
+
   /** Interval between tip changes in ms (default: 4000) */
   tipInterval?: number;
+
   /** Show progress dots (default: true) */
   showProgress?: boolean;
+
   /** Custom message above tips */
   message?: string;
+
   /** Variant: 'default' | 'compact' | 'minimal' */
   variant?: 'default' | 'compact' | 'minimal';
 }
 
 const DEFAULT_TIPS = [
-  "Pro tip: Be specific about your target audience",
-  "Include color preferences for better results",
-  "Mention your industry for tailored copy",
-  "Ask for mobile-first design for best results",
-  "Describe your brand personality for matching tone",
-  "Specify any must-have sections or features",
-  "Reference competitors you admire for inspiration",
-  "Include your call-to-action goals upfront",
+  'Pro tip: Be specific about your target audience',
+  'Include color preferences for better results',
+  'Mention your industry for tailored copy',
+  'Ask for mobile-first design for best results',
+  'Describe your brand personality for matching tone',
+  'Specify any must-have sections or features',
+  'Reference competitors you admire for inspiration',
+  'Include your call-to-action goals upfront',
 ];
 
 // CSS Keyframes as a style tag
@@ -63,7 +67,7 @@ export function LoadingScreen({
   tips = DEFAULT_TIPS,
   tipInterval = 4000,
   showProgress = true,
-  message = "Creating your landing page...",
+  message = 'Creating your landing page...',
   variant = 'default',
 }: LoadingScreenProps) {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);

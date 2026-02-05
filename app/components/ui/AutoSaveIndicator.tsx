@@ -17,8 +17,10 @@ class SaveStatusEmitter {
 
   subscribe(listener: (status: SaveStatus) => void) {
     this.listeners.add(listener);
+
     // Immediately notify of current status
     listener(this.currentStatus);
+
     return () => {
       this.listeners.delete(listener);
     };
@@ -33,6 +35,7 @@ class SaveStatusEmitter {
       if (this.timeoutId) {
         clearTimeout(this.timeoutId);
       }
+
       this.timeoutId = setTimeout(() => {
         this.currentStatus = 'idle';
         this.listeners.forEach((listener) => listener('idle'));

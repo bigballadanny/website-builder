@@ -85,7 +85,7 @@ export const action: ActionFunction = async ({ request, context }) => {
       textMuted: '#94a3b8',
       border: '#1e3a5f',
     };
-    
+
     const fontFamily = styling?.font?.family || 'Inter, system-ui, sans-serif';
     const isDark = styling?.colorScheme?.isDark ?? true;
 
@@ -156,6 +156,7 @@ IMPORTANT: Start your response directly with <!DOCTYPE html>`;
       // Try to find the start of valid HTML
       const doctypeIndex = html.indexOf('<!DOCTYPE');
       const htmlIndex = html.indexOf('<html');
+
       if (doctypeIndex > 0) {
         html = html.substring(doctypeIndex);
       } else if (htmlIndex > 0) {
@@ -197,13 +198,13 @@ function buildUserPrompt(
   brandDNA: BrandDNA,
   colors: Record<string, string>,
   fontFamily: string,
-  isDark: boolean
+  isDark: boolean,
 ): string {
   // Get marketing frameworks for this template type
   const skillContext = getSkillContext(templateId);
   const avatarContext = buildAvatarContext(brandDNA.idealCustomer, brandDNA.problemSolved);
   const bigIdeaContext = buildBigIdeaContext(brandDNA.differentiators);
-  
+
   const baseContext = `
 ${skillContext}
 

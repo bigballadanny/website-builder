@@ -1,6 +1,6 @@
 /**
  * Marketing Skill Loaders
- * 
+ *
  * Extracts relevant marketing frameworks for template generation.
  * Based on Pocket Marketer's 10-tool system and marketing-mode skills.
  */
@@ -185,8 +185,10 @@ Use their language. Feel their pain. Offer their desired transformation.
  * Big Idea/Differentiator context
  */
 export function buildBigIdeaContext(differentiators: string): string {
-  if (!differentiators) return '';
-  
+  if (!differentiators) {
+    return '';
+  }
+
   return `
 ## Unique Mechanism
 What makes this different: ${differentiators}

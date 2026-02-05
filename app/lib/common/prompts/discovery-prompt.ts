@@ -1,6 +1,6 @@
 /**
  * Website Builder Discovery Prompt
- * 
+ *
  * When users arrive WITHOUT PM context, this prompt guides
  * the AI to ask smart grounding questions before building.
  */

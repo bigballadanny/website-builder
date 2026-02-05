@@ -47,14 +47,14 @@ function WebContainerLoader({ children }: { children: React.ReactNode }) {
   if (isBooting) {
     return (
       <div className="flex flex-col h-full w-full bg-bolt-elements-background-depth-1 items-center justify-center">
-        <LoadingScreen 
-          message="Starting Pocket Marketer..." 
+        <LoadingScreen
+          message="Starting Pocket Marketer..."
           tips={[
-            "Setting up your creative workspace",
-            "Initializing the AI engine",
-            "Loading design components",
-            "Preparing your marketing toolkit",
-            "Almost ready to create magic!",
+            'Setting up your creative workspace',
+            'Initializing the AI engine',
+            'Loading design components',
+            'Preparing your marketing toolkit',
+            'Almost ready to create magic!',
           ]}
           variant="default"
         />

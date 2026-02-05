@@ -6,5 +6,5 @@ export { TemplateSelector } from './TemplateSelector';
 export { Discovery } from './Discovery';
 
 // Types
-export type { } from './LoadingScreen';
-export type { } from './LoadingOverlay';
+export type {} from './LoadingScreen';
+export type {} from './LoadingOverlay';

@@ -236,7 +236,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             minHeight: props.TEXTAREA_MIN_HEIGHT,
             maxHeight: props.TEXTAREA_MAX_HEIGHT,
           }}
-          placeholder={props.chatMode === 'discuss' ? "What are you trying to build? I'll help you plan it out..." : 'How can Pocket Marketer help you today?'}
+          placeholder={
+            props.chatMode === 'discuss'
+              ? "What are you trying to build? I'll help you plan it out..."
+              : 'How can Pocket Marketer help you today?'
+          }
           translate="no"
         />
         <ClientOnly>
@@ -288,7 +292,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               disabled={props.isStreaming}
             />
             <IconButton
-              title={props.chatMode === 'discuss' ? "Plan Mode (Recommended) - Ask clarifying questions first" : "Build Mode - Jump straight to coding"}
+              title={
+                props.chatMode === 'discuss'
+                  ? 'Plan Mode (Recommended) - Ask clarifying questions first'
+                  : 'Build Mode - Jump straight to coding'
+              }
               className={classNames(
                 'transition-all flex items-center gap-1 px-1.5',
                 props.chatMode === 'discuss'
@@ -301,9 +309,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             >
               <>
                 <div className={props.chatMode === 'discuss' ? 'i-ph:compass text-xl' : 'i-ph:hammer text-xl'} />
-                <span className="text-xs">
-                  {props.chatMode === 'discuss' ? 'Plan' : 'Build'}
-                </span>
+                <span className="text-xs">{props.chatMode === 'discuss' ? 'Plan' : 'Build'}</span>
                 {props.chatMode === 'discuss' && !props.chatStarted && (
                   <span className="text-[10px] bg-green-500/20 text-green-400 px-1 rounded">✓</span>
                 )}

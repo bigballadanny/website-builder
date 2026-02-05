@@ -81,9 +81,9 @@ export function useMessageParser() {
     console.log('[PARSE-MESSAGES] 📨 parseMessages called:', {
       messageCount: messages.length,
       isLoading,
-      roles: messages.map(m => m.role),
+      roles: messages.map((m) => m.role),
     });
-    
+
     let reset = false;
 
     if (import.meta.env.DEV && !isLoading) {
@@ -102,6 +102,7 @@ export function useMessageParser() {
           contentLength: content?.length || 0,
           contentPreview: content?.slice(0, 100),
         });
+
         const newParsedContent = messageParser.parse(message.id, content);
         setParsedMessages((prevParsed) => ({
           ...prevParsed,

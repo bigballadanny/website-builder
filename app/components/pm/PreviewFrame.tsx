@@ -32,9 +32,11 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
 
   // Check if HTML already includes DOCTYPE/html tags
   const isCompleteHtml = html.includes('<!DOCTYPE') || html.includes('<html');
-  
+
   // Build complete HTML document only if needed
-  const fullHtml = isCompleteHtml ? html : `
+  const fullHtml = isCompleteHtml
+    ? html
+    : `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,6 +116,7 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
       }
     };
     window.addEventListener('message', handleMessage);
+
     return () => window.removeEventListener('message', handleMessage);
   }, [onFormSubmit]);
 
@@ -125,7 +128,7 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
           ✓ Form submission captured (preview mode)
         </div>
       )}
-      
+
       {/* Device Switcher */}
       <div className="flex items-center justify-between p-3 bg-[#0d1f35] border-b border-[#1e3a5f]">
         <div className="pm-device-switcher flex gap-1">

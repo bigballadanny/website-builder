@@ -27,7 +27,7 @@ export const SKILLS_BANK: Skill[] = [
 - Define HOW the offer meets that need uniquely
 - Establish WHY this is urgent and worth paying for now
 - Map the customer journey from awareness to conversion
-- Consider full funnel context, not just this single page`
+- Consider full funnel context, not just this single page`,
   },
   {
     id: 'avatar-deep-dive',
@@ -41,7 +41,7 @@ export const SKILLS_BANK: Skill[] = [
 - Understand their objections and hesitations
 - Speak to their identity and aspirations
 - Use their language and terminology
-- Address the gap between where they are and where they want to be`
+- Address the gap between where they are and where they want to be`,
   },
 
   // Copy Skills (from Pocket Copywriter patterns)
@@ -58,7 +58,7 @@ export const SKILLS_BANK: Skill[] = [
 - Handle objections elegantly within the copy
 - Create urgency without being gimmicky
 - End every section with forward momentum
-- Write to ONE person, not an audience`
+- Write to ONE person, not an audience`,
   },
   {
     id: 'big-idea',
@@ -72,7 +72,7 @@ export const SKILLS_BANK: Skill[] = [
 - Ensure it's believable yet surprising
 - Connect it to a larger trend or shift
 - Make the reader feel they're discovering something new
-- Build the entire page around this central concept`
+- Build the entire page around this central concept`,
   },
   {
     id: 'belief-building',
@@ -86,7 +86,7 @@ export const SKILLS_BANK: Skill[] = [
 - Use social proof strategically (testimonials, numbers, logos)
 - Include risk reversal (guarantees, trials)
 - Show transformation stories from people like them
-- Acknowledge their past failures without blame`
+- Acknowledge their past failures without blame`,
   },
 
   // Conversion Skills (from Offer Architect patterns)
@@ -103,7 +103,7 @@ export const SKILLS_BANK: Skill[] = [
 - Include fast-action incentives
 - Frame the price as an investment with ROI
 - Make the guarantee remove all risk
-- Calculate and display the total value clearly`
+- Calculate and display the total value clearly`,
   },
   {
     id: 'funnel-aware',
@@ -117,7 +117,7 @@ export const SKILLS_BANK: Skill[] = [
 - For HOT traffic: Focus on offer details, urgency, and CTA
 - Match message sophistication to audience awareness
 - Include appropriate trust-building for the stage
-- Design the page for where they came from and where they're going next`
+- Design the page for where they came from and where they're going next`,
   },
   {
     id: 'lead-capture',
@@ -132,7 +132,7 @@ export const SKILLS_BANK: Skill[] = [
 - Keep forms short (email only when possible)
 - Show what they'll get immediately upon signup
 - Include social proof near the form
-- Create anticipation for what comes next`
+- Create anticipation for what comes next`,
   },
 
   // Design Skills
@@ -149,7 +149,7 @@ export const SKILLS_BANK: Skill[] = [
 - Subtle animations that enhance, not distract
 - Professional typography (2 fonts max)
 - Color palette that evokes the right emotion
-- Mobile-first but beautiful on all devices`
+- Mobile-first but beautiful on all devices`,
   },
   {
     id: 'dark-theme',
@@ -163,7 +163,7 @@ export const SKILLS_BANK: Skill[] = [
 - Subtle glow effects on interactive elements
 - Gradient accents for visual interest
 - Cards with subtle elevation through light, not shadows
-- Avoid pure white text - use off-white (#f0f0f0)`
+- Avoid pure white text - use off-white (#f0f0f0)`,
   },
 
   // Technical Skills
@@ -179,7 +179,7 @@ export const SKILLS_BANK: Skill[] = [
 - Collapsible sections for mobile
 - Fast load time optimized
 - Single column layouts that stack well
-- Test at 375px width first, then scale up`
+- Test at 375px width first, then scale up`,
   },
   {
     id: 'scroll-animations',
@@ -193,8 +193,8 @@ export const SKILLS_BANK: Skill[] = [
 - Staggered animations for lists and grids
 - Counter animations for statistics
 - Smooth scroll for anchor links
-- Keep animations subtle (0.3-0.5s, ease-out)`
-  }
+- Keep animations subtle (0.3-0.5s, ease-out)`,
+  },
 ];
 
 // Category metadata
@@ -207,16 +207,16 @@ export const SKILL_CATEGORIES = {
 };
 
 export function getSkillsByCategory(category: Skill['category']): Skill[] {
-  return SKILLS_BANK.filter(s => s.category === category);
+  return SKILLS_BANK.filter((s) => s.category === category);
 }
 
 export function buildEnhancedPrompt(basePrompt: string, activeSkills: Skill[]): string {
-  if (activeSkills.length === 0) return basePrompt;
-  
-  const skillsContext = activeSkills
-    .map(s => s.promptAddition)
-    .join('\n\n');
-  
+  if (activeSkills.length === 0) {
+    return basePrompt;
+  }
+
+  const skillsContext = activeSkills.map((s) => s.promptAddition).join('\n\n');
+
   return `${basePrompt}
 
 ---

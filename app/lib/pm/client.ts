@@ -7,9 +7,11 @@
 
 import type { PMProjectContext, BrandDNA, BrandAssets, CopyAssets, Testimonial } from './types';
 
-// Configuration (will be used when real PM API is available)
-// const PM_API_URL = process.env.PM_API_URL || 'https://api.pocketmarketer.app';
-// const PM_API_KEY = process.env.PM_API_KEY;
+/*
+ * Configuration (will be used when real PM API is available)
+ * const PM_API_URL = process.env.PM_API_URL || 'https://api.pocketmarketer.app';
+ * const PM_API_KEY = process.env.PM_API_KEY;
+ */
 
 /**
  * Fetch complete project context from PM

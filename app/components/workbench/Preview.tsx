@@ -69,9 +69,19 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const activePreview = previews[activePreviewIndex];
   const currentPreviewStatus = useStore(previewStatus);
   const [previewTimedOut, setPreviewTimedOut] = useState(false);
-  
+
   // Debug logging
-  console.log('[Preview.tsx] 🖼️ Render - previews:', previews, 'activeIndex:', activePreviewIndex, 'activePreview:', activePreview, 'status:', currentPreviewStatus);
+  console.log(
+    '[Preview.tsx] 🖼️ Render - previews:',
+    previews,
+    'activeIndex:',
+    activePreviewIndex,
+    'activePreview:',
+    activePreview,
+    'status:',
+    currentPreviewStatus,
+  );
+
   const [displayPath, setDisplayPath] = useState('/');
   const [iframeUrl, setIframeUrl] = useState<string | undefined>();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -126,6 +136,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
 
   useEffect(() => {
     console.log('[Preview.tsx] 🔄 activePreview changed:', activePreview);
+
     if (!activePreview) {
       console.log('[Preview.tsx] ⚠️ No active preview, clearing iframe URL');
       setIframeUrl(undefined);
@@ -970,11 +981,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
               {/* Loading overlay when iframe is loading */}
               {isIframeLoading && iframeUrl && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-bolt-elements-background-depth-1 z-10">
-                  <LoadingScreen 
-                    message="Loading preview..."
-                    variant="minimal"
-                    showProgress={true}
-                  />
+                  <LoadingScreen message="Loading preview..." variant="minimal" showProgress={true} />
                 </div>
               )}
               {/* Error state when iframe fails to load */}
@@ -1095,14 +1102,14 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
             </>
           ) : (
             <div className="flex flex-col w-full h-full justify-center items-center bg-bolt-elements-background-depth-1">
-              <LoadingScreen 
+              <LoadingScreen
                 message="Starting development server..."
                 tips={[
-                  "Installing dependencies...",
-                  "Setting up the preview environment",
-                  "Compiling your components",
-                  "Starting the dev server",
-                  "Almost there!",
+                  'Installing dependencies...',
+                  'Setting up the preview environment',
+                  'Compiling your components',
+                  'Starting the dev server',
+                  'Almost there!',
                 ]}
                 variant="compact"
                 tipInterval={3000}

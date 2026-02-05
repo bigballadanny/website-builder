@@ -286,28 +286,27 @@ export function Discovery({ onComplete, onSkip, initialData }: DiscoveryProps) {
 
           {/* Navigation - Clean & Prominent */}
           <div className="flex items-center justify-between mt-10 pt-6" style={{ borderTop: '1px solid #1e3a5f' }}>
-            <button
-              onClick={handleBack}
-              disabled={currentStep === 0}
-              className="px-5 py-3 rounded-xl font-medium transition-all duration-200"
-              style={{
-                color: currentStep === 0 ? '#475569' : '#94a3b8',
-                cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
-                opacity: currentStep === 0 ? 0.5 : 1,
-              }}
-              onMouseEnter={(e) => {
-                if (currentStep > 0) {
+            {/* Back button - only show after step 1 */}
+            {currentStep > 0 ? (
+              <button
+                onClick={handleBack}
+                className="px-5 py-3 rounded-xl font-medium transition-all duration-200"
+                style={{
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
                   e.currentTarget.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentStep > 0) {
+                }}
+                onMouseLeave={(e) => {
                   e.currentTarget.style.color = '#94a3b8';
-                }
-              }}
-            >
-              ← Back
-            </button>
+                }}
+              >
+                ← Back
+              </button>
+            ) : (
+              <div /> // Spacer to maintain layout
+            )}
 
             <div className="flex items-center gap-4">
               {/* Press Enter hint - subtle but visible */}
