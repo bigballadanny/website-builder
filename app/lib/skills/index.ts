@@ -16,6 +16,8 @@ export function getSkillContext(templateId: TemplateId): string {
     'sales-page': getSalesPageSkills,
     'lead-magnet': getLeadMagnetSkills,
     'coming-soon': getComingSoonSkills,
+    'agency-portfolio': getAgencyPortfolioSkills,
+    'local-business': getLocalBusinessSkills,
   };
 
   return skills[templateId]?.() || '';
@@ -163,6 +165,73 @@ MARKETING FRAMEWORKS (Follow these principles):
 - Headline: The promise
 - Email capture: Only ask for email
 - Social links: Secondary, not required
+`;
+}
+
+/**
+ * Agency Portfolio: Credibility + case study structure
+ */
+function getAgencyPortfolioSkills(): string {
+  return `
+MARKETING FRAMEWORKS (Follow these principles):
+
+## Portfolio Psychology
+- Lead with results, not process
+- Show transformation (before/after)
+- Let work speak, add context
+- Credibility through specificity
+
+## Case Study Structure
+- Client name/industry (if permitted)
+- Challenge they faced
+- Solution you provided
+- Results achieved (numbers!)
+- Testimonial quote
+
+## Trust Building
+- Client logos build instant credibility
+- Industry awards/recognition
+- Team photos humanize the brand
+- Clear contact/next steps
+
+## Visual Hierarchy
+- Hero: Bold statement of what you do
+- Portfolio grid: Clean, clickable
+- About: Story that builds connection
+- CTA: Easy way to start conversation
+`;
+}
+
+/**
+ * Local Business: Proximity + trust signals
+ */
+function getLocalBusinessSkills(): string {
+  return `
+MARKETING FRAMEWORKS (Follow these principles):
+
+## Local SEO Principles
+- Include city/neighborhood in headlines
+- Address and phone prominent
+- Google Maps embed builds trust
+- Hours of operation visible
+
+## Trust for Local
+- Reviews from local customers
+- "Serving [area] since [year]"
+- Local community involvement
+- Photos of actual location/team
+
+## Action-Oriented CTAs
+- "Call Now" with click-to-call
+- "Get Directions" with map link
+- "Book Appointment" with scheduler
+- "Request Quote" with simple form
+
+## Mobile-First (Critical for Local)
+- 60%+ searches are mobile
+- Click-to-call buttons prominent
+- Fast loading (3 seconds max)
+- Easy navigation with thumbs
 `;
 }
 

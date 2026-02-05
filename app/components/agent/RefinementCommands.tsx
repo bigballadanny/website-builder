@@ -104,9 +104,7 @@ export function RefinementCommands({ isOpen, onToggle, onCommand }: RefinementCo
         className="w-full px-4 py-2 flex items-center justify-between text-sm text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3 transition-colors"
       >
         <span className="font-medium">Refinements</span>
-        <ChevronUp
-          className={`w-4 h-4 transition-transform ${isOpen ? '' : 'rotate-180'}`}
-        />
+        <ChevronUp className={`w-4 h-4 transition-transform ${isOpen ? '' : 'rotate-180'}`} />
       </button>
 
       {/* Commands grid */}
@@ -127,12 +125,8 @@ export function RefinementCommands({ isOpen, onToggle, onCommand }: RefinementCo
                 >
                   <Icon className="w-4 h-4 text-bolt-elements-textTertiary group-hover:text-purple-500 transition-colors" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-bolt-elements-textPrimary truncate">
-                      {label}
-                    </div>
-                    <div className="text-[10px] text-bolt-elements-textTertiary truncate">
-                      {description}
-                    </div>
+                    <div className="text-xs font-medium text-bolt-elements-textPrimary truncate">{label}</div>
+                    <div className="text-[10px] text-bolt-elements-textTertiary truncate">{description}</div>
                   </div>
                 </button>
               ))}

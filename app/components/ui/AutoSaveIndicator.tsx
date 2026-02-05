@@ -41,26 +41,20 @@ export const AutosaveIndicator = memo(() => {
   };
 
   const config = statusConfig[status];
-  const tooltipText = status === 'error' && errorMsg 
-    ? `${config.text}: ${errorMsg}` 
-    : `${config.text} • ${timeText}`;
+  const tooltipText = status === 'error' && errorMsg ? `${config.text}: ${errorMsg}` : `${config.text} • ${timeText}`;
 
   return (
     <div
       className={classNames(
         'flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all',
         config.bgColor,
-        config.color
+        config.color,
       )}
       title={tooltipText}
     >
       <div className={classNames(config.icon, 'w-3.5 h-3.5')} />
       <span className="hidden sm:inline">{config.text}</span>
-      {status === 'saved' && (
-        <span className="hidden md:inline text-bolt-elements-textTertiary">
-          • {timeText}
-        </span>
-      )}
+      {status === 'saved' && <span className="hidden md:inline text-bolt-elements-textTertiary">• {timeText}</span>}
     </div>
   );
 });

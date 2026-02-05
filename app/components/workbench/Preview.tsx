@@ -75,7 +75,19 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const files = useStore(workbenchStore.files);
 
   // Debug logging
-  console.log('[Preview.tsx] 🖼️ Render - previews:', previews, 'activeIndex:', activePreviewIndex, 'activePreview:', activePreview, 'status:', currentPreviewStatus, 'staticPreview:', staticPreview?.url ? 'available' : 'none');
+  console.log(
+    '[Preview.tsx] 🖼️ Render - previews:',
+    previews,
+    'activeIndex:',
+    activePreviewIndex,
+    'activePreview:',
+    activePreview,
+    'status:',
+    currentPreviewStatus,
+    'staticPreview:',
+    staticPreview?.url ? 'available' : 'none',
+  );
+
   const [displayPath, setDisplayPath] = useState('/');
   const [iframeUrl, setIframeUrl] = useState<string | undefined>();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -86,6 +98,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [iframeError, setIframeError] = useState<string | null>(null);
   const [isUsingStaticPreview, setIsUsingStaticPreview] = useState(false);
+  const [_previewTimedOut, setPreviewTimedOut] = useState(false);
 
   // Timeout for preview loading
   useEffect(() => {
@@ -148,6 +161,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     setDisplayPath('/');
     setIsIframeLoading(true);
     setIframeError(null);
+
     // Switch away from static preview when WebContainer is ready
     setIsUsingStaticPreview(false);
   }, [activePreview]);
@@ -161,13 +175,15 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     }
 
     // Check if we have HTML files to preview
-    const hasHtmlFiles = Object.keys(files).some(path => path.endsWith('.html'));
+    const hasHtmlFiles = Object.keys(files).some((path) => path.endsWith('.html'));
+
     if (!hasHtmlFiles) {
       console.log('[Preview.tsx] 📄 No HTML files found, skipping static preview');
       return;
     }
 
     console.log('[Preview.tsx] 🔧 Generating static preview from files...');
+
     const staticUrl = createStaticPreview(files);
 
     if (staticUrl) {
@@ -902,32 +918,36 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Show Device Frame</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                            } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
+                            showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                          } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setShowDeviceFrame(!showDeviceFrame);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${showDeviceFrame ? 'transform translate-x-5' : ''
-                              }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                              showDeviceFrame ? 'transform translate-x-5' : ''
+                            }`}
                           />
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Landscape Mode</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                            } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
+                            isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                          } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsLandscape(!isLandscape);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${isLandscape ? 'transform translate-x-5' : ''
-                              }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                              isLandscape ? 'transform translate-x-5' : ''
+                            }`}
                           />
                         </button>
                       </div>
@@ -996,16 +1016,14 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
             alignItems: 'center',
           }}
         >
-          {(activePreview || isUsingStaticPreview) ? (
+          {activePreview || isUsingStaticPreview ? (
             <>
               {/* Static preview indicator */}
               {isUsingStaticPreview && (
                 <div className="absolute top-2 left-2 z-20 flex items-center gap-2 bg-blue-500/90 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                   <span>Static Preview</span>
-                  {staticPreview.error && (
-                    <span className="opacity-75">• {staticPreview.error}</span>
-                  )}
+                  {staticPreview.error && <span className="opacity-75">• {staticPreview.error}</span>}
                 </div>
               )}
               {/* WebContainer loading indicator for static preview */}
@@ -1018,7 +1036,11 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
               {/* Loading overlay when iframe is loading */}
               {isIframeLoading && iframeUrl && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-bolt-elements-background-depth-1 z-10">
-                  <LoadingScreen message={isUsingStaticPreview ? 'Loading static preview...' : 'Loading preview...'} variant="minimal" showProgress={true} />
+                  <LoadingScreen
+                    message={isUsingStaticPreview ? 'Loading static preview...' : 'Loading preview...'}
+                    variant="minimal"
+                    showProgress={true}
+                  />
                 </div>
               )}
               {/* Error state when iframe fails to load */}

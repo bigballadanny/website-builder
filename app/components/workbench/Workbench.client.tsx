@@ -489,10 +489,7 @@ export const Workbench = memo(
                 </div>
                 <div className="relative flex-1 overflow-hidden">
                   {/* Code-only view */}
-                  <View 
-                    initial={{ x: '0%' }} 
-                    animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}
-                  >
+                  <View initial={{ x: '0%' }} animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}>
                     <EditorPanel
                       editorDocument={currentDocument}
                       isStreaming={isStreaming}
@@ -510,9 +507,8 @@ export const Workbench = memo(
                   {/* Split view - Code + Preview side by side */}
                   <View
                     initial={{ x: '100%' }}
-                    animate={{ 
-                      x: selectedView === 'split' ? '0%' : 
-                         selectedView === 'code' ? '100%' : '-100%' 
+                    animate={{
+                      x: selectedView === 'split' ? '0%' : selectedView === 'code' ? '100%' : '-100%',
                     }}
                   >
                     <SplitEditor
@@ -533,17 +529,17 @@ export const Workbench = memo(
                   {/* Diff view */}
                   <View
                     initial={{ x: '100%' }}
-                    animate={{ 
-                      x: selectedView === 'diff' ? '0%' : '100%' 
+                    animate={{
+                      x: selectedView === 'diff' ? '0%' : '100%',
                     }}
                   >
                     <DiffView fileHistory={fileHistory} setFileHistory={setFileHistory} />
                   </View>
                   {/* Preview-only view */}
-                  <View 
-                    initial={{ x: '100%' }} 
-                    animate={{ 
-                      x: selectedView === 'preview' ? '0%' : '100%' 
+                  <View
+                    initial={{ x: '100%' }}
+                    animate={{
+                      x: selectedView === 'preview' ? '0%' : '100%',
                     }}
                   >
                     <Preview setSelectedElement={setSelectedElement} />

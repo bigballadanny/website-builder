@@ -19,6 +19,7 @@ export function AIBuildButton() {
       if (status === 'idle') {
         startSession();
       }
+
       toggleAgentPanel();
     } else {
       toggleAgentPanel();
@@ -37,9 +38,7 @@ export function AIBuildButton() {
       }`}
     >
       <Sparkles className="w-5 h-5" />
-      <span className="font-semibold">
-        {isOpen ? 'Hide AI' : 'AI Build'}
-      </span>
+      <span className="font-semibold">{isOpen ? 'Hide AI' : 'AI Build'}</span>
     </motion.button>
   );
 }

@@ -48,6 +48,7 @@ const COMPONENT_LIBRARY: ComponentItem[] = [
   </div>
 </section>`,
   },
+
   // Features
   {
     id: 'features-grid',
@@ -109,6 +110,7 @@ const COMPONENT_LIBRARY: ComponentItem[] = [
   </div>
 </section>`,
   },
+
   // Social Proof
   {
     id: 'testimonials',
@@ -176,6 +178,7 @@ const COMPONENT_LIBRARY: ComponentItem[] = [
   </div>
 </section>`,
   },
+
   // CTA
   {
     id: 'cta-simple',
@@ -208,6 +211,7 @@ const COMPONENT_LIBRARY: ComponentItem[] = [
   </div>
 </section>`,
   },
+
   // Pricing
   {
     id: 'pricing',
@@ -260,6 +264,7 @@ const COMPONENT_LIBRARY: ComponentItem[] = [
   </div>
 </section>`,
   },
+
   // Footer
   {
     id: 'footer',
@@ -321,6 +326,7 @@ export const ComponentPalette = memo(({ onInsert }: ComponentPaletteProps) => {
   const filteredComponents = COMPONENT_LIBRARY.filter((c) => {
     const matchesCategory = activeCategory === 'All' || c.category === activeCategory;
     const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase());
+
     return matchesCategory && matchesSearch;
   });
 
@@ -350,7 +356,7 @@ export const ComponentPalette = memo(({ onInsert }: ComponentPaletteProps) => {
             'px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors',
             activeCategory === 'All'
               ? 'bg-accent-500 text-white'
-              : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3'
+              : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3',
           )}
         >
           All
@@ -363,7 +369,7 @@ export const ComponentPalette = memo(({ onInsert }: ComponentPaletteProps) => {
               'px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors',
               activeCategory === category
                 ? 'bg-accent-500 text-white'
-                : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3'
+                : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3',
             )}
           >
             {category}
@@ -402,9 +408,7 @@ export const ComponentPalette = memo(({ onInsert }: ComponentPaletteProps) => {
       </div>
 
       <div className="p-2 border-t border-bolt-elements-borderColor">
-        <p className="text-xs text-bolt-elements-textTertiary text-center">
-          Click or drag to insert
-        </p>
+        <p className="text-xs text-bolt-elements-textTertiary text-center">Click or drag to insert</p>
       </div>
     </div>
   );

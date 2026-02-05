@@ -94,7 +94,9 @@ export function TextImprovementPopover({
     setResult(null);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   // Calculate popover position
   const popoverStyle = position
@@ -121,12 +123,7 @@ export function TextImprovementPopover({
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <span className="text-sm font-semibold text-white">Improve with AI</span>
@@ -145,9 +142,7 @@ export function TextImprovementPopover({
               {/* Original Text Preview */}
               <div className="mb-3">
                 <p className="text-xs text-[#64748b] mb-1">Selected text:</p>
-                <div className="bg-[#132743] rounded-lg p-2 text-sm text-[#94a3b8] line-clamp-2">
-                  "{selectedText}"
-                </div>
+                <div className="bg-[#132743] rounded-lg p-2 text-sm text-[#94a3b8] line-clamp-2">"{selectedText}"</div>
               </div>
 
               {/* Improvement Options */}
@@ -201,7 +196,8 @@ export function TextImprovementPopover({
                   {/* Primary Result */}
                   <div>
                     <p className="text-xs text-[#64748b] mb-1 flex items-center gap-1">
-                      <span className="text-green-400">✓</span> Improved ({IMPROVEMENTS.find((i) => i.id === selectedImprovement)?.name}):
+                      <span className="text-green-400">✓</span> Improved (
+                      {IMPROVEMENTS.find((i) => i.id === selectedImprovement)?.name}):
                     </p>
                     <button
                       onClick={() => handleUseResult(result.improved)}

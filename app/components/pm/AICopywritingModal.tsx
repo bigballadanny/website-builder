@@ -71,7 +71,9 @@ export function AICopywritingModal({
   const [selectedHeadline, setSelectedHeadline] = useState(0);
 
   const handleGenerate = async () => {
-    if (!description.trim()) return;
+    if (!description.trim()) {
+      return;
+    }
 
     setIsGenerating(true);
     setError(null);
@@ -106,7 +108,9 @@ export function AICopywritingModal({
   };
 
   const handleInsert = () => {
-    if (!result) return;
+    if (!result) {
+      return;
+    }
 
     onInsert({
       headline: result.headlines[selectedHeadline],
@@ -130,7 +134,9 @@ export function AICopywritingModal({
     setStep('input');
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={handleClose}>
@@ -179,9 +185,7 @@ export function AICopywritingModal({
                   className="w-full bg-[#132743] border border-[#1e3a5f] rounded-lg px-4 py-3 text-white placeholder-[#64748b] focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6] resize-none"
                   rows={3}
                 />
-                <p className="mt-1 text-xs text-[#64748b]">
-                  Describe your message, key points, or value proposition
-                </p>
+                <p className="mt-1 text-xs text-[#64748b]">Describe your message, key points, or value proposition</p>
               </div>
 
               {/* Tone Selection */}
@@ -231,9 +235,7 @@ export function AICopywritingModal({
 
               {/* Error */}
               {error && (
-                <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-sm">
-                  {error}
-                </div>
+                <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-sm">{error}</div>
               )}
             </div>
           ) : (
@@ -251,9 +253,7 @@ export function AICopywritingModal({
                 <>
                   {/* Headlines */}
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
-                      Choose a Headline
-                    </label>
+                    <label className="block text-sm font-medium text-white mb-2">Choose a Headline</label>
                     <div className="space-y-2">
                       {result.headlines.map((headline, i) => (
                         <button
@@ -308,9 +308,7 @@ export function AICopywritingModal({
                   <div>
                     <label className="block text-sm font-medium text-white mb-2">CTA Button Text</label>
                     <div className="flex items-center gap-3">
-                      <span className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium">
-                        {result.ctaText}
-                      </span>
+                      <span className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium">{result.ctaText}</span>
                     </div>
                   </div>
                 </>
@@ -341,12 +339,7 @@ export function AICopywritingModal({
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   Generate Copy
                 </>

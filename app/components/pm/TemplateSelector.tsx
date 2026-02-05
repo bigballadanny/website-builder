@@ -149,10 +149,7 @@ export function TemplateSelector({ onSelect, onStartBlank, selectedId }: Templat
       {/* Continue Button */}
       {selectedId && (
         <div className="mt-6 flex justify-end">
-          <button
-            onClick={() => onSelect(selectedId)}
-            className="pm-button-primary flex items-center gap-2"
-          >
+          <button onClick={() => onSelect(selectedId)} className="pm-button-primary flex items-center gap-2">
             Continue with {templates[selectedId]?.name}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -163,11 +160,7 @@ export function TemplateSelector({ onSelect, onStartBlank, selectedId }: Templat
 
       {/* Preview Modal */}
       {previewTemplate && (
-        <TemplatePreviewModal
-          templateId={previewTemplate}
-          onClose={closePreview}
-          onSelect={handleSelectFromPreview}
-        />
+        <TemplatePreviewModal templateId={previewTemplate} onClose={closePreview} onSelect={handleSelectFromPreview} />
       )}
     </div>
   );

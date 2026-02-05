@@ -44,10 +44,27 @@ const SPACING_VALUES = [
 ];
 
 const PRESET_COLORS = [
-  '#000000', '#374151', '#6B7280', '#9CA3AF', '#D1D5DB', '#FFFFFF',
-  '#EF4444', '#F97316', '#F59E0B', '#84CC16', '#22C55E', '#14B8A6',
-  '#06B6D4', '#0EA5E9', '#3B82F6', '#6366F1', '#8B5CF6', '#A855F7',
-  '#D946EF', '#EC4899', '#F43F5E',
+  '#000000',
+  '#374151',
+  '#6B7280',
+  '#9CA3AF',
+  '#D1D5DB',
+  '#FFFFFF',
+  '#EF4444',
+  '#F97316',
+  '#F59E0B',
+  '#84CC16',
+  '#22C55E',
+  '#14B8A6',
+  '#06B6D4',
+  '#0EA5E9',
+  '#3B82F6',
+  '#6366F1',
+  '#8B5CF6',
+  '#A855F7',
+  '#D946EF',
+  '#EC4899',
+  '#F43F5E',
 ];
 
 export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelProps) => {
@@ -63,16 +80,16 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
     const styles = {
       color: textColor,
       backgroundColor: bgColor,
-      fontFamily: fontFamily,
-      fontSize: fontSize,
-      padding: padding,
-      margin: margin,
+      fontFamily,
+      fontSize,
+      padding,
+      margin,
     };
-    
+
     const cssString = Object.entries(styles)
       .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
       .join('; ');
-    
+
     return cssString;
   }, [textColor, bgColor, fontFamily, fontSize, padding, margin]);
 
@@ -81,19 +98,17 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
     onStyleChange(css);
   };
 
-  const ColorPicker = ({ 
-    label, 
-    value, 
-    onChange 
-  }: { 
-    label: string; 
-    value: string; 
+  const ColorPicker = ({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: string;
     onChange: (color: string) => void;
   }) => (
     <div className="mb-4">
-      <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">
-        {label}
-      </label>
+      <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">{label}</label>
       <div className="flex items-center gap-2 mb-2">
         <input
           type="color"
@@ -115,7 +130,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
             onClick={() => onChange(color)}
             className={classNames(
               'w-6 h-6 rounded-md border transition-transform hover:scale-110',
-              value === color ? 'ring-2 ring-accent-500' : 'border-bolt-elements-borderColor'
+              value === color ? 'ring-2 ring-accent-500' : 'border-bolt-elements-borderColor',
             )}
             style={{ backgroundColor: color }}
             title={color}
@@ -130,9 +145,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
       <div className="p-3 border-b border-bolt-elements-borderColor">
         <h3 className="font-semibold text-sm text-bolt-elements-textPrimary">Style Controls</h3>
         {selectedElement && (
-          <p className="text-xs text-bolt-elements-textTertiary mt-1 truncate">
-            Editing: {selectedElement}
-          </p>
+          <p className="text-xs text-bolt-elements-textTertiary mt-1 truncate">Editing: {selectedElement}</p>
         )}
       </div>
 
@@ -146,7 +159,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
               'flex-1 px-3 py-2 text-xs font-medium transition-colors',
               activeTab === tab
                 ? 'text-accent-500 border-b-2 border-accent-500'
-                : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+                : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary',
             )}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -165,9 +178,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
         {activeTab === 'typography' && (
           <>
             <div className="mb-4">
-              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">
-                Font Family
-              </label>
+              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">Font Family</label>
               <select
                 value={fontFamily}
                 onChange={(e) => setFontFamily(e.target.value)}
@@ -182,9 +193,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
             </div>
 
             <div className="mb-4">
-              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">
-                Font Size
-              </label>
+              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">Font Size</label>
               <div className="grid grid-cols-3 gap-1">
                 {FONT_SIZES.map((size) => (
                   <button
@@ -194,7 +203,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
                       'px-2 py-1.5 text-xs rounded-md transition-colors',
                       fontSize === size.value
                         ? 'bg-accent-500 text-white'
-                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3'
+                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3',
                     )}
                   >
                     {size.name}
@@ -208,9 +217,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
         {activeTab === 'spacing' && (
           <>
             <div className="mb-4">
-              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">
-                Padding
-              </label>
+              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">Padding</label>
               <div className="grid grid-cols-3 gap-1">
                 {SPACING_VALUES.map((space) => (
                   <button
@@ -220,7 +227,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
                       'px-2 py-1.5 text-xs rounded-md transition-colors',
                       padding === space.value
                         ? 'bg-accent-500 text-white'
-                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3'
+                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3',
                     )}
                   >
                     {space.name}
@@ -230,9 +237,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
             </div>
 
             <div className="mb-4">
-              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">
-                Margin
-              </label>
+              <label className="block text-xs font-medium text-bolt-elements-textSecondary mb-2">Margin</label>
               <div className="grid grid-cols-3 gap-1">
                 {SPACING_VALUES.map((space) => (
                   <button
@@ -242,7 +247,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
                       'px-2 py-1.5 text-xs rounded-md transition-colors',
                       margin === space.value
                         ? 'bg-accent-500 text-white'
-                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3'
+                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3',
                     )}
                   >
                     {space.name}
@@ -261,8 +266,8 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
           style={{
             color: textColor,
             backgroundColor: bgColor,
-            fontFamily: fontFamily,
-            fontSize: fontSize,
+            fontFamily,
+            fontSize,
           }}
         >
           Preview Text
@@ -273,9 +278,7 @@ export const StylePanel = memo(({ onStyleChange, selectedElement }: StylePanelPr
         >
           Apply Styles
         </button>
-        <p className="text-xs text-bolt-elements-textTertiary text-center mt-2">
-          Copy generated CSS to clipboard
-        </p>
+        <p className="text-xs text-bolt-elements-textTertiary text-center mt-2">Copy generated CSS to clipboard</p>
       </div>
     </div>
   );

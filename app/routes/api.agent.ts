@@ -33,6 +33,7 @@ interface AgentRequest {
   messages?: Array<{ role: 'user' | 'assistant'; content: string }>;
   context?: Record<string, string>;
   modelTier?: ModelTier;
+
   // For structure/copy/code actions
   pageStructure?: PageStructure;
   sectionContents?: Record<string, SectionContent>;
@@ -40,6 +41,7 @@ interface AgentRequest {
   sectionTitle?: string;
   sectionIndex?: number;
   totalSections?: number;
+
   // For refinement
   currentCode?: string;
   refinementCommand?: string;
@@ -55,14 +57,14 @@ export async function action({ request, context }: ActionFunctionArgs) {
   if (!ANTHROPIC_API_KEY && !OPENROUTER_API_KEY) {
     return new Response(
       JSON.stringify({ error: 'No AI API key configured. Set ANTHROPIC_API_KEY or OPEN_ROUTER_API_KEY.' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
     );
   }
 
   const useOpenRouter = !ANTHROPIC_API_KEY && !!OPENROUTER_API_KEY;
 
   try {
-    const body = await request.json() as AgentRequest;
+    const body = (await request.json()) as AgentRequest;
     const { action, modelTier = 'standard' } = body;
     const model = useOpenRouter ? OPENROUTER_MODELS[modelTier] : MODELS[modelTier];
 
@@ -86,45 +88,40 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
       case 'copy':
         if (!body.sectionType || !body.sectionTitle || !body.pageStructure) {
-          return new Response(
-            JSON.stringify({ error: 'Missing section info for copy generation' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } }
-          );
+          return new Response(JSON.stringify({ error: 'Missing section info for copy generation' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
+
         userPrompt = getSectionCopyPrompt(
           body.sectionType as any,
           body.sectionTitle,
           body.context || {},
-          body.pageStructure
+          body.pageStructure,
         );
         break;
 
       case 'code':
         if (!body.pageStructure || !body.sectionContents) {
-          return new Response(
-            JSON.stringify({ error: 'Missing page structure or section contents' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } }
-          );
+          return new Response(JSON.stringify({ error: 'Missing page structure or section contents' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
-        userPrompt = getCodeGenerationPrompt(
-          body.pageStructure,
-          body.sectionContents,
-          body.context || {}
-        );
+
+        userPrompt = getCodeGenerationPrompt(body.pageStructure, body.sectionContents, body.context || {});
         break;
 
       case 'refine':
         if (!body.currentCode || !body.refinementCommand) {
-          return new Response(
-            JSON.stringify({ error: 'Missing code or refinement command' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } }
-          );
+          return new Response(JSON.stringify({ error: 'Missing code or refinement command' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
-        userPrompt = getRefinementPrompt(
-          body.refinementCommand,
-          body.currentCode,
-          body.targetSection
-        );
+
+        userPrompt = getRefinementPrompt(body.refinementCommand, body.currentCode, body.targetSection);
         break;
 
       case 'chat':
@@ -146,10 +143,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
     }
   } catch (error) {
     console.error('[Agent API] Error:', error);
-    return new Response(
-      JSON.stringify({ error: String(error) }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: String(error) }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -160,7 +157,7 @@ async function streamAnthropic(
   apiKey: string,
   model: string,
   systemPrompt: string,
-  messages: Array<{ role: 'user' | 'assistant'; content: string }>
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
 ): Promise<Response> {
   const client = new Anthropic({ apiKey });
 
@@ -182,10 +179,9 @@ async function streamAnthropic(
         for await (const event of stream) {
           if (event.type === 'content_block_delta') {
             const delta = event.delta;
+
             if ('text' in delta) {
-              controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({ type: 'delta', text: delta.text })}\n\n`)
-              );
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', text: delta.text })}\n\n`));
             }
           }
         }
@@ -197,16 +193,14 @@ async function streamAnthropic(
             `data: ${JSON.stringify({
               type: 'complete',
               usage: finalMessage.usage,
-            })}\n\n`
-          )
+            })}\n\n`,
+          ),
         );
 
         controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         controller.close();
       } catch (error) {
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'error', error: String(error) })}\n\n`)
-        );
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: String(error) })}\n\n`));
         controller.close();
       }
     },
@@ -228,7 +222,7 @@ async function streamOpenRouter(
   apiKey: string,
   model: string,
   systemPrompt: string,
-  messages: Array<{ role: 'user' | 'assistant'; content: string }>
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
 ): Promise<Response> {
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
@@ -248,10 +242,10 @@ async function streamOpenRouter(
 
   if (!response.ok) {
     const error = await response.text();
-    return new Response(
-      JSON.stringify({ error: `OpenRouter API error: ${error}` }),
-      { status: response.status, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: `OpenRouter API error: ${error}` }), {
+      status: response.status,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   // Forward the stream with our event format
@@ -261,6 +255,7 @@ async function streamOpenRouter(
   const readable = new ReadableStream({
     async start(controller) {
       const reader = response.body?.getReader();
+
       if (!reader) {
         controller.close();
         return;
@@ -274,14 +269,20 @@ async function streamOpenRouter(
       try {
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
+
+          if (done) {
+            break;
+          }
 
           const chunk = decoder.decode(value);
           const lines = chunk.split('\n').filter((line) => line.startsWith('data: '));
 
           for (const line of lines) {
             const data = line.slice(6);
-            if (data === '[DONE]') continue;
+
+            if (data === '[DONE]') {
+              continue;
+            }
 
             try {
               const parsed = JSON.parse(data) as {
@@ -289,11 +290,10 @@ async function streamOpenRouter(
                 usage?: { prompt_tokens: number; completion_tokens: number };
               };
               const content = parsed.choices?.[0]?.delta?.content;
+
               if (content) {
                 fullContent += content;
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ type: 'delta', text: content })}\n\n`)
-                );
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', text: content })}\n\n`));
               }
             } catch {
               // Skip malformed JSON
@@ -313,16 +313,14 @@ async function streamOpenRouter(
                 input_tokens: estimatedInputTokens,
                 output_tokens: estimatedOutputTokens,
               },
-            })}\n\n`
-          )
+            })}\n\n`,
+          ),
         );
 
         controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         controller.close();
       } catch (error) {
-        controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'error', error: String(error) })}\n\n`)
-        );
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: String(error) })}\n\n`));
         controller.close();
       }
     },

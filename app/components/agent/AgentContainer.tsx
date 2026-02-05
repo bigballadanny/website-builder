@@ -22,11 +22,7 @@ export function AgentContainer({ onCodeGenerated }: AgentContainerProps) {
   const isVisible = useStore(showAgentPanel);
   const code = useStore(generatedCodeStore);
 
-  const {
-    sendMessage,
-    applyRefinement,
-    regenerate,
-  } = useAgent({
+  const { sendMessage, applyRefinement, regenerate } = useAgent({
     onCodeGenerated: (generatedCode) => {
       onCodeGenerated?.(generatedCode);
       toast.success('🎉 Page generated! Review it in the preview.');
@@ -36,18 +32,27 @@ export function AgentContainer({ onCodeGenerated }: AgentContainerProps) {
     },
   });
 
-  const handleSendMessage = useCallback(async (message: string) => {
-    await sendMessage(message);
-  }, [sendMessage]);
+  const handleSendMessage = useCallback(
+    async (message: string) => {
+      await sendMessage(message);
+    },
+    [sendMessage],
+  );
 
-  const handleRefinement = useCallback(async (command: RefinementCommand) => {
-    await applyRefinement(command);
-  }, [applyRefinement]);
+  const handleRefinement = useCallback(
+    async (command: RefinementCommand) => {
+      await applyRefinement(command);
+    },
+    [applyRefinement],
+  );
 
-  const handleAcceptCode = useCallback((acceptedCode: string) => {
-    onCodeGenerated?.(acceptedCode);
-    toast.success('Code accepted! Applied to your page.');
-  }, [onCodeGenerated]);
+  const handleAcceptCode = useCallback(
+    (acceptedCode: string) => {
+      onCodeGenerated?.(acceptedCode);
+      toast.success('Code accepted! Applied to your page.');
+    },
+    [onCodeGenerated],
+  );
 
   const handleRegenerate = useCallback(async () => {
     await regenerate();

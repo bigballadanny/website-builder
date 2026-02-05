@@ -63,7 +63,7 @@ export const showAgentPanel = atom<boolean>(false);
 // Computed: Is agent ready to generate?
 export const canGenerate = computed(
   [agentStatus, pageStructure],
-  (status, structure) => status === 'active' && structure !== null
+  (status, structure) => status === 'active' && structure !== null,
 );
 
 // Computed: Human-readable step name
@@ -90,15 +90,18 @@ export const costDisplay = computed(sessionCost, (cost) => {
   if (cost.totalCost < 0.01) {
     return `< $0.01`;
   }
+
   return `$${cost.totalCost.toFixed(3)}`;
 });
 
 // Computed: Tokens display
 export const tokensDisplay = computed(sessionCost, (cost) => {
   const total = cost.inputTokens + cost.outputTokens;
+
   if (total >= 1000) {
     return `${(total / 1000).toFixed(1)}K tokens`;
   }
+
   return `${total} tokens`;
 });
 
@@ -215,9 +218,7 @@ export function updateStep(step: AgentStep): void {
 export function updateCost(inputTokens: number, outputTokens: number): void {
   const current = sessionCost.get();
   const tier = agentModelTier.get();
-  const pricing = tier === 'premium'
-    ? { input: 15.0, output: 75.0 }
-    : { input: 3.0, output: 15.0 };
+  const pricing = tier === 'premium' ? { input: 15.0, output: 75.0 } : { input: 3.0, output: 15.0 };
 
   const totalInput = current.inputTokens + inputTokens;
   const totalOutput = current.outputTokens + outputTokens;
@@ -227,7 +228,7 @@ export function updateCost(inputTokens: number, outputTokens: number): void {
     outputTokens: totalOutput,
     inputCost: (totalInput / 1_000_000) * pricing.input,
     outputCost: (totalOutput / 1_000_000) * pricing.output,
-    totalCost: ((totalInput / 1_000_000) * pricing.input) + ((totalOutput / 1_000_000) * pricing.output),
+    totalCost: (totalInput / 1_000_000) * pricing.input + (totalOutput / 1_000_000) * pricing.output,
     model: tier === 'premium' ? 'claude-opus-4-20250514' : 'claude-sonnet-4-20250514',
   });
 }
@@ -244,6 +245,7 @@ export function setModelTier(tier: ModelTier): void {
  */
 export function setStreaming(streaming: boolean): void {
   isStreaming.set(streaming);
+
   if (!streaming) {
     streamingContent.set('');
   }

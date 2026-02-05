@@ -8,18 +8,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  X,
-  Send,
-  Sparkles,
-  Loader2,
-  Wand2,
-  RefreshCw,
-  Check,
-  Zap,
-  Crown,
-  DollarSign,
-} from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Wand2, RefreshCw, Check, Zap, Crown, DollarSign } from 'lucide-react';
 import {
   agentMessages,
   agentStep,
@@ -88,21 +77,30 @@ export function AgentPanel({
     }
   }, [isVisible, status]);
 
-  const handleSubmit = useCallback(async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!inputValue.trim() || streaming) return;
+  const handleSubmit = useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault();
 
-    const message = inputValue.trim();
-    setInputValue('');
-    await onSendMessage(message);
-  }, [inputValue, streaming, onSendMessage]);
+      if (!inputValue.trim() || streaming) {
+        return;
+      }
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  }, [handleSubmit]);
+      const message = inputValue.trim();
+      setInputValue('');
+      await onSendMessage(message);
+    },
+    [inputValue, streaming, onSendMessage],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    },
+    [handleSubmit],
+  );
 
   const handleAccept = useCallback(() => {
     if (generatedCode) {
@@ -110,7 +108,9 @@ export function AgentPanel({
     }
   }, [generatedCode, onAcceptCode]);
 
-  if (!isVisible) return null;
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <motion.div
@@ -161,11 +161,7 @@ export function AgentPanel({
       {/* Progress bar */}
       <AnimatePresence>
         {status === 'active' && step !== 'idle' && step !== 'complete' && (
-          <AgentProgressBar
-            progress={progressPct}
-            step={currentStep}
-            message={progress.message}
-          />
+          <AgentProgressBar progress={progressPct} step={currentStep} message={progress.message} />
         )}
       </AnimatePresence>
 
@@ -173,19 +169,14 @@ export function AgentPanel({
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {/* Welcome message if no messages */}
         {messages.length === 0 && status === 'active' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-8"
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <Wand2 className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-semibold text-bolt-elements-textPrimary mb-2">
-              Let's build your page!
-            </h3>
+            <h3 className="text-lg font-semibold text-bolt-elements-textPrimary mb-2">Let's build your page!</h3>
             <p className="text-sm text-bolt-elements-textSecondary max-w-xs mx-auto">
-              Tell me what kind of page you want. Be as specific or vague as you like - I'll ask questions to understand your vision.
+              Tell me what kind of page you want. Be as specific or vague as you like - I'll ask questions to understand
+              your vision.
             </p>
             <div className="mt-6 flex flex-wrap gap-2 justify-center">
               {[
@@ -274,8 +265,8 @@ export function AgentPanel({
               status === 'idle'
                 ? 'Start a new session...'
                 : step === 'complete'
-                ? 'Ask for changes...'
-                : 'Type your response...'
+                  ? 'Ask for changes...'
+                  : 'Type your response...'
             }
             disabled={streaming || status === 'idle'}
             className="w-full px-4 py-3 pr-12 rounded-xl bg-bolt-elements-background-depth-3 border border-bolt-elements-borderColor text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50"
@@ -287,11 +278,7 @@ export function AgentPanel({
             disabled={!inputValue.trim() || streaming || status === 'idle'}
             className="absolute right-2 bottom-2 p-2 rounded-lg bg-purple-500 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-600 transition-colors"
           >
-            {streaming ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
+            {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </form>
 
@@ -305,10 +292,7 @@ export function AgentPanel({
             <span>{tokens}</span>
           </div>
           {status === 'idle' ? (
-            <button
-              onClick={startSession}
-              className="text-purple-500 hover:text-purple-400 font-medium"
-            >
+            <button onClick={startSession} className="text-purple-500 hover:text-purple-400 font-medium">
               Start Session
             </button>
           ) : (

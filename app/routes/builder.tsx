@@ -66,7 +66,7 @@ export default function Builder() {
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-// AI Copywriting state
+  // AI Copywriting state
   const [showCopywritingModal, setShowCopywritingModal] = useState(false);
   const [showImprovementPopover, setShowImprovementPopover] = useState(false);
   const [selectedText, setSelectedText] = useState('');
@@ -259,7 +259,9 @@ export default function Builder() {
   // Handle AI-generated copy insertion
   const handleInsertCopy = useCallback(
     async (copy: InsertableCopy) => {
-      if (!generatedHtml) return;
+      if (!generatedHtml) {
+        return;
+      }
 
       setIsGenerating(true);
       setError(null);
@@ -300,13 +302,15 @@ Apply these changes to the ${currentSectionType} section. Keep the design and la
         setIsGenerating(false);
       }
     },
-    [generatedHtml, brandInfo, selectedScheme, selectedFont, currentSectionType]
+    [generatedHtml, brandInfo, selectedScheme, selectedFont, currentSectionType],
   );
 
   // Handle text improvement replacement
   const handleReplaceText = useCallback(
     async (newText: string) => {
-      if (!generatedHtml || !selectedText) return;
+      if (!generatedHtml || !selectedText) {
+        return;
+      }
 
       setIsGenerating(true);
       setError(null);
@@ -341,7 +345,7 @@ Keep everything else exactly the same.`;
         setIsGenerating(false);
       }
     },
-    [generatedHtml, selectedText, brandInfo, selectedScheme, selectedFont]
+    [generatedHtml, selectedText, brandInfo, selectedScheme, selectedFont],
   );
 
   // Handle text selection for improvement
@@ -702,7 +706,12 @@ Keep everything else exactly the same.`;
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
                       </svg>
                       <span className="font-medium text-white text-sm">AI Write</span>
                     </div>
@@ -712,12 +721,13 @@ Keep everything else exactly the same.`;
                     onClick={() => {
                       const selection = window.getSelection();
                       const text = selection?.toString().trim();
+
                       if (text && text.length > 3) {
                         const rect = selection?.getRangeAt(0).getBoundingClientRect();
                         handleOpenImprovePopover(
                           text,
                           rect?.right || window.innerWidth / 2,
-                          rect?.bottom || window.innerHeight / 2
+                          rect?.bottom || window.innerHeight / 2,
                         );
                       } else {
                         // Show prompt to select text
@@ -729,7 +739,12 @@ Keep everything else exactly the same.`;
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
                       </svg>
                       <span className="font-medium text-white text-sm">Improve</span>
                     </div>
@@ -741,19 +756,21 @@ Keep everything else exactly the same.`;
                 <div className="mt-3">
                   <p className="text-xs text-[#64748b] mb-1.5">Currently editing:</p>
                   <div className="flex flex-wrap gap-1">
-                    {(['hero', 'features', 'benefits', 'cta', 'about', 'testimonials'] as SectionType[]).map((section) => (
-                      <button
-                        key={section}
-                        onClick={() => setCurrentSectionType(section)}
-                        className={`text-xs px-2 py-1 rounded transition-colors capitalize ${
-                          currentSectionType === section
-                            ? 'bg-[#3b82f6] text-white'
-                            : 'bg-[#0d1f35] text-[#64748b] hover:text-white'
-                        }`}
-                      >
-                        {section}
-                      </button>
-                    ))}
+                    {(['hero', 'features', 'benefits', 'cta', 'about', 'testimonials'] as SectionType[]).map(
+                      (section) => (
+                        <button
+                          key={section}
+                          onClick={() => setCurrentSectionType(section)}
+                          className={`text-xs px-2 py-1 rounded transition-colors capitalize ${
+                            currentSectionType === section
+                              ? 'bg-[#3b82f6] text-white'
+                              : 'bg-[#0d1f35] text-[#64748b] hover:text-white'
+                          }`}
+                        >
+                          {section}
+                        </button>
+                      ),
+                    )}
                   </div>
                 </div>
               </div>
@@ -921,8 +938,10 @@ Examples:
       {/* AI Build Mode - Agent Panel */}
       <AgentContainer
         onCodeGenerated={(code) => {
-          // Convert the React code to HTML for the preview
-          // For now, we wrap it in a basic HTML structure
+          /*
+           * Convert the React code to HTML for the preview
+           * For now, we wrap it in a basic HTML structure
+           */
           const htmlWrapper = `<!DOCTYPE html>
 <html lang="en">
 <head>

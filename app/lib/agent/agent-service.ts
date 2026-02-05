@@ -86,7 +86,7 @@ export class AgentService {
    */
   async streamMessage(
     userMessage: string,
-    context?: Record<string, string>
+    context?: Record<string, string>,
   ): Promise<AsyncGenerator<AgentStreamEvent>> {
     const model = this.getModel();
 
@@ -117,7 +117,7 @@ export class AgentService {
   private async *streamAnthropic(
     model: string,
     messages: Array<{ role: 'user' | 'assistant'; content: string }>,
-    context?: Record<string, string>
+    context?: Record<string, string>,
   ): AsyncGenerator<AgentStreamEvent> {
     if (!this.client) {
       throw new Error('Anthropic client not initialized. Set ANTHROPIC_API_KEY.');
@@ -142,6 +142,7 @@ export class AgentService {
       for await (const event of stream) {
         if (event.type === 'content_block_delta') {
           const delta = event.delta;
+
           if ('text' in delta) {
             fullContent += delta.text;
             yield { type: 'message_delta', data: { text: delta.text } };
@@ -171,10 +172,7 @@ export class AgentService {
         data: {
           content: fullContent,
           usage: finalMessage.usage,
-          estimatedCost: this.calculateCost(
-            finalMessage.usage.input_tokens,
-            finalMessage.usage.output_tokens
-          ),
+          estimatedCost: this.calculateCost(finalMessage.usage.input_tokens, finalMessage.usage.output_tokens),
         },
       };
     } catch (error) {
@@ -188,7 +186,7 @@ export class AgentService {
   private async *streamOpenRouter(
     model: string,
     messages: Array<{ role: 'user' | 'assistant'; content: string }>,
-    context?: Record<string, string>
+    context?: Record<string, string>,
   ): AsyncGenerator<AgentStreamEvent> {
     if (!OPENROUTER_API_KEY) {
       throw new Error('OpenRouter API key not configured. Set OPEN_ROUTER_API_KEY.');
@@ -221,7 +219,10 @@ export class AgentService {
       }
 
       const reader = response.body?.getReader();
-      if (!reader) throw new Error('No response body');
+
+      if (!reader) {
+        throw new Error('No response body');
+      }
 
       const decoder = new TextDecoder();
       let fullContent = '';
@@ -230,14 +231,20 @@ export class AgentService {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+
+        if (done) {
+          break;
+        }
 
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n').filter((line) => line.startsWith('data: '));
 
         for (const line of lines) {
           const data = line.slice(6);
-          if (data === '[DONE]') continue;
+
+          if (data === '[DONE]') {
+            continue;
+          }
 
           try {
             const parsed = JSON.parse(data) as {
@@ -245,6 +252,7 @@ export class AgentService {
               usage?: { prompt_tokens: number; completion_tokens: number };
             };
             const content = parsed.choices?.[0]?.delta?.content;
+
             if (content) {
               fullContent += content;
               yield { type: 'message_delta', data: { text: content } };
@@ -288,15 +296,13 @@ export class AgentService {
   /**
    * Start the understanding phase - ask clarifying questions
    */
-  async *startUnderstanding(
-    userRequest: string,
-    context?: Record<string, string>
-  ): AsyncGenerator<AgentStreamEvent> {
+  async *startUnderstanding(userRequest: string, context?: Record<string, string>): AsyncGenerator<AgentStreamEvent> {
     this.currentStep = 'understanding';
     yield { type: 'step_change', data: { step: 'understanding' } };
 
     const prompt = getUnderstandingPrompt(userRequest);
     const generator = await this.streamMessage(prompt, context);
+
     for await (const event of generator) {
       yield event;
     }
@@ -310,7 +316,7 @@ export class AgentService {
    */
   async *generateStructure(
     context: Record<string, string>,
-    userPreferences?: string
+    userPreferences?: string,
   ): AsyncGenerator<AgentStreamEvent> {
     this.currentStep = 'generating-structure';
     yield { type: 'step_change', data: { step: 'generating-structure' } };
@@ -318,6 +324,7 @@ export class AgentService {
 
     const prompt = getStructurePrompt(context, userPreferences);
     const generator = await this.streamMessage(prompt, context);
+
     for await (const event of generator) {
       yield event;
     }
@@ -332,12 +339,12 @@ export class AgentService {
     context: Record<string, string>,
     pageStructure: PageStructure,
     sectionIndex: number,
-    totalSections: number
+    totalSections: number,
   ): AsyncGenerator<AgentStreamEvent> {
     this.currentStep = 'generating-copy';
     yield { type: 'step_change', data: { step: 'generating-copy' } };
 
-    const progress = 20 + ((sectionIndex / totalSections) * 40);
+    const progress = 20 + (sectionIndex / totalSections) * 40;
     yield {
       type: 'progress_update',
       data: {
@@ -349,13 +356,9 @@ export class AgentService {
       },
     };
 
-    const prompt = getSectionCopyPrompt(
-      sectionType as any,
-      sectionTitle,
-      context,
-      pageStructure
-    );
+    const prompt = getSectionCopyPrompt(sectionType as any, sectionTitle, context, pageStructure);
     const generator = await this.streamMessage(prompt, context);
+
     for await (const event of generator) {
       yield event;
     }
@@ -369,7 +372,7 @@ export class AgentService {
   async *generateCode(
     pageStructure: PageStructure,
     sectionContents: Record<string, SectionContent>,
-    context: Record<string, string>
+    context: Record<string, string>,
   ): AsyncGenerator<AgentStreamEvent> {
     this.currentStep = 'applying-styles';
     yield { type: 'step_change', data: { step: 'applying-styles' } };
@@ -377,6 +380,7 @@ export class AgentService {
 
     const prompt = getCodeGenerationPrompt(pageStructure, sectionContents, context);
     const generator = await this.streamMessage(prompt, context);
+
     for await (const event of generator) {
       yield event;
     }
@@ -393,12 +397,13 @@ export class AgentService {
     command: string,
     currentCode: string,
     targetSection?: string,
-    context?: Record<string, string>
+    context?: Record<string, string>,
   ): AsyncGenerator<AgentStreamEvent> {
     yield { type: 'progress_update', data: { progress: 0, message: `Applying refinement: ${command}...` } };
 
     const prompt = getRefinementPrompt(command, currentCode, targetSection);
     const generator = await this.streamMessage(prompt, context);
+
     for await (const event of generator) {
       yield event;
     }
@@ -411,9 +416,7 @@ export class AgentService {
    */
   calculateCost(inputTokens: number, outputTokens: number): CostEstimate {
     const model = this.getModel();
-    const pricing = model.includes('opus')
-      ? { input: 15.0, output: 75.0 }
-      : { input: 3.0, output: 15.0 };
+    const pricing = model.includes('opus') ? { input: 15.0, output: 75.0 } : { input: 3.0, output: 15.0 };
 
     const inputCost = (inputTokens / 1_000_000) * pricing.input;
     const outputCost = (outputTokens / 1_000_000) * pricing.output;
@@ -480,9 +483,11 @@ export class AgentService {
     if (ANTHROPIC_API_KEY) {
       return { name: 'Anthropic', configured: true };
     }
+
     if (OPENROUTER_API_KEY) {
       return { name: 'OpenRouter', configured: true };
     }
+
     return { name: 'None', configured: false };
   }
 }

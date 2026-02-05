@@ -79,10 +79,7 @@ Be conversational and enthusiastic. Don't ask generic questions - make them spec
 /**
  * Prompt for generating page structure
  */
-export function getStructurePrompt(
-  context: Record<string, string>,
-  userPreferences?: string
-): string {
+export function getStructurePrompt(context: Record<string, string>, userPreferences?: string): string {
   return `Based on our conversation, I need to design a page structure.
 
 ## Business Context
@@ -125,7 +122,7 @@ export function getSectionCopyPrompt(
   sectionType: SectionType,
   sectionTitle: string,
   context: Record<string, string>,
-  pageStructure: PageStructure
+  pageStructure: PageStructure,
 ): string {
   const sectionGuidelines: Record<SectionType, string> = {
     hero: `Create a hero section with:
@@ -249,7 +246,7 @@ Write copy that:
 export function getCodeGenerationPrompt(
   pageStructure: PageStructure,
   sectionContents: Record<string, SectionContent>,
-  context: Record<string, string>
+  context: Record<string, string>,
 ): string {
   return `Generate a complete, production-ready React landing page component.
 
@@ -297,11 +294,7 @@ Generate the COMPLETE component with all sections. Do not use placeholders.`;
 /**
  * Prompt for refinement commands
  */
-export function getRefinementPrompt(
-  command: string,
-  currentCode: string,
-  targetSection?: string
-): string {
+export function getRefinementPrompt(command: string, currentCode: string, targetSection?: string): string {
   const refinementGuidelines: Record<string, string> = {
     make_shorter: 'Make the copy more concise. Cut unnecessary words. Every word must earn its place.',
     make_longer: 'Expand the copy with more detail, examples, or emotional appeal.',

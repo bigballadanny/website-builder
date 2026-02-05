@@ -6,9 +6,4 @@
 
 export * from './types';
 export * from './prompts';
-export { 
-  AgentService,
-  extractCodeFromResponse,
-  parsePageStructure,
-  parseSectionContent,
-} from './agent-service';
+export { AgentService, extractCodeFromResponse, parsePageStructure, parseSectionContent } from './agent-service';

@@ -81,8 +81,7 @@ export const action: ActionFunction = async ({ request, context }) => {
 
     // Get Gemini API key (prefer Gemini, fall back to what's available)
     const geminiKey =
-      process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
-      (context?.cloudflare?.env as any)?.GOOGLE_GENERATIVE_AI_API_KEY;
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY || (context?.cloudflare?.env as any)?.GOOGLE_GENERATIVE_AI_API_KEY;
 
     if (!geminiKey) {
       return new Response('GOOGLE_GENERATIVE_AI_API_KEY not configured', { status: 500 });
@@ -111,7 +110,7 @@ export const action: ActionFunction = async ({ request, context }) => {
 
 async function generateCopy(
   google: ReturnType<typeof createGoogleGenerativeAI>,
-  req: GenerateCopyRequest
+  req: GenerateCopyRequest,
 ): Promise<CopyResult> {
   const toneDesc = TONE_DESCRIPTIONS[req.tone];
   const sectionContext = SECTION_CONTEXT[req.sectionType];
@@ -153,7 +152,10 @@ Output ONLY valid JSON, no markdown or explanation.`;
   });
 
   // Parse JSON response
-  const cleanText = text.replace(/```json?\n?/gi, '').replace(/\n?```/gi, '').trim();
+  const cleanText = text
+    .replace(/```json?\n?/gi, '')
+    .replace(/\n?```/gi, '')
+    .trim();
 
   try {
     const result = JSON.parse(cleanText) as CopyResult;
@@ -162,6 +164,7 @@ Output ONLY valid JSON, no markdown or explanation.`;
     if (!result.headlines || !Array.isArray(result.headlines)) {
       result.headlines = [result.headlines as any].filter(Boolean);
     }
+
     if (result.headlines.length === 0) {
       result.headlines = ['Transform Your Business Today'];
     }
@@ -185,7 +188,7 @@ Output ONLY valid JSON, no markdown or explanation.`;
 
 async function improveCopy(
   google: ReturnType<typeof createGoogleGenerativeAI>,
-  req: ImproveCopyRequest
+  req: ImproveCopyRequest,
 ): Promise<ImproveResult> {
   const instruction = IMPROVEMENT_INSTRUCTIONS[req.improvement];
   const sectionContext = req.sectionType ? SECTION_CONTEXT[req.sectionType] : 'a marketing page';
@@ -220,7 +223,10 @@ Output ONLY valid JSON, no markdown or explanation.`;
   });
 
   // Parse JSON response
-  const cleanText = text.replace(/```json?\n?/gi, '').replace(/\n?```/gi, '').trim();
+  const cleanText = text
+    .replace(/```json?\n?/gi, '')
+    .replace(/\n?```/gi, '')
+    .trim();
 
   try {
     const result = JSON.parse(cleanText) as ImproveResult;

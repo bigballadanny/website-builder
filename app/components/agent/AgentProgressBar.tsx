@@ -25,13 +25,9 @@ export function AgentProgressBar({ progress, step, message }: AgentProgressBarPr
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Loader2 className="w-4 h-4 text-purple-500 animate-spin" />
-          <span className="text-sm font-medium text-bolt-elements-textPrimary">
-            {step}
-          </span>
+          <span className="text-sm font-medium text-bolt-elements-textPrimary">{step}</span>
         </div>
-        <span className="text-xs text-bolt-elements-textSecondary">
-          {progress}%
-        </span>
+        <span className="text-xs text-bolt-elements-textSecondary">{progress}%</span>
       </div>
 
       {/* Progress bar */}
@@ -45,11 +41,7 @@ export function AgentProgressBar({ progress, step, message }: AgentProgressBarPr
       </div>
 
       {/* Status message */}
-      {message && (
-        <p className="mt-2 text-xs text-bolt-elements-textSecondary">
-          {message}
-        </p>
-      )}
+      {message && <p className="mt-2 text-xs text-bolt-elements-textSecondary">{message}</p>}
     </motion.div>
   );
 }

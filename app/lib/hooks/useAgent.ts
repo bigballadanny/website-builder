@@ -34,12 +34,14 @@ import {
   toggleAgentPanel,
   setModelTier,
 } from '~/lib/stores/agent';
-import {
-  extractCodeFromResponse,
-  parsePageStructure,
-  parseSectionContent,
-} from '~/lib/agent/agent-service';
-import type { AgentMessage, ModelTier, RefinementCommand, SectionContent, PageStructure as PageStructureType } from '~/lib/agent/types';
+import { extractCodeFromResponse, parsePageStructure, parseSectionContent } from '~/lib/agent/agent-service';
+import type {
+  AgentMessage,
+  ModelTier,
+  RefinementCommand,
+  SectionContent,
+  PageStructure as PageStructureType,
+} from '~/lib/agent/types';
 
 interface UseAgentOptions {
   onCodeGenerated?: (code: string) => void;
@@ -64,277 +66,313 @@ export function useAgent(options: UseAgentOptions = {}) {
   /**
    * Send a message to the agent API and handle streaming response
    */
-  const streamFromAPI = useCallback(async (
-    action: string,
-    payload: Record<string, unknown>
-  ): Promise<string> => {
-    // Abort any existing request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
-    setStreaming(true);
-
-    try {
-      const response = await fetch('/api/agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action,
-          modelTier,
-          ...payload,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json() as { error?: string };
-        throw new Error(errorData.error || 'API request failed');
+  const streamFromAPI = useCallback(
+    async (action: string, payload: Record<string, unknown>): Promise<string> => {
+      // Abort any existing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error('No response body');
+      abortControllerRef.current = new AbortController();
+      setStreaming(true);
 
-      const decoder = new TextDecoder();
-      let fullContent = '';
+      try {
+        const response = await fetch('/api/agent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action,
+            modelTier,
+            ...payload,
+          }),
+          signal: abortControllerRef.current.signal,
+        });
 
-      // Add a placeholder assistant message for streaming
-      addMessage({ role: 'assistant', content: '' });
+        if (!response.ok) {
+          const errorData = (await response.json()) as { error?: string };
+          throw new Error(errorData.error || 'API request failed');
+        }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const reader = response.body?.getReader();
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter((line) => line.startsWith('data: '));
+        if (!reader) {
+          throw new Error('No response body');
+        }
 
-        for (const line of lines) {
-          const data = line.slice(6);
-          if (data === '[DONE]') continue;
+        const decoder = new TextDecoder();
+        let fullContent = '';
 
-          try {
-            const event = JSON.parse(data);
+        // Add a placeholder assistant message for streaming
+        addMessage({ role: 'assistant', content: '' });
 
-            switch (event.type) {
-              case 'start':
-                // Stream started
-                break;
+        while (true) {
+          const { done, value } = await reader.read();
 
-              case 'delta':
-                fullContent += event.text;
-                appendStreamingContent(event.text);
-                updateLastAssistantMessage(fullContent);
-                break;
+          if (done) {
+            break;
+          }
 
-              case 'complete':
-                if (event.usage) {
-                  updateCost(event.usage.input_tokens, event.usage.output_tokens);
-                }
-                break;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n').filter((line) => line.startsWith('data: '));
 
-              case 'error':
-                throw new Error(event.error);
+          for (const line of lines) {
+            const data = line.slice(6);
+
+            if (data === '[DONE]') {
+              continue;
             }
-          } catch (e) {
-            if (e instanceof SyntaxError) continue; // Skip malformed JSON
-            throw e;
+
+            try {
+              const event = JSON.parse(data);
+
+              switch (event.type) {
+                case 'start':
+                  // Stream started
+                  break;
+
+                case 'delta':
+                  fullContent += event.text;
+                  appendStreamingContent(event.text);
+                  updateLastAssistantMessage(fullContent);
+                  break;
+
+                case 'complete':
+                  if (event.usage) {
+                    updateCost(event.usage.input_tokens, event.usage.output_tokens);
+                  }
+
+                  break;
+
+                case 'error':
+                  throw new Error(event.error);
+              }
+            } catch (e) {
+              if (e instanceof SyntaxError) {
+                continue;
+              } // Skip malformed JSON
+
+              throw e;
+            }
           }
         }
-      }
 
-      return fullContent;
-    } finally {
-      setStreaming(false);
-      abortControllerRef.current = null;
-    }
-  }, [modelTier]);
+        return fullContent;
+      } finally {
+        setStreaming(false);
+        abortControllerRef.current = null;
+      }
+    },
+    [modelTier],
+  );
 
   /**
    * Send a chat message to the agent
    */
-  const sendMessage = useCallback(async (message: string): Promise<void> => {
-    if (!message.trim() || streaming) return;
-
-    // Add user message
-    addMessage({ role: 'user', content: message });
-
-    try {
-      // Determine action based on current step
-      let action = 'chat';
-      const payload: Record<string, unknown> = {
-        message,
-        messages: messages.map((m) => ({ role: m.role, content: m.content })),
-        context: contextRef.current,
-      };
-
-      // If this is the first message, start understanding
-      if (step === 'idle' || messages.length === 0) {
-        action = 'understand';
-        updateStep('understanding');
-        updateProgress({ progress: 5, message: 'Understanding your vision...' });
+  const sendMessage = useCallback(
+    async (message: string): Promise<void> => {
+      if (!message.trim() || streaming) {
+        return;
       }
 
-      const response = await streamFromAPI(action, payload);
+      // Add user message
+      addMessage({ role: 'user', content: message });
 
-      // Check if response contains page structure JSON
-      const { json } = extractCodeFromResponse(response);
-      if (json) {
-        const parsedStructure = parsePageStructure(json);
-        if (parsedStructure) {
-          setPageStructure(parsedStructure);
-          updateStep('generating-structure');
-          updateProgress({
-            progress: 20,
-            message: 'Page structure designed!',
-            sectionsTotal: parsedStructure.sections.length,
-          });
+      try {
+        // Determine action based on current step
+        let action = 'chat';
+        const payload: Record<string, unknown> = {
+          message,
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          context: contextRef.current,
+        };
+
+        // If this is the first message, start understanding
+        if (step === 'idle' || messages.length === 0) {
+          action = 'understand';
+          updateStep('understanding');
+          updateProgress({ progress: 5, message: 'Understanding your vision...' });
         }
+
+        const response = await streamFromAPI(action, payload);
+
+        // Check if response contains page structure JSON
+        const { json } = extractCodeFromResponse(response);
+
+        if (json) {
+          const parsedStructure = parsePageStructure(json);
+
+          if (parsedStructure) {
+            setPageStructure(parsedStructure);
+            updateStep('generating-structure');
+            updateProgress({
+              progress: 20,
+              message: 'Page structure designed!',
+              sectionsTotal: parsedStructure.sections.length,
+            });
+          }
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setError(errorMessage);
+        options.onError?.(errorMessage);
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(errorMessage);
-      options.onError?.(errorMessage);
-    }
-  }, [messages, step, streaming, streamFromAPI, options]);
+    },
+    [messages, step, streaming, streamFromAPI, options],
+  );
 
   /**
    * Generate the full page (structure → copy → code)
    */
-  const generateFullPage = useCallback(async (userDescription: string): Promise<void> => {
-    try {
-      // Step 1: Understanding
-      updateStep('understanding');
-      updateProgress({ progress: 5, message: 'Understanding your vision...' });
-      
-      addMessage({ role: 'user', content: userDescription });
+  const generateFullPage = useCallback(
+    async (userDescription: string): Promise<void> => {
+      try {
+        // Step 1: Understanding
+        updateStep('understanding');
+        updateProgress({ progress: 5, message: 'Understanding your vision...' });
 
-      // Get clarifying response
-      const understandingResponse = await streamFromAPI('understand', {
-        message: userDescription,
-        context: contextRef.current,
-      });
+        addMessage({ role: 'user', content: userDescription });
 
-      // Step 2: Generate structure
-      updateStep('generating-structure');
-      updateProgress({ progress: 15, message: 'Designing page structure...' });
-
-      const structureResponse = await streamFromAPI('structure', {
-        message: 'Now create the page structure based on our discussion.',
-        messages: messages.map((m) => ({ role: m.role, content: m.content })),
-        context: contextRef.current,
-      });
-
-      // Parse structure
-      const { json: structureJson } = extractCodeFromResponse(structureResponse);
-      if (!structureJson) {
-        throw new Error('Failed to generate page structure');
-      }
-
-      const parsedStructure = parsePageStructure(structureJson);
-      if (!parsedStructure) {
-        throw new Error('Failed to parse page structure');
-      }
-
-      setPageStructure(parsedStructure);
-
-      // Step 3: Generate copy for each section
-      updateStep('generating-copy');
-      const sectionContentsMap: Record<string, SectionContent> = {};
-
-      for (let i = 0; i < parsedStructure.sections.length; i++) {
-        const section = parsedStructure.sections[i];
-        const progress = 20 + ((i / parsedStructure.sections.length) * 40);
-
-        updateProgress({
-          progress,
-          currentSection: section.title,
-          sectionsComplete: i,
-          sectionsTotal: parsedStructure.sections.length,
-          message: `Writing copy for ${section.title}...`,
-        });
-
-        const copyResponse = await streamFromAPI('copy', {
-          sectionType: section.type,
-          sectionTitle: section.title,
-          sectionIndex: i,
-          totalSections: parsedStructure.sections.length,
-          pageStructure: parsedStructure,
+        // Get clarifying response
+        const understandingResponse = await streamFromAPI('understand', {
+          message: userDescription,
           context: contextRef.current,
         });
 
-        const { json: copyJson } = extractCodeFromResponse(copyResponse);
-        if (copyJson) {
-          const content = parseSectionContent(copyJson);
-          if (content) {
-            sectionContentsMap[section.id] = content;
-            updateSectionContent(section.id, content);
+        // Step 2: Generate structure
+        updateStep('generating-structure');
+        updateProgress({ progress: 15, message: 'Designing page structure...' });
+
+        const structureResponse = await streamFromAPI('structure', {
+          message: 'Now create the page structure based on our discussion.',
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          context: contextRef.current,
+        });
+
+        // Parse structure
+        const { json: structureJson } = extractCodeFromResponse(structureResponse);
+
+        if (!structureJson) {
+          throw new Error('Failed to generate page structure');
+        }
+
+        const parsedStructure = parsePageStructure(structureJson);
+
+        if (!parsedStructure) {
+          throw new Error('Failed to parse page structure');
+        }
+
+        setPageStructure(parsedStructure);
+
+        // Step 3: Generate copy for each section
+        updateStep('generating-copy');
+
+        const sectionContentsMap: Record<string, SectionContent> = {};
+
+        for (let i = 0; i < parsedStructure.sections.length; i++) {
+          const section = parsedStructure.sections[i];
+          const progress = 20 + (i / parsedStructure.sections.length) * 40;
+
+          updateProgress({
+            progress,
+            currentSection: section.title,
+            sectionsComplete: i,
+            sectionsTotal: parsedStructure.sections.length,
+            message: `Writing copy for ${section.title}...`,
+          });
+
+          const copyResponse = await streamFromAPI('copy', {
+            sectionType: section.type,
+            sectionTitle: section.title,
+            sectionIndex: i,
+            totalSections: parsedStructure.sections.length,
+            pageStructure: parsedStructure,
+            context: contextRef.current,
+          });
+
+          const { json: copyJson } = extractCodeFromResponse(copyResponse);
+
+          if (copyJson) {
+            const content = parseSectionContent(copyJson);
+
+            if (content) {
+              sectionContentsMap[section.id] = content;
+              updateSectionContent(section.id, content);
+            }
           }
         }
+
+        // Step 4: Generate final code
+        updateStep('applying-styles');
+        updateProgress({ progress: 70, message: 'Generating code...' });
+
+        const codeResponse = await streamFromAPI('code', {
+          pageStructure: parsedStructure,
+          sectionContents: sectionContentsMap,
+          context: contextRef.current,
+        });
+
+        const { tsx } = extractCodeFromResponse(codeResponse);
+
+        if (tsx) {
+          setGeneratedCode(tsx);
+          options.onCodeGenerated?.(tsx);
+        }
+
+        // Complete
+        updateStep('complete');
+        completeSession();
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setError(errorMessage);
+        options.onError?.(errorMessage);
       }
-
-      // Step 4: Generate final code
-      updateStep('applying-styles');
-      updateProgress({ progress: 70, message: 'Generating code...' });
-
-      const codeResponse = await streamFromAPI('code', {
-        pageStructure: parsedStructure,
-        sectionContents: sectionContentsMap,
-        context: contextRef.current,
-      });
-
-      const { tsx } = extractCodeFromResponse(codeResponse);
-      if (tsx) {
-        setGeneratedCode(tsx);
-        options.onCodeGenerated?.(tsx);
-      }
-
-      // Complete
-      updateStep('complete');
-      completeSession();
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(errorMessage);
-      options.onError?.(errorMessage);
-    }
-  }, [messages, streamFromAPI, options]);
+    },
+    [messages, streamFromAPI, options],
+  );
 
   /**
    * Apply a refinement command
    */
-  const applyRefinement = useCallback(async (command: RefinementCommand, targetSection?: string): Promise<void> => {
-    if (!code) return;
-
-    try {
-      updateProgress({ progress: 0, message: `Applying: ${command}...` });
-
-      const response = await streamFromAPI('refine', {
-        currentCode: code,
-        refinementCommand: command,
-        targetSection,
-        context: contextRef.current,
-      });
-
-      const { tsx } = extractCodeFromResponse(response);
-      if (tsx) {
-        setGeneratedCode(tsx);
-        options.onCodeGenerated?.(tsx);
+  const applyRefinement = useCallback(
+    async (command: RefinementCommand, targetSection?: string): Promise<void> => {
+      if (!code) {
+        return;
       }
 
-      updateProgress({ progress: 100, message: 'Refinement complete!' });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(errorMessage);
-      options.onError?.(errorMessage);
-    }
-  }, [code, streamFromAPI, options]);
+      try {
+        updateProgress({ progress: 0, message: `Applying: ${command}...` });
+
+        const response = await streamFromAPI('refine', {
+          currentCode: code,
+          refinementCommand: command,
+          targetSection,
+          context: contextRef.current,
+        });
+
+        const { tsx } = extractCodeFromResponse(response);
+
+        if (tsx) {
+          setGeneratedCode(tsx);
+          options.onCodeGenerated?.(tsx);
+        }
+
+        updateProgress({ progress: 100, message: 'Refinement complete!' });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setError(errorMessage);
+        options.onError?.(errorMessage);
+      }
+    },
+    [code, streamFromAPI, options],
+  );
 
   /**
    * Regenerate the page
    */
   const regenerate = useCallback(async (): Promise<void> => {
-    if (!structure) return;
+    if (!structure) {
+      return;
+    }
 
     try {
       updateStep('generating-copy');
@@ -348,6 +386,7 @@ export function useAgent(options: UseAgentOptions = {}) {
       });
 
       const { tsx } = extractCodeFromResponse(codeResponse);
+
       if (tsx) {
         setGeneratedCode(tsx);
         options.onCodeGenerated?.(tsx);
@@ -377,6 +416,7 @@ export function useAgent(options: UseAgentOptions = {}) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
+
     setStreaming(false);
   }, []);
 
