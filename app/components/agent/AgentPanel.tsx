@@ -129,7 +129,7 @@ export function AgentPanel({
       <div className="flex items-center justify-between px-4 py-3 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-1">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-purple-500" />
-          <h2 className="font-semibold text-bolt-elements-textPrimary">AI Build Mode</h2>
+          <h2 className="font-semibold text-bolt-elements-textPrimary">Marketing AI Mode</h2>
         </div>
         <div className="flex items-center gap-2">
           {/* Model tier toggle */}
@@ -179,7 +179,7 @@ export function AgentPanel({
             </div>
             <h3 className="text-lg font-semibold text-bolt-elements-textPrimary mb-2">Marketing AI Mode</h3>
             <p className="text-sm text-bolt-elements-textSecondary max-w-xs mx-auto">
-              I'm the Pocket Marketer AI, powered by the Bolt engine. I've already indexed your BrandDNA and business goals.
+              I'm your Pocket Marketer AI. I've already indexed your BrandDNA and business goals and am ready to build your high-converting page.
               <br /><br />
               Tell me how you'd like to refine your site, or use the suggestions below!
             </p>
