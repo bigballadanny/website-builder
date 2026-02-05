@@ -15,7 +15,7 @@ export default defineConfig((config) => {
   return {
     server: {
       host: "::",
-      port: 5000,  // Pocket Marketer - see ~/clawd/PORT-MAP.md
+      port: 5100,  // Pocket Marketer - see ~/clawd/PORT-MAP.md (5000 used by macOS AirPlay)
     },
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
@@ -77,6 +77,10 @@ export default defineConfig((config) => {
       },
     },
     test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./vitest.setup.ts'],
+      include: ['app/**/*.test.{ts,tsx}'],
       exclude: [
         '**/node_modules/**',
         '**/dist/**',

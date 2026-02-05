@@ -130,6 +130,7 @@ Remember: Output ONLY the HTML, starting with <!DOCTYPE html>`;
     // Ensure it starts with DOCTYPE
     if (!html.startsWith('<!DOCTYPE')) {
       const doctypeIndex = html.indexOf('<!DOCTYPE');
+
       if (doctypeIndex > 0) {
         html = html.substring(doctypeIndex);
       } else if (html.includes('<html')) {

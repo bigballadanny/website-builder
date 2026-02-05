@@ -34,12 +34,12 @@ if (!import.meta.env.SSR) {
         console.log('[WebContainer] ✅ WebContainer booted successfully');
         console.log('[WebContainer] 📁 Working directory:', wc.workdir);
         webcontainerContext.loaded = true;
-        
+
         // Add listener for port events
         wc.on('port', (port, type, url) => {
           console.log('[WebContainer] 🔌 Port event:', { port, type, url });
         });
-        
+
         wc.on('server-ready', (port, url) => {
           console.log('[WebContainer] 🌐 Server ready:', { port, url });
         });

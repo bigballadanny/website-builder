@@ -76,11 +76,13 @@ export function RecentProjects({ className, maxProjects = 4 }: RecentProjectsPro
           href="#"
           onClick={(e) => {
             e.preventDefault();
+
             // Trigger sidebar open by simulating mouse movement to the left edge
             const event = new MouseEvent('mousemove', {
               clientX: 0,
               bubbles: true,
             });
+
             // Set pageX manually as it's read-only in MouseEventInit
             Object.defineProperty(event, 'pageX', { value: 0 });
             window.dispatchEvent(event);

@@ -1,12 +1,6 @@
 import { atom } from 'nanostores';
 
-export type PreviewStage = 
-  | 'idle'
-  | 'installing'
-  | 'starting'
-  | 'waiting-for-port'
-  | 'ready'
-  | 'error';
+export type PreviewStage = 'idle' | 'installing' | 'starting' | 'waiting-for-port' | 'ready' | 'error';
 
 export interface PreviewStatus {
   stage: PreviewStage;
@@ -27,25 +21,25 @@ export const previewStatus = atom<PreviewStatus>(DEFAULT_STATUS);
 
 export function setPreviewStage(stage: PreviewStage, message?: string, error?: string) {
   const progressMap: Record<PreviewStage, number> = {
-    'idle': 0,
-    'installing': 25,
-    'starting': 50,
+    idle: 0,
+    installing: 25,
+    starting: 50,
     'waiting-for-port': 75,
-    'ready': 100,
-    'error': 0,
+    ready: 100,
+    error: 0,
   };
 
   const messageMap: Record<PreviewStage, string> = {
-    'idle': 'Waiting to start...',
-    'installing': 'Installing dependencies...',
-    'starting': 'Starting development server...',
+    idle: 'Waiting to start...',
+    installing: 'Installing dependencies...',
+    starting: 'Starting development server...',
     'waiting-for-port': 'Waiting for server to be ready...',
-    'ready': 'Preview ready!',
-    'error': 'An error occurred',
+    ready: 'Preview ready!',
+    error: 'An error occurred',
   };
 
   const current = previewStatus.get();
-  
+
   previewStatus.set({
     ...current,
     stage,
@@ -73,6 +67,10 @@ export function resetPreviewStatus() {
 // Helper to check if we've been in a stage too long
 export function getStageElapsedTime(): number {
   const current = previewStatus.get();
-  if (!current.startTime) return 0;
+
+  if (!current.startTime) {
+    return 0;
+  }
+
   return Date.now() - current.startTime;
 }

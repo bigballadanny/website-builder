@@ -131,7 +131,7 @@ export default {
   name: 'Sales Page',
   description: 'Long-form page for selling products or services',
   category: 'sales',
-  thumbnail: '/templates/sales-page/preview.png',
+  thumbnail: '/templates/sales-page/preview.svg',
   prompt: salesPagePrompt,
   sections: salesPageSections,
 };

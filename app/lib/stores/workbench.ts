@@ -33,14 +33,17 @@ export type ArtifactUpdateState = Pick<ArtifactState, 'title' | 'closed'>;
 
 type Artifacts = MapStore<Record<string, ArtifactState>>;
 
-export type WorkbenchViewType = 'code' | 'diff' | 'preview';
+export type WorkbenchViewType = 'code' | 'diff' | 'preview' | 'split';
 
 export class WorkbenchStore {
   #previewsStore = (() => {
     console.log('[WorkbenchStore] 🏗️ Creating PreviewsStore with webcontainer promise');
+
     const store = new PreviewsStore(webcontainer);
+
     // Register the store as the singleton so usePreviewStore() returns the same instance
     setPreviewsStore(store);
+
     return store;
   })();
   #filesStore = new FilesStore(webcontainer);
@@ -481,6 +484,7 @@ export class WorkbenchStore {
 
   addArtifact({ messageId, title, id, type }: ArtifactCallbackData) {
     console.log('[WORKBENCH] 🎨 addArtifact called:', { id, title, type, messageId });
+
     const artifact = this.#getArtifact(id);
 
     if (artifact) {
@@ -546,6 +550,7 @@ export class WorkbenchStore {
       actionId: data.actionId,
       artifactId: data.artifactId,
     });
+
     // this._addAction(data);
 
     this.addToExecutionQueue(() => this._addAction(data));
@@ -562,6 +567,7 @@ export class WorkbenchStore {
     }
 
     console.log('[WORKBENCH] ✅ Found artifact, adding action to runner');
+
     return artifact.runner.addAction(data);
   }
 
@@ -571,6 +577,7 @@ export class WorkbenchStore {
       actionId: data.actionId,
       isStreaming,
     });
+
     if (isStreaming) {
       this.actionStreamSampler(data, isStreaming);
     } else {
@@ -610,6 +617,7 @@ export class WorkbenchStore {
         filePath: data.action.filePath,
         contentLength: data.action.content?.length || 0,
       });
+
       const wc = await webcontainer;
       const fullPath = path.join(wc.workdir, data.action.filePath);
       console.log('[WORKBENCH] 📄 Full path:', fullPath);

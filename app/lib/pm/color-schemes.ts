@@ -86,6 +86,7 @@ export const colorSchemes: ColorScheme[] = [
     },
     isDark: true,
   },
+
   // Light Themes
   {
     id: 'clean-white',
@@ -165,11 +166,11 @@ export const fontOptions = [
 ];
 
 export function getSchemeById(id: string): ColorScheme | undefined {
-  return colorSchemes.find(s => s.id === id);
+  return colorSchemes.find((s) => s.id === id);
 }
 
 export function getFontById(id: string) {
-  return fontOptions.find(f => f.id === id);
+  return fontOptions.find((f) => f.id === id);
 }
 
 /**

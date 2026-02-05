@@ -32,9 +32,11 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
 
   // Check if HTML already includes DOCTYPE/html tags
   const isCompleteHtml = html.includes('<!DOCTYPE') || html.includes('<html');
-  
+
   // Build complete HTML document only if needed
-  const fullHtml = isCompleteHtml ? html : `
+  const fullHtml = isCompleteHtml
+    ? html
+    : `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,7 +46,7 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     ${css || ''}
     /* PM Base Styles */
@@ -114,6 +116,7 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
       }
     };
     window.addEventListener('message', handleMessage);
+
     return () => window.removeEventListener('message', handleMessage);
   }, [onFormSubmit]);
 
@@ -125,15 +128,14 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
           ✓ Form submission captured (preview mode)
         </div>
       )}
-      
+
       {/* Device Switcher */}
       <div className="flex items-center justify-between p-3 bg-[#0d1f35] border-b border-[#1e3a5f]">
         <div className="pm-device-switcher flex gap-1">
           <button
             onClick={() => setDevice('desktop')}
-            className={`p-2 rounded transition-colors ${
-              device === 'desktop' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
-            }`}
+            className={`p-2 rounded transition-colors ${device === 'desktop' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
+              }`}
             title="Desktop"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,9 +149,8 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
           </button>
           <button
             onClick={() => setDevice('tablet')}
-            className={`p-2 rounded transition-colors ${
-              device === 'tablet' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
-            }`}
+            className={`p-2 rounded transition-colors ${device === 'tablet' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
+              }`}
             title="Tablet"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,9 +164,8 @@ export function PreviewFrame({ html, css, deviceWidth = 'desktop', onFormSubmit 
           </button>
           <button
             onClick={() => setDevice('mobile')}
-            className={`p-2 rounded transition-colors ${
-              device === 'mobile' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
-            }`}
+            className={`p-2 rounded transition-colors ${device === 'mobile' ? 'bg-[#3b82f6] text-white' : 'text-[#94a3b8] hover:text-white'
+              }`}
             title="Mobile"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

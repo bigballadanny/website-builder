@@ -133,7 +133,7 @@ export default {
   name: 'Landing Page',
   description: 'Simple, focused page for lead generation',
   category: 'lead-gen',
-  thumbnail: '/templates/landing-page/preview.png',
+  thumbnail: '/templates/landing-page/preview.svg',
   prompt: landingPagePrompt,
   sections: landingPageSections,
 };

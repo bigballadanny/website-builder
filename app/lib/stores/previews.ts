@@ -169,16 +169,17 @@ export class PreviewsStore {
 
   async #init() {
     console.log('[PreviewsStore] 🔧 Initializing PreviewsStore, waiting for WebContainer...');
+
     const webcontainer = await this.#webcontainer;
     console.log('[PreviewsStore] ✅ WebContainer resolved, setting up listeners...');
 
     // Listen for server ready events
     webcontainer.on('server-ready', (port, url) => {
       console.log('[PreviewsStore] 🎯 SERVER-READY EVENT on port:', port, 'url:', url);
-      
+
       // Set preview status to ready
       setPreviewStage('ready', `Preview ready on port ${port}!`);
-      
+
       this.broadcastUpdate(url);
 
       // Initial storage sync when preview is ready
@@ -188,6 +189,7 @@ export class PreviewsStore {
     // Listen for port events
     webcontainer.on('port', (port, type, url) => {
       console.log('[PreviewsStore] 🔌 PORT EVENT:', { port, type, url });
+
       let previewInfo = this.#availablePreviews.get(port);
 
       if (type === 'close' && previewInfo) {
@@ -217,7 +219,7 @@ export class PreviewsStore {
         this.broadcastUpdate(url);
       }
     });
-    
+
     console.log('[PreviewsStore] ✅ Listeners set up complete');
   }
 
@@ -321,9 +323,13 @@ export function setPreviewsStore(store: PreviewsStore) {
 export function usePreviewStore(): PreviewsStore {
   if (!previewsStore) {
     console.warn('[PreviewsStore] ⚠️ usePreviewStore called before workbenchStore initialized! This may cause issues.');
-    // Import workbenchStore to ensure it's initialized
-    // This will trigger the PreviewsStore creation in WorkbenchStore
+
+    /*
+     * Import workbenchStore to ensure it's initialized
+     * This will trigger the PreviewsStore creation in WorkbenchStore
+     */
     const { workbenchStore } = require('~/lib/stores/workbench');
+
     // The workbenchStore should have set the previewsStore by now
     if (!previewsStore) {
       console.error('[PreviewsStore] ❌ CRITICAL: previewsStore still null after workbenchStore import');

@@ -509,7 +509,7 @@ export function EventLogsTab() {
       doc.setFont('helvetica', 'bold');
       doc.text('Event Logs Report', margin, 35);
 
-      // Add subtitle with bolt.diy
+      // Add subtitle with Pocket Marketer
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
       doc.text('Pocket Marketer - AI Website Builder', margin, 45);

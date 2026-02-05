@@ -1,0 +1,47 @@
+<svg width="400" height="250" viewBox="0 0 400 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="250" fill="#0a1628"/>
+  
+  <!-- Centered simple layout -->
+  <rect x="50" y="20" width="300" height="200" rx="6" fill="#132743"/>
+  
+  <!-- FREE Badge -->
+  <rect x="165" y="30" width="70" height="16" rx="8" fill="#22c55e"/>
+  <text x="200" y="41" font-family="system-ui" font-size="8" fill="white" text-anchor="middle" font-weight="bold">FREE GUIDE</text>
+  
+  <!-- Headline -->
+  <rect x="80" y="55" width="240" height="10" rx="2" fill="white"/>
+  <rect x="100" y="70" width="200" height="6" rx="1" fill="#94a3b8"/>
+  
+  <!-- Ebook mockup -->
+  <rect x="160" y="85" width="80" height="50" rx="3" fill="#3b82f6" transform="rotate(-5 200 110)"/>
+  <rect x="165" y="90" width="70" height="40" rx="2" fill="#0a1628" transform="rotate(-5 200 110)"/>
+  <rect x="172" y="98" width="50" height="4" rx="1" fill="white" opacity="0.8" transform="rotate(-5 200 110)"/>
+  <rect x="172" y="106" width="40" height="3" rx="1" fill="white" opacity="0.5" transform="rotate(-5 200 110)"/>
+  <rect x="172" y="112" width="45" height="3" rx="1" fill="white" opacity="0.5" transform="rotate(-5 200 110)"/>
+  
+  <!-- What's inside bullets -->
+  <rect x="80" y="145" width="8" height="8" rx="4" fill="#3b82f6"/>
+  <rect x="95" y="147" width="100" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="80" y="158" width="8" height="8" rx="4" fill="#3b82f6"/>
+  <rect x="95" y="160" width="90" height="4" rx="1" fill="#94a3b8"/>
+  <rect x="80" y="171" width="8" height="8" rx="4" fill="#3b82f6"/>
+  <rect x="95" y="173" width="110" height="4" rx="1" fill="#94a3b8"/>
+  
+  <!-- Email Form -->
+  <rect x="220" y="145" width="110" height="20" rx="3" fill="#0a1628"/>
+  <text x="230" y="158" font-family="system-ui" font-size="7" fill="#64748b">your@email.com</text>
+  <rect x="220" y="170" width="110" height="22" rx="4" fill="#3b82f6"/>
+  <text x="275" y="184" font-family="system-ui" font-size="8" fill="white" text-anchor="middle" font-weight="500">Download Now</text>
+  
+  <!-- Privacy note -->
+  <rect x="220" y="195" width="110" height="3" rx="1" fill="#475569"/>
+  
+  <!-- Download icon -->
+  <circle cx="70" y="110" r="15" fill="#3b82f6" opacity="0.2"/>
+  <path d="M65 105 L75 105 L70 115 Z" fill="#3b82f6"/>
+  <rect x="67" y="98" width="6" height="10" fill="#3b82f6"/>
+  
+  <!-- Label -->
+  <text x="200" y="242" font-family="system-ui" font-size="9" fill="#94a3b8" text-anchor="middle" font-weight="500">Lead Magnet Page</text>
+</svg>

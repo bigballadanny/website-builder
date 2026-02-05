@@ -85,7 +85,7 @@ export const action: ActionFunction = async ({ request, context }) => {
       textMuted: '#94a3b8',
       border: '#1e3a5f',
     };
-    
+
     const fontFamily = styling?.font?.family || 'Inter, system-ui, sans-serif';
     const isDark = styling?.colorScheme?.isDark ?? true;
 
@@ -93,44 +93,30 @@ export const action: ActionFunction = async ({ request, context }) => {
     const client = new Anthropic({ apiKey });
 
     const systemPrompt = `You are an expert website generator for Pocket Marketer. 
-Generate high-converting, professional marketing pages with clean HTML.
+Generate high-converting, professional marketing pages with a PREMIUM, EDITORIAL aesthetic (similar to Lovable or high-end SaaS landing pages).
 
-CRITICAL RULES:
-1. Output ONLY raw HTML - no markdown, no code fences, no explanations
-2. Use Tailwind CSS via CDN for styling
-3. Make it MOBILE-FIRST responsive (use sm:, md:, lg: breakpoints)
-4. Include working form with action="https://formspree.io/f/placeholder" method="POST"
-5. Use semantic HTML (header, main, section, footer)
-6. Add proper meta tags and viewport
+CRITICAL DESIGN RULES:
+1. Output ONLY raw HTML - no markdown, no code fences, no explanations.
+2. Use Tailwind CSS via CDN for styling.
+3. TYPOGRAPHY: Use a distinctive font pair. Use a Serif font (e.g., 'Playfair Display' or 'Instrument Serif') for headings and a clean Sans-serif (e.g., 'Inter' or 'DM Sans') for body text. 
+4. SPACING: Use generous negative space. Avoid cramped layouts. Use py-24 or py-32 for sections.
+5. VISUAL HIERARCHY: Use asymmetric layouts, overlapping elements, and subtle glassmorphism (backdrop-blur).
+6. RADIUS: Use large border-radius (rounded-2xl or rounded-3xl) for cards and buttons.
+7. ANIMATIONS: Include subtle entry animations using Tailwind's animate- classes or simple CSS transitions.
+8. MOBILE-FIRST: Ensure perfectly responsive layouts. Stack columns on mobile (flex-col), use grid-cols-1 md:grid-cols-2 etc.
+9. FORMS: Include a premium-looking form with action="https://formspree.io/f/placeholder" method="POST".
 
 COLOR SCHEME (use these exact colors):
-- Background: ${colors.background}
-- Surface/Cards: ${colors.surface}
-- Primary (buttons, links): ${colors.primary}
+- Background: ${colors.background} (Use this for the main body bg)
+- Surface/Cards: ${colors.surface} (Use for cards with subtle borders)
+- Primary (buttons): ${colors.primary} (Use for main CTAs)
 - Secondary: ${colors.secondary}
 - Accent: ${colors.accent}
 - Text: ${colors.text}
 - Muted text: ${colors.textMuted}
-- Borders: ${colors.border}
+- Borders: ${colors.border} (Use very subtle borders, e.g., border-white/10)
 
-TYPOGRAPHY:
-- Font: ${fontFamily}
-- Ensure good contrast and readability
-- Use proper heading hierarchy (h1 > h2 > h3)
-
-MOBILE RESPONSIVENESS:
-- Stack columns on mobile, side-by-side on desktop
-- Ensure touch targets are at least 44x44px
-- Text should be readable without zooming (min 16px base)
-- Forms should be easy to fill on mobile
-
-FORM HANDLING (for lead capture templates):
-- Include name and email fields
-- Use proper input types (type="email")
-- Include honeypot field for spam: <input type="text" name="_gotcha" style="display:none">
-- Submit button should be prominent
-
-IMPORTANT: Start your response directly with <!DOCTYPE html>`;
+IMPORTANT: Start your response directly with <!DOCTYPE html> and include all necessary head tags.`;
 
     const userPrompt = buildUserPrompt(template.id as TemplateId, brandDNA, colors, fontFamily, isDark);
 
@@ -156,6 +142,7 @@ IMPORTANT: Start your response directly with <!DOCTYPE html>`;
       // Try to find the start of valid HTML
       const doctypeIndex = html.indexOf('<!DOCTYPE');
       const htmlIndex = html.indexOf('<html');
+
       if (doctypeIndex > 0) {
         html = html.substring(doctypeIndex);
       } else if (htmlIndex > 0) {
@@ -197,13 +184,13 @@ function buildUserPrompt(
   brandDNA: BrandDNA,
   colors: Record<string, string>,
   fontFamily: string,
-  isDark: boolean
+  isDark: boolean,
 ): string {
   // Get marketing frameworks for this template type
   const skillContext = getSkillContext(templateId);
   const avatarContext = buildAvatarContext(brandDNA.idealCustomer, brandDNA.problemSolved);
   const bigIdeaContext = buildBigIdeaContext(brandDNA.differentiators);
-  
+
   const baseContext = `
 ${skillContext}
 

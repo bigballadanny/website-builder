@@ -47,10 +47,12 @@ export class EnhancedStreamingMessageParser extends StreamingMessageParser {
     // If no artifacts were detected, check for code blocks that should be files
     if (!hasArtifacts) {
       console.log('[PARSER] 🔍 No artifacts detected, checking for code blocks...');
+
       const enhancedInput = this._detectAndWrapCodeBlocks(messageId, input);
 
       if (enhancedInput !== input) {
         console.log('[PARSER] 🔄 Enhanced input detected, reparsing...');
+
         // Reset and reparse with enhanced input
         this.reset();
         output = super.parse(messageId, enhancedInput);

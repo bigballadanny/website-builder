@@ -1,0 +1,55 @@
+<svg width="400" height="250" viewBox="0 0 400 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient feel -->
+  <rect width="400" height="250" fill="#0a1628"/>
+  <circle cx="200" cy="125" r="150" fill="#3b82f6" opacity="0.05"/>
+  <circle cx="200" cy="125" r="100" fill="#3b82f6" opacity="0.05"/>
+  
+  <!-- Centered minimal layout -->
+  <!-- Logo placeholder -->
+  <rect x="175" y="25" width="50" height="20" rx="4" fill="#3b82f6"/>
+  <text x="200" y="38" font-family="system-ui" font-size="8" fill="white" text-anchor="middle" font-weight="bold">LOGO</text>
+  
+  <!-- Coming Soon text -->
+  <text x="200" y="70" font-family="system-ui" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Coming Soon</text>
+  
+  <!-- Tagline -->
+  <rect x="90" y="80" width="220" height="8" rx="2" fill="#94a3b8"/>
+  <rect x="110" y="93" width="180" height="5" rx="1" fill="#64748b"/>
+  
+  <!-- Countdown timer -->
+  <g transform="translate(85, 110)">
+    <rect x="0" y="0" width="50" height="40" rx="4" fill="#132743"/>
+    <text x="25" y="25" font-family="system-ui" font-size="16" fill="white" text-anchor="middle" font-weight="bold">14</text>
+    <text x="25" y="36" font-family="system-ui" font-size="6" fill="#64748b" text-anchor="middle">DAYS</text>
+    
+    <rect x="60" y="0" width="50" height="40" rx="4" fill="#132743"/>
+    <text x="85" y="25" font-family="system-ui" font-size="16" fill="white" text-anchor="middle" font-weight="bold">08</text>
+    <text x="85" y="36" font-family="system-ui" font-size="6" fill="#64748b" text-anchor="middle">HOURS</text>
+    
+    <rect x="120" y="0" width="50" height="40" rx="4" fill="#132743"/>
+    <text x="145" y="25" font-family="system-ui" font-size="16" fill="white" text-anchor="middle" font-weight="bold">23</text>
+    <text x="145" y="36" font-family="system-ui" font-size="6" fill="#64748b" text-anchor="middle">MINS</text>
+    
+    <rect x="180" y="0" width="50" height="40" rx="4" fill="#132743"/>
+    <text x="205" y="25" font-family="system-ui" font-size="16" fill="white" text-anchor="middle" font-weight="bold">47</text>
+    <text x="205" y="36" font-family="system-ui" font-size="6" fill="#64748b" text-anchor="middle">SECS</text>
+  </g>
+  
+  <!-- Email signup -->
+  <rect x="100" y="165" width="130" height="24" rx="4" fill="#132743"/>
+  <text x="115" y="180" font-family="system-ui" font-size="8" fill="#64748b">Enter your email</text>
+  <rect x="235" y="165" width="65" height="24" rx="4" fill="#3b82f6"/>
+  <text x="267" y="180" font-family="system-ui" font-size="8" fill="white" text-anchor="middle" font-weight="500">Notify Me</text>
+  
+  <!-- Social links -->
+  <circle cx="170" cy="210" r="12" fill="#132743"/>
+  <circle cx="200" cy="210" r="12" fill="#132743"/>
+  <circle cx="230" cy="210" r="12" fill="#132743"/>
+  <!-- Social icons simplified -->
+  <rect x="166" y="206" width="8" height="8" rx="1" fill="#3b82f6"/>
+  <rect x="196" y="206" width="8" height="8" rx="1" fill="#3b82f6"/>
+  <rect x="226" y="206" width="8" height="8" rx="1" fill="#3b82f6"/>
+  
+  <!-- Label -->
+  <text x="200" y="242" font-family="system-ui" font-size="9" fill="#94a3b8" text-anchor="middle" font-weight="500">Coming Soon Page</text>
+</svg>
