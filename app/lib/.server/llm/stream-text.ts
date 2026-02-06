@@ -43,7 +43,31 @@ function getCompletionTokenLimit(modelDetails: any): number {
   return Math.min(MAX_TOKENS, 16384);
 }
 
-function sanitizeText(text: string): string {
+function sanitizeText(text: string | any): string {
+  // Handle non-string content (e.g., Anthropic content block arrays)
+  if (typeof text !== 'string') {
+    if (Array.isArray(text)) {
+      // Extract text from content block arrays like [{type: 'text', text: '...'}]
+      return sanitizeText(
+        text
+          .map((block: any) => {
+            if (typeof block === 'string') return block;
+            if (block?.type === 'text' && typeof block.text === 'string') return block.text;
+            return '';
+          })
+          .join(''),
+      );
+    }
+
+    // If it's an object with a text property, use that
+    if (text && typeof text === 'object' && typeof text.text === 'string') {
+      return sanitizeText(text.text);
+    }
+
+    // Last resort: convert to string
+    return String(text || '');
+  }
+
   let sanitized = text.replace(/<div class=\\"__boltThought__\\">.*?<\/div>/s, '');
   sanitized = sanitized.replace(/<think>.*?<\/think>/s, '');
   sanitized = sanitized.replace(/<boltAction type="file" filePath="package-lock\.json">[\s\S]*?<\/boltAction>/g, '');
