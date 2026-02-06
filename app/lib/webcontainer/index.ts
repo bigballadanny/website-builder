@@ -24,6 +24,9 @@ if (!import.meta.env.SSR) {
     Promise.resolve()
       .then(() => {
         console.log('[WebContainer] 🚀 Booting WebContainer...');
+        console.log('[WebContainer] 📋 Browser:', navigator.userAgent);
+        console.log('[WebContainer] 📋 SharedArrayBuffer available:', typeof SharedArrayBuffer !== 'undefined');
+        console.log('[WebContainer] 📋 crossOriginIsolated:', crossOriginIsolated);
         return WebContainer.boot({
           coep: 'credentialless',
           workdirName: WORK_DIR_NAME,
@@ -46,9 +49,13 @@ if (!import.meta.env.SSR) {
 
         const { workbenchStore } = await import('~/lib/stores/workbench');
 
-        const response = await fetch('/inspector-script.js');
-        const inspectorScript = await response.text();
-        await wc.setPreviewScript(inspectorScript);
+        try {
+          const response = await fetch('/inspector-script.js');
+          const inspectorScript = await response.text();
+          await wc.setPreviewScript(inspectorScript);
+        } catch (err) {
+          console.warn('[WebContainer] ⚠️ Failed to load inspector script:', err);
+        }
 
         // Listen for preview errors
         wc.on('preview-message', (message) => {
@@ -69,6 +76,16 @@ if (!import.meta.env.SSR) {
         });
 
         return wc;
+      })
+      .catch((err) => {
+        console.error('[WebContainer] ❌ BOOT FAILED:', err);
+        console.error('[WebContainer] 📋 crossOriginIsolated:', typeof crossOriginIsolated !== 'undefined' ? crossOriginIsolated : 'N/A');
+        console.error('[WebContainer] 📋 SharedArrayBuffer:', typeof SharedArrayBuffer !== 'undefined');
+        console.error('[WebContainer] This usually means:');
+        console.error('[WebContainer]   1. Headers COOP/COEP are missing');
+        console.error('[WebContainer]   2. Browser does not support SharedArrayBuffer');
+        console.error('[WebContainer]   3. Another WebContainer instance is already running in another tab');
+        throw err;
       });
 
   if (import.meta.hot) {
